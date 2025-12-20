@@ -1,11 +1,14 @@
 **Creating an AI Digest**
+
 We are updating a digest of several topics, served in the style of a classic newspaper.
 Topics to cover: latest AI models, context engineering, AI tool ecosystem, AI case studies, AI workflows, AI agents, diffusion, self-hosting, local LLMs.
 
 **Updating an existing project**
+
 Important: We are updating an existing project. Update the content, but make sure to respect and keep the newspaper design. Keep the links you find handy for linking titles in the next steps.
 
 **Newspaper structure**
+
 First, fancy title bar - where it says Vol. <vol num>,  No. <issue num>, increment the issue number. The date should show today's date.
 Then, a section with today's BIG MAIN stories (1 or 2): these are the biggest, most important news of the day and can cover anything related to AI including AI-related companies like Nvidia - summarize each story shortly in a journalistic style, and give them ample room.
 Then the newpaper has a grid of items from YouTube with their main takeaways summarized (you can get this from the video captions), make sure each item title leads to the video directly.
@@ -14,4 +17,5 @@ The next section should cover 4-6 news items related to AI tooling: new framewor
 Then close the page a list of the top 20 HackerNews items and their gist. Make sure every item leads to the HN post directly.
 
 **Commit your work**
+
 You are operating within a git repository, which is already configured with access. When done, commit your changes.
