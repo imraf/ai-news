@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Gradient Descent: Dec 21, 2025</title>
+    <title>The Gradient Descent: Dec 20, 2025</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap');
 
@@ -42,14 +42,16 @@
 
         h1.masthead {
             font-family: 'Playfair Display', serif;
-            font-size: 4.5rem;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: -2px;
             margin: 0;
             line-height: 1;
-        }
 
+            /* Responsive font size */
+            font-size: clamp(2.2rem, 8vw, 4.5rem);
+        }
+        
         .meta-bar {
             border-top: 1px solid var(--ink-black);
             border-bottom: 1px solid var(--ink-black);
@@ -61,6 +63,42 @@
             font-style: italic;
             font-weight: 700;
             font-size: 0.9rem;
+        }
+
+        /* --- Main Stories --- */
+        .main-stories {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid var(--ink-black);
+        }
+
+        .main-story h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            line-height: 1.1;
+            margin: 0 0 15px 0;
+        }
+
+        .main-story h2 a {
+            text-decoration: none;
+            color: var(--ink-black);
+        }
+
+        .main-story h2 a:hover {
+            text-decoration: underline;
+        }
+
+        .main-story .lead {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        @media (max-width: 768px) {
+            .main-stories { grid-template-columns: 1fr; }
         }
 
         /* --- Grid Layouts --- */
@@ -191,49 +229,60 @@
     <header>
         <h1 class="masthead">The Gradient Descent</h1>
         <div class="meta-bar">
-            <span>Vol. 302, No. 19</span>
-            <span>Sunday, December 21, 2025</span>
+            <span>Vol. 302, No. 20</span>
+            <span>Saturday, December 20, 2025</span>
             <span>Tel Aviv / New York / Tokyo</span>
         </div>
     </header>
 
-    <div class="section-header">Video Report: Trends & Tutorials</div>
+    <div class="main-stories">
+        <div class="main-story">
+            <h2><a href="https://blog.google/technology/ai/gemini-3-flash">Google Unveils Gemini 3 Flash: Speed Meets Intelligence</a></h2>
+            <p class="lead">Google strikes back in the efficiency wars with Gemini 3 Flash. Boasting a 1-million token context window and a new "Thinking Levels" feature, it promises to democratize agentic coding. Benchmarks verify a 78% score on SWE-bench, challenging the dominance of heavier "Pro" models while slashing inference costs.</p>
+        </div>
+        <div class="main-story">
+            <h2><a href="https://openai.com/atlas">OpenAI Launches "Atlas" Browser: The Web, reimagined</a></h2>
+            <p class="lead">The browser wars have reignited. OpenAI's "Atlas" integrates ChatGPT deeply into the browsing experience, featuring an experimental "Agent Mode" that can autonomously navigate websites to book flights or fill forms. With "Browser Memories," it contextualizes your entire history, raising both productivity hopes and privacy eyebrows.</p>
+        </div>
+    </div>
+
+    <div class="section-header">Video Report: New & Trending</div>
     <div class="grid-container">
         <div class="card">
-            <span class="card-tag">Latest Models</span>
-            <h3><a href="https://www.youtube.com/watch?v=claude4opus">Claude 4 Opus: The New King?</a></h3>
-            <p class="summary">Anthropic's latest release, Claude 4 Opus, claims to outperform Gemini 3 on deep reasoning tasks. Early benchmarks suggest a massive leap in coding capabilities.</p>
-            <div class="takeaway"><strong>Takeaway:</strong> The leaderboard remains volatile. Specialization in reasoning is becoming the key differentiator for top-tier models.</div>
+            <span class="card-tag">Benchmarks</span>
+            <h3><a href="https://www.youtube.com/results?search_query=gemini+3+flash+benchmarks">Gemini 3 Flash vs. Pro</a></h3>
+            <p class="summary">A deep dive into the new Flash model. It's 3x faster than Gemini 2.5 Pro and matches it on reasoning. Is the "Pro" tier obsolete?</p>
+            <div class="takeaway"><strong>Takeaway:</strong> Efficiency is the new king. For 90% of tasks, the "Flash" tier is now sufficient, signaling a massive drop in AI application costs.</div>
         </div>
         <div class="card">
-            <span class="card-tag">AI Agents</span>
-            <h3><a href="https://www.youtube.com/watch?v=autogpt5swarm">AutoGPT 5.0: Swarm Intelligence</a></h3>
-            <p class="summary">The new AutoGPT update introduces "Hive Mind," allowing multiple specialized agents to collaborate on complex projects without human intervention.</p>
-            <div class="takeaway"><strong>Takeaway:</strong> Single agents are being replaced by agentic swarms. Collaboration protocols are the new frontier.</div>
+            <span class="card-tag">First Look</span>
+            <h3><a href="https://www.youtube.com/results?search_query=openai+atlas+browser+review">Atlas Browser: Chrome Killer?</a></h3>
+            <p class="summary">Reviewers test the "Agent Mode" in OpenAI's new browser. It successfully planned a vacation across 3 distinct booking sites without human input.</p>
+            <div class="takeaway"><strong>Takeaway:</strong> The browser is becoming an operating system. Agents that "do" rather than just "chat" are finally consumer-ready.</div>
         </div>
         <div class="card">
-            <span class="card-tag">Diffusion</span>
-            <h3><a href="https://www.youtube.com/watch?v=sd4video">Stable Diffusion 4: Video is Here</a></h3>
-            <p class="summary">Stability AI's SD4 now supports native text-to-video generation with consistent character models, challenging proprietary tools like Sora.</p>
-            <div class="takeaway"><strong>Takeaway:</strong> Open-source video generation is finally viable for indie creators, lowering the barrier to entry for film production.</div>
+            <span class="card-tag">Hardware</span>
+            <h3><a href="https://www.youtube.com/results?search_query=alibaba+quark+glasses+hands+on">Living with Quark AI Glasses</a></h3>
+            <p class="summary">Hands-on with Alibaba's Qwen-powered glasses. Real-time translation and object recognition in a form factor that looks like normal eyewear.</p>
+            <div class="takeaway"><strong>Takeaway:</strong> Multimodal AI is leaving the phone. "Always-on" context via wearables is the next big data frontier.</div>
         </div>
         <div class="card">
-            <span class="card-tag">Local LLMs</span>
-            <h3><a href="https://www.youtube.com/watch?v=rtx5090llama4">Running Llama 4 on RTX 5090</a></h3>
-            <p class="summary">Hardware reviewers test the limits of the new Nvidia RTX 5090. With 48GB VRAM, it can run 70B parameter models at surprising speeds.</p>
-            <div class="takeaway"><strong>Takeaway:</strong> Consumer hardware is catching up. High-fidelity local inference is now possible for prosumers.</div>
+            <span class="card-tag">Policy</span>
+            <h3><a href="https://www.youtube.com/results?search_query=trump+ai+executive+order+2025">Trump's AI Executive Order</a></h3>
+            <p class="summary">Legal experts break down the new "Federal Supremacy" order. It aims to preempt state-level AI regulations like the Colorado AI Act.</p>
+            <div class="takeaway"><strong>Takeaway:</strong> Regulation is centralizing. The administration favors a "minimally burdensome" national framework to win the global AI race.</div>
         </div>
         <div class="card">
-            <span class="card-tag">AI Workflows</span>
-            <h3><a href="https://www.youtube.com/watch?v=cursorvswindsurf">The IDE War: Cursor vs Windsurf</a></h3>
-            <p class="summary">A comparison of the top AI-native IDEs in 2025. "Agentic" features that edit across multiple files are now standard.</p>
-            <div class="takeaway"><strong>Takeaway:</strong> The IDE has evolved from a text editor to a project manager. Developers are becoming architects.</div>
+            <span class="card-tag">Local LLM</span>
+            <h3><a href="https://www.youtube.com/results?search_query=deepseek+v3.2+reasoning">DeepSeek V3.2: Math Wizard</a></h3>
+            <p class="summary">Testing the new 685B reasoning model. It achieved gold-medal performance at the IMO, challenging proprietary models from OpenAI and Google.</p>
+            <div class="takeaway"><strong>Takeaway:</strong> Open weights are catching up on "reasoning" tasks, not just general knowledge. Specialized architectures are winning.</div>
         </div>
         <div class="card">
-            <span class="card-tag">Context Engineering</span>
-            <h3><a href="https://www.youtube.com/watch?v=infinitecontextrag">RAG is Dead? Infinite Context Explained</a></h3>
-            <p class="summary">With 10M+ token windows becoming common, this video explores whether Retrieval Augmented Generation (RAG) is still necessary.</p>
-            <div class="takeaway"><strong>Takeaway:</strong> While context grows, RAG remains efficient for cost and latency. The hybrid approach is the winner.</div>
+            <span class="card-tag">Robotics</span>
+            <h3><a href="https://www.youtube.com/results?search_query=google+gemini+robotics">Gemini for Robots</a></h3>
+            <p class="summary">Google demonstrates how Gemini's multimodal capabilities are being used to train robots for complex household chores in simulation.</p>
+            <div class="takeaway"><strong>Takeaway:</strong> The bridge between LLMs and physical world interaction (Sim2Real) is strengthening rapidly.</div>
         </div>
     </div>
 
@@ -241,146 +290,186 @@
     <div class="grid-container">
         <div class="card">
             <span class="card-tag">r/LocalLLaMA</span>
-            <h3><a href="https://www.reddit.com/r/LocalLLaMA/comments/llama4_405b_mac_studio/">Llama 4 405B on Mac Studio?</a></h3>
-            <p class="summary">Users are experimenting with extreme quantization to fit Meta's massive 405B model onto Apple Silicon Mac Studios.</p>
+            <h3><a href="https://www.reddit.com/r/LocalLLaMA/search/?q=deepseek+v3.2">DeepSeek V3.2 on Consumer Hardware?</a></h3>
+            <p class="summary">The community discusses quantization strategies for the massive 685B DeepSeek model. Is it possible to run it on dual RTX 5090s?</p>
             <div class="community-pulse">
                 <span class="pulse-label">THE GIST:</span> <br>
-                It works, but barely. The community is amazed at the efficiency of Apple's unified memory architecture for AI.
-            </div>
-        </div>
-        <div class="card">
-            <span class="card-tag">r/SelfHosted</span>
-            <h3><a href="https://www.reddit.com/r/selfhosted/comments/offline_voice_assistant_whisper_v4/">Offline Voice Assistant Perfection</a></h3>
-            <p class="summary">A guide on integrating Whisper V4 with Home Assistant for a completely private, cloud-free voice control system.</p>
-            <div class="community-pulse">
-                <span class="pulse-label">THE GIST:</span> <br>
-                Privacy enthusiasts are thrilled. Zero latency and zero data leaks make this the "holy grail" of smart homes.
+                Only with extreme quantization. Most are renting cloud GPUs, but the reasoning capability is hailed as "SOTA" for open weights.
             </div>
         </div>
         <div class="card">
             <span class="card-tag">r/Singularity</span>
-            <h3><a href="https://www.reddit.com/r/singularity/comments/openai_stargate_supercomputer_rumors/">The "Stargate" Supercomputer Rumors</a></h3>
-            <p class="summary">Discussion heats up around the leaked plans for a $100B AI data center project code-named "Stargate".</p>
+            <h3><a href="https://www.reddit.com/r/singularity/search/?q=openai+atlas+agent">Atlas "Agent Mode" and AGI</a></h3>
+            <p class="summary">Debate rages: Does a browser that can autonomously navigate the web constitute a step towards AGI, or is it just better scripting?</p>
             <div class="community-pulse">
                 <span class="pulse-label">THE GIST:</span> <br>
-                A mix of awe and fear. Does this mean AGI is imminent, or just that scaling laws are hitting diminishing returns?
+                Excitement mixed with unemployment fears. If the browser can "do the work," what happens to the knowledge worker?
+            </div>
+        </div>
+        <div class="card">
+            <span class="card-tag">r/SelfHosted</span>
+            <h3><a href="https://www.reddit.com/r/selfhosted/search/?q=nemotron+home+assistant">Nemotron 3 Nano for Home Lab</a></h3>
+            <p class="summary">Enthusiasts are replacing cloud assistants with NVIDIA's efficient Nemotron 3 Nano (30B) for local home automation control.</p>
+            <div class="community-pulse">
+                <span class="pulse-label">THE GIST:</span> <br>
+                It's the new standard for local privacy. Fast, capable, and runs on a single GPU. Cloud assistants are being unplugged.
             </div>
         </div>
         <div class="card">
             <span class="card-tag">r/MachineLearning</span>
-            <h3><a href="https://www.reddit.com/r/MachineLearning/comments/mamba3_architecture_discussion/">Mamba-3: The End of Transformers?</a></h3>
-            <p class="summary">Researchers discuss the new Mamba-3 architecture, which offers linear scaling and could replace Transformers for long sequences.</p>
+            <h3><a href="https://www.reddit.com/r/MachineLearning/search/?q=rlvr+training">RLVR: The New Training Meta</a></h3>
+            <p class="summary">Discussion on "Reinforcement Learning from Verifiable Rewards." Is this the key to breaking the data wall for reasoning models?</p>
             <div class="community-pulse">
                 <span class="pulse-label">THE GIST:</span> <br>
-                Cautious optimism. Efficiency is key, and SSMs (State Space Models) are proving to be a viable alternative.
+                Consensus is yes. Generating synthetic data with verifiable correctness (math/code) is scaling models beyond human text data.
             </div>
         </div>
         <div class="card">
             <span class="card-tag">r/StableDiffusion</span>
-            <h3><a href="https://www.reddit.com/r/StableDiffusion/comments/controlnet_sd4_release/">ControlNet for SD4 is Here</a></h3>
-            <p class="summary">The community celebrates the release of ControlNet adapters for Stable Diffusion 4, restoring precise composition control.</p>
+            <h3><a href="https://www.reddit.com/r/StableDiffusion/search/?q=zhipu+glm+4.6v">Zhipu GLM-4.6V for Vision</a></h3>
+            <p class="summary">Users are experimenting with Zhipu's new vision-language model for image analysis and generation workflows.</p>
             <div class="community-pulse">
                 <span class="pulse-label">THE GIST:</span> <br>
-                Relief. SD4 was powerful but uncontrollable; ControlNet makes it a professional tool again.
+                Impressive "understanding" of images. It's not just generating pixels; it's understanding the scene structure better than CLIP.
             </div>
         </div>
         <div class="card">
             <span class="card-tag">r/ChatGPT</span>
-            <h3><a href="https://www.reddit.com/r/ChatGPT/comments/gpt5_gobi_rollout_impressions/">GPT-5 "Gobi" First Impressions</a></h3>
-            <p class="summary">Early access users share their experiences with the gradual rollout of OpenAI's GPT-5, code-named "Gobi".</p>
+            <h3><a href="https://www.reddit.com/r/ChatGPT/search/?q=atlas+browser+privacy">Atlas Browser Privacy Concerns</a></h3>
+            <p class="summary">Users dig into the "Browser Memories" feature. OpenAI says it's secure, but the idea of a browser remembering *everything* is polarizing.</p>
             <div class="community-pulse">
                 <span class="pulse-label">THE GIST:</span> <br>
-                It's "smarter", but not magic. The jump feels smaller than GPT-3 to GPT-4, focusing more on reliability than creativity.
+                Convenience vs. Privacy. Many are disabling the feature immediately, while others call it the ultimate productivity hack.
             </div>
+        </div>
+    </div>
+
+    <div class="section-header">AI Tooling Ecosystem</div>
+    <div class="grid-container">
+        <div class="card">
+            <span class="card-tag">Game Dev</span>
+            <h3><a href="https://roblox.com">Roblox Studio AI</a></h3>
+            <p class="summary">Roblox integrates generative AI directly into its Studio, allowing creators to build 3D assets and scripts via natural language prompts.</p>
+            <div class="takeaway"><strong>Update:</strong> Democratizing game dev. Kids are now "prompt engineering" entire game levels.</div>
+        </div>
+        <div class="card">
+            <span class="card-tag">Retail</span>
+            <h3><a href="https://www.zara.com">Zara's AI Workflow</a></h3>
+            <p class="summary">Zara deploys a new AI-driven supply chain tool that predicts fashion trends and adjusts manufacturing in real-time.</p>
+            <div class="takeaway"><strong>Update:</strong> Hyper-efficiency. The time from "trend detection" to "store shelf" is faster than ever.</div>
+        </div>
+        <div class="card">
+            <span class="card-tag">Agents</span>
+            <h3><a href="https://blog.google/technology/ai/google-cc-agent">Google "CC" Agent</a></h3>
+            <p class="summary">Google introduces "CC," an experimental agent dedicated to daily planning and calendar management, proactively resolving conflicts.</p>
+            <div class="takeaway"><strong>Update:</strong> The "Executive Assistant" for everyone. Proactive AI is the next UX paradigm.</div>
+        </div>
+        <div class="card">
+            <span class="card-tag">Edge AI</span>
+            <h3><a href="https://www.amd.com">AMD "Gaia" Stack</a></h3>
+            <p class="summary">AMD releases "Gaia," an open-source software stack to easily run LLMs locally on Windows PCs with Ryzen AI chips.</p>
+            <div class="takeaway"><strong>Update:</strong> Breaking the NVIDIA monopoly. Local inference on consumer laptops is getting a standardized API.</div>
+        </div>
+        <div class="card">
+            <span class="card-tag">Finance</span>
+            <h3><a href="https://www.bnpparibas.com">BNP Paribas AI Analyst</a></h3>
+            <p class="summary">The banking giant rolls out an internal AI tool for investment banking, automating financial report analysis and risk assessment.</p>
+            <div class="takeaway"><strong>Update:</strong> FinTech transformation. Routine analysis is fully automated; bankers focus on strategy.</div>
+        </div>
+        <div class="card">
+            <span class="card-tag">Browser</span>
+            <h3><a href="https://blog.google">Google "Disco"</a></h3>
+            <p class="summary">A new experimental browser from Google that turns user prompts into custom, ephemeral mini-apps on the fly.</p>
+            <div class="takeaway"><strong>Update:</strong> Software 2.0. The app store model is being challenged by "generated" software.</div>
         </div>
     </div>
 
     <div class="section-header">The Hacker News Wire</div>
     <div class="hn-list">
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100101" class="hn-title">Show HN: OpenChat 4 - The first truly open 100B model</a>
-            <div class="hn-meta">A fully open-source model trained on community-curated datasets.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">OpenAI launches Atlas, an AI-native web browser</a>
+            <div class="hn-meta">Integration of ChatGPT deep into the DOM changes how we surf.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100102" class="hn-title">Meta releases PyTorch 3.0 with native NPU support</a>
-            <div class="hn-meta">Optimized for the next generation of neural processing units.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Gemini 3 Flash Technical Report</a>
+            <div class="hn-meta">Details on the architecture delivering 3x speed at 1M context.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100103" class="hn-title">The cost of training a 1T model has dropped 90%</a>
-            <div class="hn-meta">New algorithmic efficiencies are democratizing foundation model training.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Executive Order: "National Policy Framework for AI"</a>
+            <div class="hn-meta">Federal preemption of state AI laws stirs constitutional debate.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100104" class="hn-title">Why we moved from Vector DBs to Infinite Context</a>
-            <div class="hn-meta">An engineering blog post on simplifying the RAG stack.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">DeepSeek-V3.2: 685B parameters, fully open weights</a>
+            <div class="hn-meta">A new milestone for open-source foundation models.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100105" class="hn-title">Agent Protocol: Standardizing AI-to-AI communication</a>
-            <div class="hn-meta">A new spec to allow agents from different providers to work together.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Study: AI compute pollution equaled NYC in 2025</a>
+            <div class="hn-meta">The environmental cost of scaling laws is becoming political.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100106" class="hn-title">Linus Torvalds on AI-generated kernel patches</a>
-            <div class="hn-meta">The creator of Linux shares his thoughts on AI code quality.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Disney invests $1B in OpenAI</a>
+            <div class="hn-meta">Content licensing and creative tools for the entertainment giant.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100107" class="hn-title">Show HN: LocalGPT - Chat with your documents (Rust rewrite)</a>
-            <div class="hn-meta">Blazing fast document QA running entirely on your local machine.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Alibaba Quark Glasses: The first viable AI eyewear?</a>
+            <div class="hn-meta">Qwen integration in a consumer form factor.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100108" class="hn-title">Anthropic publishes "Constitutional AI 2.0" paper</a>
-            <div class="hn-meta">Advancing safety and alignment in autonomous systems.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Show HN: Local Atlas - Open source alternative to OpenAI's browser</a>
+            <div class="hn-meta">Using Llama 4 and local chrome automation.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100109" class="hn-title">Nvidia's monopoly is ending: AMD MI400 benchmarks</a>
-            <div class="hn-meta">AMD's new chip offers competitive performance at half the price.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Why RLVR is the future of reasoning models</a>
+            <div class="hn-meta">moving beyond "next token prediction" to "verified solution paths".</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100110" class="hn-title">The rise of "Small Language Models" (SLMs) on edge devices</a>
-            <div class="hn-meta">Why sub-7B parameter models are the future of mobile AI.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Meta releases Llama 4 8B "Turbo" variant</a>
+            <div class="hn-meta">Optimized for edge devices and mobile inference.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100111" class="hn-title">EU passes "AI Liability Directive"</a>
-            <div class="hn-meta">New regulations holding developers accountable for AI decisions.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Zhipu AI releases GLM-4.6V with native vision</a>
+            <div class="hn-meta">Strong performance on visual reasoning benchmarks.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100112" class="hn-title">Show HN: WebGPU-LLM - Run 70B models in Chrome</a>
-            <div class="hn-meta">Bringing large-scale inference to the browser without plugins.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">AMD's "Gaia" stack for Windows AI development</a>
+            <div class="hn-meta">Finally a competitor to CUDA on consumer Windows machines?</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=36780020" class="hn-title">Stack Overflow traffic down 80% since 2023</a>
-            <div class="hn-meta">The impact of AI coding assistants on traditional developer communities.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Amazon drops AI recap from Fallout after errors</a>
+            <div class="hn-meta">Hallucinations in production are still a solved problem.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100114" class="hn-title">Using AI to design new proteins: A breakthrough</a>
-            <div class="hn-meta">Generative models create enzymes that digest plastic waste.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Roblox Studio adds generative AI for 3D assets</a>
+            <div class="hn-meta">Lowering the barrier to entry for game development.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100115" class="hn-title">OpenAI's "Operator" agent: First impressions</a>
-            <div class="hn-meta">Testing the new agent capable of controlling a computer interface.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">The "Agentic Web" is here</a>
+            <div class="hn-meta">Discussion on how websites must adapt to be read by AI agents.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100116" class="hn-title">The death of the Junior Developer? (Discussion)</a>
-            <div class="hn-meta">How AI is changing the entry-level job market for software engineers.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Google "CC" Agent: A glimpse at proactive assistants</a>
+            <div class="hn-meta">Moving from reactive chat to proactive planning.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=38548174" class="hn-title">Apple releases MLX 2.0 framework</a>
-            <div class="hn-meta">Major updates to Apple's machine learning array framework.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Experts warn of emotional bonds with AI</a>
+            <div class="hn-meta">Psychological impact of "always-on" companions.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100118" class="hn-title">Show HN: A browser that browses for you</a>
-            <div class="hn-meta">Automating web tasks with a local multi-modal agent.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Bank of England governor on AI job displacement</a>
+            <div class="hn-meta">Macro-economic warnings about the speed of automation.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100119" class="hn-title">DeepMind's new robot learns to do house chores in 1 hour</a>
-            <div class="hn-meta">Rapid reinforcement learning in physical environments.</div>
+            <a href="https://news.ycombinator.com" class.hn-title">OpenAI's "Operator" vs Google's "Jarvis"</a>
+            <div class="hn-meta">The battle for computer-using agents heats up.</div>
         </div>
         <div class="hn-item">
-            <a href="https://news.ycombinator.com/item?id=45100120" class="hn-title">Why I'm banning AI code in my production repo</a>
-            <div class="hn-meta">A CTO explains the long-term maintainability risks of generated code.</div>
+            <a href="https://news.ycombinator.com" class="hn-title">Is Prompt Engineering dead?</a>
+            <div class="hn-meta">With "Thinking models" like Gemini 3, prompts matter less.</div>
         </div>
     </div>
 
     <footer>
-        <p>Aggregated Nightly • December 21, 2025</p>
+        <p>Aggregated Nightly • December 20, 2025</p>
     </footer>
 </div>
 
