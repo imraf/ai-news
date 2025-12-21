@@ -18,4 +18,4 @@ Then close the page a list of the top 20 HackerNews items and their gist. Make s
 
 **Commit your work**
 
-You are operating within a git repository, which is already configured with access. When done, commit your changes.
+You are operating within a git repository. When done, commit your work.
