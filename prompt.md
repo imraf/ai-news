@@ -1,11 +1,11 @@
 **Creating an AI Digest**
 
-We are updating a digest of several topics, served in the style of a classic newspaper.
+We are creating a digest of several topics, served in the style of a classic newspaper.
 Topics to cover: latest AI models, context engineering, AI tool ecosystem, AI case studies, AI workflows, AI agents, diffusion, self-hosting, local LLMs.
 
 **Updating an existing project**
 
-Important: We are updating an existing project. Update the content, but make sure to respect and keep the newspaper design. Keep the links you find handy for linking titles in the next steps.
+Important: If an index.html already exists, update the content, but make sure to respect and keep the newspaper design. Keep the links you find handy for linking titles in the next steps.
 
 **Newspaper structure**
 
@@ -18,4 +18,4 @@ Then close the page a list of the top 20 HackerNews items and their gist. Make s
 
 **Commit your work**
 
-You are operating within a git repository. When done, commit your work.
+Output to the file "index.html". You are operating within a git repository. When done, commit your work.
