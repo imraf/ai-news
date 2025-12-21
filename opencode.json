@@ -1,0 +1,9 @@
+{
+    "permission" : {
+        "edit" : "allow",
+        "bash" : "allow",
+        "webfetch" : "allow",
+        "doomloop" : "deny",
+        "external_directory" : "deny"
+    }
+}
