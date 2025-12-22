@@ -19,4 +19,4 @@ Then close the page a list of the top 20 HackerNews items and their gist. Make s
 
 **Commit your work**
 
-Output to the file "index.html" in the repo folder. Do not modify or add files to the prompt folder. You are operating within a git repository. When done, commit your work.
+Output to the file "/repo/index.html". Do not modify or add any other files.
