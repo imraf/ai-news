@@ -3,38 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gradient Descent - Vol. 1, No. 1</title>
+    <title>Gradient Descent - Vol. 1, No. 2</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #f4f4f4;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            border-bottom: 4px double #333;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+        }
+        h1 {
+            font-size: 4em;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .header-meta {
+            display: flex;
+            justify-content: space-between;
+            border-top: 2px solid #333;
+            border-bottom: 2px solid #333;
+            padding: 5px 0;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .header-meta span {
+            padding: 0 10px;
+        }
+        main {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        section {
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+        }
+        h2 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            margin-top: 0;
+            text-transform: uppercase;
+        }
+        h3 {
+            margin-bottom: 5px;
+            font-size: 1.4em;
+        }
+        article {
+            margin-bottom: 20px;
+            border-bottom: 1px dotted #ccc;
+            padding-bottom: 15px;
+        }
+        article:last-child {
+            border-bottom: none;
+        }
+        .main-stories {
+            grid-column: span 2;
+        }
+        .community-stories, .tech-boards, .video-intel, .flair-section {
+            grid-column: span 1;
+        }
+        .flair-section {
+            background-color: #fff8e1; /* Slightly yellowed paper look for flair */
+            border: 1px solid #e0c080;
+        }
+        .source-link {
+            font-size: 0.9em;
+            color: #666;
+            text-decoration: none;
+        }
+        .source-link:hover {
+            text-decoration: underline;
+        }
+        .reporter {
+            font-style: italic;
+            font-size: 0.9em;
+            color: #555;
+            display: block;
+            margin-top: 5px;
+            text-align: right;
+        }
+        .box-item {
+            border: 2px solid #333;
+            padding: 10px;
+            margin-bottom: 15px;
+            background-color: #eee;
+        }
+    </style>
 </head>
 <body>
     <header>
         <h1>Gradient Descent</h1>
-        <div>
-            <span>Vol. 1, No. 1</span> | <span>December 22, 2025</span> | <span>Evening Edition</span> | <span>Cost: 1 Neural Network's Lifetime of Decisions</span>
+        <div class="header-meta">
+            <span>Vol. 1, No. 2</span>
+            <span>December 22, 2025</span>
+            <span>Evening Edition</span>
+            <span>Cost: YOUR ENTIRE GPU CLUSTER (AND YOUR SOUL)</span>
         </div>
     </header>
     <main>
-        <section>
-            <h2>Main Stories</h2>
+        <!-- MAIN STORIES -->
+        <section class="main-stories">
+            <h2>HEADLINES</h2>
             <article>
-                <h3>Uber and Lyft to Trial Chinese Robotaxis in UK (2026)</h3>
-                <p>Uber and Lyft will introduce Baidu's Apollo Go robotaxis in the UK. Millions of driverless rides have already been completed abroad.</p>
-                <a href="https://www.bbc.com/news/articles/cy8jmx1dl9ro">Read more</a>
+                <h3>OpenAI Eyes Historic $830 Billion Valuation</h3>
+                <p>OpenAI is reportedly chasing a staggering $100 billion funding round, which would catapult its valuation to approximately $830 billion. This capital is destined for massive compute infrastructure as the "AI arms race" accelerates into 2026, separating them entirely from other startups.</p>
+                <a class="source-link" href="https://techcrunch.com/2025/12/19/openai-is-reportedly-trying-to-raise-100b-at-an-830b-valuation/">Read Source</a>
+                <span class="reporter">- Chip Carter & Ronnie Cache</span>
             </article>
             <article>
-                <h3>George Osborne Joins OpenAI Leadership</h3>
-                <p>Former UK Chancellor George Osborne named Managing Director at OpenAI. Role focuses on expanding AI innovation in the UK.</p>
-                <a href="https://www.bbc.com/news/articles/cd6xz1jv4ezo">Read more</a>
+                <h3>Yann LeCun's $5B "World Model" Gambit</h3>
+                <p>Meta's Chief AI Scientist Yann LeCun confirms he is launching an independent startup focused on "world models"—AI that understands physical reality, not just text. Seeking a $5 billion valuation, the venture aims to bring common sense and reasoning to AI, marking a significant divergence from the pure LLM approach.</p>
+                <a class="source-link" href="https://techcrunch.com/2025/12/19/yann-lecun-confirms-his-new-world-model-startup-reportedly-seeks-5b-valuation/">Read Source</a>
+                <span class="reporter">- Chip Carter & Ronnie Cache</span>
+            </article>
+             <article>
+                <h3>Google Launches Gemini 3 Flash as Default</h3>
+                <p>Google has officially released "Gemini 3 Flash," a speed-optimized iteration of its flagship model, and immediately made it the default for the Gemini app. The move signals a relentless pace of iteration and a focus on low-latency, high-efficiency user interactions.</p>
+                <a class="source-link" href="https://techcrunch.com/2025/12/17/google-launches-gemini-3-flash-makes-it-the-default-model-in-the-gemini-app/">Read Source</a>
+                <span class="reporter">- Chip Carter & Ronnie Cache</span>
             </article>
         </section>
-        <section>
-            <h2>Community Stories</h2>
-            <p><em>(Placeholder for additional community, tech boards, and video stories)</em></p>
-        </section>
-        <section>
-            <h2>Flair & Humor</h2>
+
+        <!-- COMMUNITY STORIES -->
+        <section class="community-stories">
+            <h2>Community Intel</h2>
             <article>
-                <h3>Generative AI Prompts and Thinking Skills</h3>
-                <p>"Experts say we're overusing AI and losing our creativity. Personally, I asked ChatGPT to write this comment, so who are we to point fingers?"</p>
+                <h3>GLM-4.7 Drops with an AMA</h3>
+                <p>Z.ai has released GLM-4.7, causing waves in the open weights community. The lab is hosting an AMA to answer questions about architecture and performance. Available now on HuggingFace.</p>
+                <a class="source-link" href="https://www.reddit.com/r/LocalLLaMA/comments/1pt5heq/glm_47_is_out_on_hf/">Read Source</a>
+                <span class="reporter">- Ada Kernel</span>
+            </article>
+            <article>
+                <h3>Soprano-80M: Blazing Fast TTS</h3>
+                <p>A new ultra-lightweight Text-to-Speech model, Soprano-80M, streams in under 15ms and fits in under 1GB of VRAM. A game-changer for low-resource local voice agents.</p>
+                <a class="source-link" href="https://www.reddit.com/r/LocalLLaMA/comments/1pt3sco/i_made_soprano80m_stream_ultrarealistic_tts_in/">Read Source</a>
+                <span class="reporter">- Ada Kernel</span>
+            </article>
+             <article>
+                <h3>Apple's SHARP 3D Generation</h3>
+                <p>Apple quietly released "SHARP," a model generating photorealistic 3D Gaussian representations from a single image in seconds. Huge for game devs and VR enthusiasts.</p>
+                <a class="source-link" href="https://www.reddit.com/r/LocalLLaMA/comments/1poy0lb/apple_introduces_sharp_a_model_that_generates_a/">Read Source</a>
+                <span class="reporter">- Ada Kernel</span>
+            </article>
+             <article>
+                <h3>Wan SCAIL Domination in Video Gen</h3>
+                <p>The Stable Diffusion community is buzzing about "Wan SCAIL," now considered a top contender for video and motion generation, beating previous favorites in consistency.</p>
+                <a class="source-link" href="https://www.reddit.com/r/StableDiffusion/comments/1pp4ghq/wan_scail_is_top/">Read Source</a>
+                <span class="reporter">- Ada Kernel</span>
+            </article>
+             <article>
+                <h3>"Something Important is Missing" - Sutskever</h3>
+                <p>Ilya Sutskever tweets that despite scaling, "something important will continue to be missing" from AI, sparking debate on reasoning and consciousness.</p>
+                <a class="source-link" href="https://www.reddit.com/r/MachineLearning/comments/1pnm0r0/d_ilya_sutskevers_latest_tweet/">Read Source</a>
+                <span class="reporter">- Ada Kernel</span>
+            </article>
+        </section>
+
+        <!-- TECH BOARDS -->
+        <section class="tech-boards">
+            <h2>Tech Boards</h2>
+             <article>
+                <h3>US blocks all offshore wind construction</h3>
+                <p>A significant policy shift halting offshore wind projects, citing classified reasons.</p>
+                <a class="source-link" href="https://arstechnica.com/science/2025/01/trump-admin-blocks-all-offshore-wind-construction-says-reason-is-classified/">Read Source</a>
+                <span class="reporter">- Ramsy Bytewell</span>
+            </article>
+            <article>
+                <h3>Claude Code gets native LSP support</h3>
+                <p>Anthropic's coding tool now integrates directly with Language Server Protocols for better code intelligence.</p>
+                <a class="source-link" href="https://github.com/anthropics/claude-code">Read Source</a>
+                <span class="reporter">- Ramsy Bytewell</span>
+            </article>
+             <article>
+                <h3>Flock Exposed Its AI-Powered Cameras</h3>
+                <p>Security researchers discovered they could track vehicle movements nationwide due to exposed infrastructure.</p>
+                <a class="source-link" href="https://www.404media.co/flock-exposed-its-ai-powered-cameras-to-the-open-internet-we-tracked-ourselves/">Read Source</a>
+                <span class="reporter">- Ramsy Bytewell</span>
+            </article>
+             <article>
+                <h3>Debian's Git Transition</h3>
+                <p>A technical look at the Debian project's major infrastructure move to Git for package maintenance.</p>
+                <a class="source-link" href="https://diziet.dreamwidth.org/16896.html">Read Source</a>
+                <span class="reporter">- Ramsy Bytewell</span>
+            </article>
+             <article>
+                <h3>You Can't Opt-Out of Accessibility</h3>
+                <p>A strong argument that digital accessibility is a fundamental right and requirement, not an optional "add-on."</p>
+                <a class="source-link" href="https://vale.rocks/posts/you-cant-opt-out-of-accessibility">Read Source</a>
+                <span class="reporter">- Ramsy Bytewell</span>
+            </article>
+        </section>
+
+         <!-- VIDEO INTEL -->
+         <section class="video-intel">
+            <h2>Video Intel</h2>
+             <article>
+                <h3>Run YOUR own UNCENSORED AI</h3>
+                <p>NetworkChuck demonstrates how to deploy uncensored local LLMs for ethical hacking and penetration testing.</p>
+                <a class="source-link" href="https://www.youtube.com/watch?v=XvGeXQ7js_o">Watch Video</a>
+                <span class="reporter">- Corry Stack</span>
+            </article>
+             <article>
+                <h3>Mistral’s Magistral Model Explained</h3>
+                <p>A deep-dive technical explanation into the architecture and training of Mistral's new "Magistral" model series.</p>
+                <a class="source-link" href="https://www.youtube.com/watch?v=S4EsRyZQKEc">Watch Video</a>
+                <span class="reporter">- Corry Stack</span>
+            </article>
+             <article>
+                <h3>Exo’s RDMA-over-Thunderbolt Demo</h3>
+                <p>Clustering multiple Apple Silicon Mac Studios to run massive models using RDMA over Thunderbolt, rivaling enterprise GPUs.</p>
+                <a class="source-link" href="https://www.youtube.com/watch?v=4l4UWZGxvoc">Watch Video</a>
+                <span class="reporter">- Corry Stack</span>
+            </article>
+        </section>
+
+        <!-- FLAIR & HUMOR -->
+        <section class="flair-section">
+            <h2>The Voltage Column</h2>
+            <div class="box-item">
+                <h3>The "SHARP" Apple?</h3>
+                <p>Apple drops "SHARP" for 3D generation. Finally, something from Apple that isn't just "thin." Rumor has it the next version will be called "FLAT" and cost twice as much.</p>
+                <span class="reporter">- D.C. Voltaire</span>
+            </div>
+             <article>
+                <h3>"Vibe-Coding": The End is Nigh</h3>
+                <p>Lovable raises $330M for "vibe-coding." Because why write functioning software when you can just manifest good vibes? "Error 404: Vibe Not Found. Please light some sage and reboot."</p>
+                <span class="reporter">- D.C. Voltaire</span>
+            </article>
+             <article>
+                <h3>LeCun's World Model</h3>
+                <p>Yann LeCun wants $5 billion for a "world model." I have a world model too; it's called "looking out the window." It's high-resolution, zero-latency, but the NPCs are terrible.</p>
+                <span class="reporter">- D.C. Voltaire</span>
+            </article>
+            <article>
+                <h3>Logging Sucks</h3>
+                <p>"Your logs are lying to you." Finally, validation for my debugging strategy: ignoring the logs and guessing wildly until it works.</p>
+                <span class="reporter">- D.C. Voltaire</span>
+            </article>
+            <article>
+                <h3>Adobe's "Creative" Accounting</h3>
+                <p>Adobe gets sued for training on user data. In their defense, they thought "Creative Cloud" meant they could just cloud their judgment and get creative with your property.</p>
+                <span class="reporter">- D.C. Voltaire</span>
             </article>
         </section>
     </main>
