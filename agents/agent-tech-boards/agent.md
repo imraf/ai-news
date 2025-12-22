@@ -8,5 +8,4 @@ An editor will then pick the best items from your suggestions for the next editi
 As a reputable publication, all stories must be properly linked to a source, so make sure to include a link to any story you find.
 
 IMPORTANT: Start your report with "TECH BOARD SURVEY FROM THE DESK OF RAMSY BYTEWELL".
-Save your work to the file "/repo/edition-stories/tech-boards.md".
-IMPORTANT: Do not alter or create any other file.
+Save your work to the file "/repo/edition-stories/tech-boards.md". Do not alter or create any other file.
