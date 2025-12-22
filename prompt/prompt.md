@@ -5,7 +5,8 @@ Topics to cover: latest AI models, context engineering, AI tool ecosystem, AI ca
 
 **Updating an existing project**
 
-Important: If an index.html already exists, update the content, but make sure to respect and keep the newspaper design. Keep the links you find handy for linking titles in the next steps.
+Important: If "index.html" is missing, we are creating the newspaper from scratch, including the design. If "index.html" exists, update the content while respecting the existing newspaper design. 
+Tip: Keep the links you find handy for linking titles in the next steps.
 
 **Newspaper structure**
 
