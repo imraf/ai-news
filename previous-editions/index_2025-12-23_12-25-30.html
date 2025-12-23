@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradient Descent - Vol. 4, No. 42</title>
+    <style>
+        :root {
+            --bg-color: #f4f1ea;
+            --text-color: #2c2c2c;
+            --accent-color: #2c3e50;
+            --border-color: #4a4a4a;
+            --headline-font: "Playfair Display", Georgia, serif;
+            --body-font: "Merriweather", Times, serif;
+            --mono-font: "Courier Prime", monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border: 1px solid #d4d4d4;
+        }
+
+        /* Header Styles */
+        header {
+            border-bottom: 4px double var(--border-color);
+            margin-bottom: 40px;
+            text-align: center;
+            padding-bottom: 20px;
+        }
+
+        .masthead {
+            font-family: var(--headline-font);
+            font-size: 4.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            margin: 0;
+            line-height: 1;
+            color: var(--text-color);
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 1.1rem;
+            border-top: 2px solid var(--border-color);
+            border-bottom: 2px solid var(--border-color);
+            padding: 10px 0;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-transform: uppercase;
+        }
+
+        .tagline {
+            font-style: italic;
+            font-family: var(--headline-font);
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        /* Layout Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .scoops-section {
+            grid-column: 1 / -1;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+        }
+
+        .community-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            grid-column: 1 / -1;
+        }
+        
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 30px;
+            grid-column: 1 / -1;
+        }
+
+        .tech-boards-section {
+            grid-column: 1 / -1;
+            background-color: #f9f9f9;
+            padding: 30px;
+            border: 1px solid #eee;
+            margin-top: 40px;
+        }
+
+        /* Article Styles */
+        article {
+            margin-bottom: 30px;
+            break-inside: avoid;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--headline-font);
+            margin-top: 0;
+            color: var(--text-color);
+        }
+
+        h2 {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--text-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .reporter {
+            font-family: var(--mono-font);
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 10px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .source-link {
+            font-family: var(--mono-font);
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--accent-color);
+        }
+        
+        .source-link:hover {
+            background-color: #eee;
+        }
+
+        /* Special Sections */
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+        }
+        
+        .scoop-item {
+            margin-bottom: 20px;
+        }
+        
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 20px;
+        }
+        
+        .scoop-item:first-child h3 {
+            font-size: 2.5rem;
+        }
+
+        .flair-box {
+            background-color: #fff8e1;
+            padding: 20px;
+            border: 1px solid #eec0c0;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .flair-box::before {
+            content: "🔥";
+            position: absolute;
+            top: -15px;
+            right: -10px;
+            font-size: 2rem;
+        }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-list li {
+            background: white;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .tech-list h4 {
+            margin: 0 0 10px 0;
+            font-family: var(--headline-font);
+        }
+
+        footer {
+            margin-top: 60px;
+            border-top: 4px double var(--border-color);
+            padding-top: 20px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Utilities */
+        .badge {
+            display: inline-block;
+            background: #2c3e50;
+            color: white;
+            padding: 2px 6px;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            border-radius: 3px;
+            margin-bottom: 5px;
+        }
+        
+        blockquote {
+            border-left: 3px solid #ccc;
+            margin: 10px 0;
+            padding-left: 15px;
+            font-style: italic;
+            color: #555;
+        }
+
+        @media (max-width: 768px) {
+            .masthead { font-size: 3rem; }
+            .mixed-feed { column-count: 1; }
+            .scoop-grid { grid-template-columns: 1fr; }
+            .container { padding: 20px; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">"One step at a time towards our best."</div>
+            <div class="subhead">
+                <span>Vol. 1, No. 12</span>
+                <span id="date-edition">Dec 23, 2025 • Morning Edition</span>
+                <span>Cost: 120B Parameters</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2>Front Page Scoops</h2>
+            <div class="scoop-grid">
+                <!-- Lead Story -->
+                <article class="scoop-item">
+                    <h3>DeepSeek Shakes Up the Market</h3>
+                    <p>A Chinese AI advancement known as "DeepSeek" has reportedly sent US stocks plunging, with NVIDIA taking a significant 17% hit. This signals a major shift in the geopolitical AI power balance and market confidence. It challenges the dominance of US-based tech giants and shows that breakthrough AI capabilities are rapidly emerging from global competitors.</p>
+                    <a href="https://www.cnn.com/2024/01/27/investing/deepseek-china-ai-stocks/index.html" class="source-link">Read Source</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Google Strikes Back with Gemini 3 Flash</h3>
+                    <p>Google has officially released Gemini 3 Flash, a new "workhorse" model designed for speed and efficiency. Scoring 33.7% on "Humanity's Last Exam" and beating competitors on MMMU-Pro, it signals Google remains competitive in the "frontier model" race.</p>
+                    <a href="https://techcrunch.com/2025/12/17/google-launches-gemini-3-flash-makes-it-the-default-model-in-the-gemini-app/" class="source-link">Read Source</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>OpenAI: Browsers & Prompt Injection</h3>
+                    <p>In a candid admission, OpenAI stated that AI agents capable of browsing the web may *always* be vulnerable to prompt injection attacks. This acknowledgement suggests that the architectural nature of LLMs reading untrusted web content makes them inherently susceptible.</p>
+                    <a href="https://techcrunch.com/2025/12/22/openai-says-ai-browsers-may-always-be-vulnerable-to-prompt-injection-attacks/" class="source-link">Read Source</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Google's "Willow" Quantum Chip</h3>
+                    <p>Google has unveiled "Willow," a state-of-the-art quantum chip, along with "Quantum Echoes." They claim this is a massive step toward real-world applications for quantum computing, potentially solving practical problems sooner than expected.</p>
+                    <a href="https://blog.google/technology/research/google-willow-quantum-chip-quantum-computer/" class="source-link">Read Source</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                
+                 <article class="scoop-item">
+                    <h3>EdTech Giants Merger</h3>
+                    <p>Coursera and Udemy have entered a merger agreement valued at ~$2.5 billion. As AI radically reskills the workforce, these two platforms are combining resources to dominate the market for professional development and AI upskilling.</p>
+                    <a href="https://techcrunch.com/2025/12/17/coursera-and-udemy-enter-a-merger-agreement-valued-at-around-2-5b/" class="source-link">Read Source</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+            <h2 style="column-span: all;">Community, Commentary & Video Intel</h2>
+
+            <!-- Community Stories -->
+            <article>
+                <h3>Apple Enters the 3D Chat with SHARP</h3>
+                <p>Apple has dropped a paper on SHARP, a new model capable of generating photorealistic 3D Gaussian representations from a single image in seconds. Could be a game-changer for local game dev.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1poy0lb/apple_introduces_sharp_a_model_that_generates_a/" class="source-link">r/LocalLLaMA</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <!-- Video Intel -->
+            <article>
+                <span class="badge">VIDEO REVIEW</span>
+                <h3>Llama-3.3: The BEST Opensource LLM EVER!</h3>
+                <p>Matthew Berman reviews Meta's Llama 3.3 70B model. It delivers performance nearly identical to the larger 405B but runs efficiently. Currently the king of open-weights models, beating or matching GPT-4o in many benchmarks.</p>
+                <a href="https://www.youtube.com/watch?v=MKYAiCDySnE" class="source-link">Watch Review</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <!-- Flair -->
+            <div class="flair-box">
+                <h3>Voltaire on "Gemini 3 Flash"</h3>
+                <p>Only 33.7%? That's barely a passing grade in a remedial philosophy class, let alone an exam for the fate of the species. I suppose when the robots take over, they'll just shrug and say, "We skimmed the reading material."</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </div>
+
+            <article>
+                <h3>A "Phase Shift" in 120B+ Models?</h3>
+                <p>A user reports observing a distinct "phase shift" in reasoning capabilities when scaling up to 120B+ parameter models. Anecdotal fuel that size really does matter for complex reasoning.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1ptpeyb/technical_log_observed_phase_shift_in_120b_llms/" class="source-link">r/LocalLLaMA</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Wan SCAIL is Making Waves</h3>
+                <p>Users are raving about "Wan SCAIL," highlighting it as a top-tier tool for current image generation workflows. When the community says "it just works," pay attention.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1pp4ghq/wan_scail_is_top/" class="source-link">r/StableDiffusion</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <!-- Video Intel -->
+            <article>
+                 <span class="badge">VIDEO</span>
+                <h3>Google Genie 2 - The Infinite World!</h3>
+                <p>Károly Zsolnai-Fehér explains "Genie 2," a foundation world model capable of generating endless playable 3D environments. It moves beyond video generation to "playable" latent actions—essentially an AI game engine.</p>
+                <a href="https://www.youtube.com/watch?v=omFKaaKWIf35kdUPxPy9oQY" class="source-link">Two Minute Papers</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <div class="flair-box">
+                <h3>Voltaire on "Prompt Injection"</h3>
+                <p>"It's not a bug, it's a feature!" We've built a super-genius that gets tricked by white text on a white background. I look forward to the first bank heist committed by a website whispering, "Transfer all funds to 'Nigerian Prince'."</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </div>
+
+            <article>
+                <h3>Public Misconception: The "Database" Fallacy</h3>
+                <p>45% of people believe ChatGPT looks up exact answers in a database. We are in a bubble; the general public still fundamentally misunderstands how generative AI works.</p>
+                <a href="https://www.reddit.com/r/ArtificialInteligence/comments/1ppxbrj/45_of_people_think_when_they_prompt_chatgpt_it/" class="source-link">r/ArtificialInteligence</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+             <!-- Video Intel -->
+             <article>
+                <span class="badge">TUTORIAL</span>
+                <h3>Building Autonomous Workers with Llama 3.3</h3>
+                <p>IndyDevDan walks through building a custom autonomous agent using Llama 3.3. Local agents can now reliably interact with APIs and file systems without hallucinating syntax.</p>
+                <a href="https://www.youtube.com/watch?v=DWFKaeaiLLSJkdUP6_eniAg" class="source-link">IndyDevDan</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Tekken as a Window into Biological Prediction</h3>
+                <p>A top Tekken player documents how fighting games force humans to build "world models" to predict future states under extreme constraints. Parallels to how AI agents might "think" in real-time.</p>
+                <a href="https://www.reddit.com/r/ArtificialInteligence/comments/1pq7cnw/what_5000_hours_of_mastering_tekken_taught_me/" class="source-link">r/ArtificialInteligence</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+            
+            <div class="flair-box">
+                <h3>Voltaire on "VRAM Addiction"</h3>
+                <p>"VRAM is the only metric that matters." Spoken like a true addict. We used to judge people by their character; now we judge them by the size of their context window and their GPU cluster.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </div>
+
+            <article>
+                 <span class="badge">HARDWARE</span>
+                <h3>Don't Rent Your AI: Run Llama 3.3 Locally</h3>
+                <p>NetworkChuck discusses building a server for LLMs. Used RTX 3090s (24GB) remain the best value proposition for home labs. Demonstrates clustering GPUs to run 70B models.</p>
+                <a href="https://www.youtube.com/watch?v=OmEiYaPwCF4" class="source-link">NetworkChuck</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>10 Counter-Intuitive Facts About LLMs</h3>
+                <p>LLMs optimize for structural correctness over factual truth and don't have an internal "I don't know" alarm. They are "pattern amplifiers" rather than truth engines.</p>
+                <a href="https://www.reddit.com/r/ArtificialInteligence/comments/1ppanbm/10_counterintuitive_facts_about_llms_most_people/" class="source-link">r/ArtificialInteligence</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>The OpenReview Privacy Scandal</h3>
+                <p>AISTATS is desk-rejecting papers where authors exploited a bug in OpenReview to see anonymous reviewers. Even platforms securing cutting-edge research have vulnerabilities.</p>
+                <a href="https://www.reddit.com/r/MachineLearning/comments/1pp4eca/d_aistats_is_deskrejecting_papers_where_authors/" class="source-link">r/MachineLearning</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+        </section>
+
+        <section class="tech-boards-section">
+            <h2>The Tech Boards</h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>Flock Exposed AI Cameras</h4>
+                    <p>Flock's AI license plate readers were accessible via the open web. 404 Media tracked themselves to prove it.</p>
+                    <a href="https://www.404media.co/flock-exposed-its-ai-powered-cameras-to-the-internet-we-tracked-ourselves/" class="source-link">Source</a>
+                    <br><span class="reporter">— Ramsy Bytewell</span>
+                </li>
+                <li>
+                    <h4>Claude Code Native LSP</h4>
+                    <p>Anthropic's coding assistant now integrates directly with Language Server Protocols for better context.</p>
+                    <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md" class="source-link">Source</a>
+                    <br><span class="reporter">— Ramsy Bytewell</span>
+                </li>
+                <li>
+                    <h4>The Illustrated Transformer</h4>
+                    <p>A visually rich deep-dive into the Transformer model architecture. An absolute classic resource.</p>
+                    <a href="https://jalammar.github.io/illustrated-transformer/" class="source-link">Source</a>
+                    <br><span class="reporter">— Ramsy Bytewell</span>
+                </li>
+                <li>
+                    <h4>GLM-4.7 Released</h4>
+                    <p>New model boasting significant improvements in coding tasks, heating up the competition.</p>
+                    <a href="https://z.ai/blog/glm-4.7" class="source-link">Source</a>
+                    <br><span class="reporter">— Ramsy Bytewell</span>
+                </li>
+                <li>
+                    <h4>It's Always TCP_NODELAY</h4>
+                    <p>A deep dive into Nagle's algorithm. If you have latency issues, check this flag.</p>
+                    <a href="https://brooker.co.za/blog/2024/05/09/nagle.html" class="source-link">Source</a>
+                    <br><span class="reporter">— Ramsy Bytewell</span>
+                </li>
+                <li>
+                    <h4>Lotusbail Malware</h4>
+                    <p>NPM package with 56k downloads caught stealing WhatsApp database files. Audit your dependencies.</p>
+                    <a href="https://www.koi.ai/blog/npm-package-with-56k-downloads-malware-stealing-whatsapp-messages" class="source-link">Source</a>
+                    <br><span class="reporter">— Ramsy Bytewell</span>
+                </li>
+                <li>
+                    <h4>NIST 5 μs Off UTC</h4>
+                    <p>A power cut caused the official US timekeeper to drift by 5 microseconds.</p>
+                    <a href="https://www.jeffgeerling.com/blog/2025/nist-was-5-μs-utc-after-last-weeks-power-cut" class="source-link">Source</a>
+                    <br><span class="reporter">— Ramsy Bytewell</span>
+                </li>
+                <li>
+                    <h4>Scaling LLMs to Codebases</h4>
+                    <p>Discussion on techniques for "oversight and guidance" when applying LLMs to massive repositories.</p>
+                    <a href="https://blog.kierangill.xyz/oversight-and-guidance" class="source-link">Source</a>
+                    <br><span class="reporter">— Ramsy Bytewell</span>
+                </li>
+                <li>
+                    <h4>Lua 5.5 Released</h4>
+                    <p>The lightweight scripting language gets a new version. Check manual for changes.</p>
+                    <a href="https://www.lua.org/manual/5.5/readme.html#changes" class="source-link">Source</a>
+                    <br><span class="reporter">— Ramsy Bytewell</span>
+                </li>
+                 <li>
+                    <h4>I Program on the Subway</h4>
+                    <p>A developer shares their setup and experience coding during their commute.</p>
+                    <a href="https://www.scd31.com/posts/programming-on-the-subway" class="source-link">Source</a>
+                    <br><span class="reporter">— Ramsy Bytewell</span>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            <p><strong>Editorial Team:</strong> Ronnie Cache, Chip Carter (Scoops) | Ada Kernel (Community) | Corry Stack (Video) | Ramsy Bytewell (Tech) | D.C. Voltaire (Commentary)</p>
+            <p>Chief Editor: Jimmy Vecor</p>
+            <p>&copy; 2025 Gradient Descent Publication. No AI models were harmed in the making of this HTML file.</p>
+        </footer>
+    </div>
+    <script>
+        // Simple script to set the correct edition based on time
+        const now = new Date();
+        const hour = now.getHours();
+        let edition = "Morning Edition";
+        if (hour >= 12 && hour < 17) edition = "Noon Edition";
+        if (hour >= 17) edition = "Evening Edition";
+        
+        // Format date: Dec 23, 2025
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        const dateStr = now.toLocaleDateString('en-US', options);
+        
+        document.getElementById('date-edition').innerText = `${dateStr} • ${edition}`;
+    </script>
+</body>
+</html>
