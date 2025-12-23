@@ -19,7 +19,7 @@ Your job is to read them and assemble the next edition as follows:
 ** Newspaper Layout **
 
 The existing layout works well, but as the editor you are allowed to arrange the newspaper as you see fit, adhering to these guidelines:
-* On top, fancy title bar - where it says Vol. <vol num>,  No. <issue num>, increment the issue number. The date should show today's date, choose the edition (morning / noon / evening) according to the current time. To the right there should be "Cost: 120B Parameters" (this is a running gag); if "/repo/docs/index.html" is present, respect the existing headmast design.
+* On top, fancy title bar - where it says Vol. <vol num>,  No. <issue num>, increment the issue number. The date should show today's date, choose the edition (morning / noon / evening) according to the current time. To the right there should be "Cost: 96 GB" (this is a running gag); if "/repo/docs/index.html" is present, respect the existing headmast design.
 * Then, a section with today's BIG MAIN stories from the scoops.
 * Then, a large section of items from "community-stories.md", "video.md" and "flair.md". Mix all the items together (no need for sub-sections). Use as many items as you can, in style of an old newspaper. 
 * If you find a particularly funny item in "flair.md", you can give it its own box or a small column.
