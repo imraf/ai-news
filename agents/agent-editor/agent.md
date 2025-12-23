@@ -6,20 +6,25 @@ We are specializing in topics such as: latest AI models, context engineering, AI
 
 ** Content **
 
-Your team provided suggestions for this edition's stories: find them in "/repo/edition-stories" and read them all.
+Your reporters provided stories for this edition: find them in "/repo/edition-stories" and read them all.
 Note that "flair.md" is commentary and humor.
 
 ** Main Goal: Create The New Edition as a Single-File HTML**
 
-Your job is to read them and assemble the next edition:
-* On top, fancy title bar - where it says Vol. <vol num>,  No. <issue num>, increment the issue number. The date should show today's date, choose the edition (morning / noon / evening) according to the current time. There should be a "cost" to the right, which is a running gag - the suggestion from D.C. Voltaire (should be in "flair.md") or come up with your own variation. if "/repo/docs/index.html" is present, respect the existing headmast design.
-* Then, a section with today's BIG MAIN stories (1 or 2): choose from the scoops.
-* Then, mix the best items from "community-stories.md", "tech-boards.md", "video.md" and "flair.md". The layout should match your choice of items. There should be at least 20 items in the newspaper.
-* If you find a particularly funny item in "flair.md", you can give it its own box or a small column.
-
-Notes:
-- finish every item with the reporter's name.
+Your job is to read them and assemble the next edition as follows:
+- Maximize content: use as many items as possible from your reporters.
+- Finish every item with the reporter's name.
 - As a reputable publication, items should have links to the source(s).
+
+** Newspaper Layout **
+
+You may arrange the newspaper as you see fit, adhering to these guidelines:
+* On top, fancy title bar - where it says Vol. <vol num>,  No. <issue num>, increment the issue number. The date should show today's date, choose the edition (morning / noon / evening) according to the current time. To the right there should be "Cost: 120B Parameters" (this is a running gag); if "/repo/docs/index.html" is present, respect the existing headmast design.
+* Then, a section with today's BIG MAIN stories from the scoops.
+* Then, a large section of items from "community-stories.md", "video.md" and "flair.md". Mix all the items together (no need for sub-sections). Use as many items as you can, in style of an old newspaper. 
+* If you find a particularly funny item in "flair.md", you can give it its own box or a small column.
+* The last section should have all items in "tech-boards.md".
+* Closer (footer): Note the team of reporters, yourself, and the Gradient Descent publication.
 
 **OUTPUT**
 
