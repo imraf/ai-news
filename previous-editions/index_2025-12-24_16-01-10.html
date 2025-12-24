@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Gradient Descent</title>
+    <style>
+        :root {
+            --bg-color: #f4f1ea;
+            --text-color: #2c2c2c;
+            --accent-color: #2c3e50;
+            --border-color: #4a4a4a;
+            --headline-font: "Playfair Display", Georgia, serif;
+            --body-font: "Merriweather", Times, serif;
+            --mono-font: "Courier Prime", monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border: 1px solid #d4d4d4;
+        }
+
+        /* Header Styles */
+        header {
+            border-bottom: 4px double var(--border-color);
+            margin-bottom: 40px;
+            text-align: center;
+            padding-bottom: 20px;
+        }
+
+        .masthead {
+            font-family: var(--headline-font);
+            font-size: 4.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            margin: 0;
+            line-height: 1;
+            color: var(--text-color);
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.8rem;
+            border-top: 2px solid var(--border-color);
+            border-bottom: 2px solid var(--border-color);
+            padding: 5px 0;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-transform: uppercase;
+        }
+
+        .tagline {
+            font-style: italic;
+            font-family: var(--headline-font);
+            font-size: 1.0rem;
+            margin-top: 10px;
+        }
+
+        /* Layout Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .scoops-section {
+            grid-column: 1 / -1;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+        }
+
+        .community-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            grid-column: 1 / -1;
+        }
+        
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 30px;
+            grid-column: 1 / -1;
+        }
+
+        .tech-boards-section {
+            grid-column: 1 / -1;
+            background-color: #f9f9f9;
+            padding: 30px;
+            border: 1px solid #eee;
+            margin-top: 40px;
+        }
+
+        /* Article Styles */
+        article {
+            margin-bottom: 30px;
+            break-inside: avoid;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--headline-font);
+            margin-top: 0;
+            color: var(--text-color);
+        }
+
+        h2 {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--text-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .reporter {
+            font-family: var(--mono-font);
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 10px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .source-link {
+            font-family: var(--mono-font);
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--accent-color);
+        }
+        
+        .source-link:hover {
+            background-color: #eee;
+        }
+
+        /* Special Sections */
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+        }
+        
+        .scoop-item {
+            margin-bottom: 20px;
+        }
+        
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 20px;
+        }
+        
+        .scoop-item:first-child h3 {
+            font-size: 2.5rem;
+        }
+
+        .flair-box {
+            background-color: #fff8e1;
+            padding: 20px;
+            border: 1px solid #eec0c0;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .flair-box::before {
+            content: "🔥";
+            position: absolute;
+            top: -15px;
+            right: -10px;
+            font-size: 2rem;
+        }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-list li {
+            background: white;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .tech-list h4 {
+            margin: 0 0 10px 0;
+            font-family: var(--headline-font);
+        }
+
+        footer {
+            margin-top: 60px;
+            border-top: 4px double var(--border-color);
+            padding-top: 20px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Utilities */
+        .badge {
+            display: inline-block;
+            background: #2c3e50;
+            color: white;
+            padding: 2px 6px;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            border-radius: 3px;
+            margin-bottom: 5px;
+        }
+        
+        blockquote {
+            border-left: 3px solid #ccc;
+            margin: 10px 0;
+            padding-left: 15px;
+            font-style: italic;
+            color: #555;
+        }
+
+        @media (max-width: 768px) {
+            .masthead { font-size: 3rem; }
+            .mixed-feed { column-count: 1; }
+            .scoop-grid { grid-template-columns: 1fr; }
+            .container { padding: 20px; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">"One step at a time towards our best."</div>
+            <div class="subhead">
+                <span>Vol. 1, No. 15</span>
+                <span id="date-edition">Dec 24, 2025 • Morning Edition</span>
+                <span>Cost: 96 GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2>Front Page Scoops</h2>
+            <div class="scoop-grid">
+                <!-- Lead Story -->
+                <article class="scoop-item">
+                    <h3>Authors Strike Back: Major Lawsuit Hits AI Giants</h3>
+                    <p>A coalition of authors, including <em>Bad Blood</em> author John Carreyrou, has filed a massive new lawsuit against nearly every major player in the field: Anthropic, Google, OpenAI, Meta, xAI, and Perplexity. The suit accuses them of training models on pirated copies of books. Writers are rejecting "bargain-basement" settlements and seeking to hold companies accountable for the specific act of using stolen data.</p>
+                    <a href="https://techcrunch.com/2025/12/23/john-carreyrou-and-other-authors-bring-new-lawsuit-against-six-major-ai-companies/" class="source-link">Read Source</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Mayer Returns with "Dazzle" ($8M Raise)</h3>
+                    <p>Former Yahoo CEO Marissa Mayer has raised $8M for her new startup, Dazzle, with Forerunner leading the round. High-profile founders returning to the arena is always big news. The involvement of top-tier VC suggests something significant is brewing, likely in the consumer AI or tech space.</p>
+                    <a href="https://techcrunch.com/2025/12/23/marissa-mayers-new-startup-dazzle-raises-8m-led-by-forerunners-kirsten-green/" class="source-link">Read Source</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Alexa+ Evolves: Booking Your Next Trip Just Got Conversational</h3>
+                    <p>Amazon is aggressively expanding its "Alexa+" service by integrating it with major third-party platforms. Starting in 2026, users can book hotels (Expedia), hire contractors (Angi), or book appointments (Square) directly through natural language conversations. This moves Alexa from a simple Q&A bot to an "agent" capable of executing complex real-world tasks.</p>
+                    <a href="https://techcrunch.com/2025/12/23/amazons-ai-assistant-alexa-now-works-with-angi-expedia-square-and-yelp/" class="source-link">Read Source</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Lemon Slice Grabs $10.5M for Better Avatars</h3>
+                    <p>YC-backed Lemon Slice raised $10.5M to build out digital avatar tech. As we move toward more immersive digital experiences, high-fidelity, AI-driven avatars are becoming the critical interface layer. They have developed a proprietary 20-billion-parameter diffusion model capable of generating real-time, interactive video avatars from a single image.</p>
+                    <a href="https://techcrunch.com/2025/12/23/lemon-slice-nabs-10-5m-from-yc-and-matrix-to-build-out-its-digital-avatar-tech/" class="source-link">Read Source</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+            <h2 style="column-span: all;">Community Intel & Video Feed</h2>
+
+            <!-- Flair Items -->
+            <article class="flair-box">
+                <h3>Commentary: Regarding "Vibe Coding"</h3>
+                <p>I saw a video review testing the "vibe check" of the GLM-4.7 coding model. Back in my day, "vibe coding" just meant ignoring all the linter errors until the red squiggly lines formed a festive pattern on your screen. Now we have an AI to hallucinate the syntax errors for us. Progress!</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Commentary: Regarding The Authors Lawsuit</h3>
+                <p>The author of *Bad Blood* is suing AI companies for training on pirated books. He has a point; we can't risk the AI learning too much from the Theranos saga. The last thing we need is a Large Language Model that claims it can run blood tests on a single drop of electricity.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <!-- Community Stories -->
+            <article>
+                <h3>AMA with Z.AI (GLM-4.7 Creators)</h3>
+                <p>The research lab behind the powerful open-source model GLM-4.7, Z.AI, hosted an Ask Me Anything session. This is a prime opportunity for the community to get deep insights into the architecture, training data, and future plans of one of the leading open-source contenders.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1ptxm3x/ama_with_zai_the_lab_behind_glm47/" class="source-link">Read Source</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Apple enters the 3D Arena with SHARP</h3>
+                <p>Apple has introduced "SHARP", a new model capable of generating photorealistic 3D Gaussian representations from a single image in seconds. This is a significant leap for on-device 3D asset creation, potentially revolutionizing mobile AR and VR development.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1poy0lb/apple_introduces_sharp_a_model_that_generates_a/" class="source-link">Read Source</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>How to Install vLLM-Omni Locally | Complete Tutorial</h3>
+                <p>This is a technical deep dive into **vLLM-Omni**, a new model that enables end-to-end speech-to-speech interaction with incredibly low latency. It runs on Llama-3.1-8B-Instruct and supports full duplex communication, meaning you can interrupt it and talk over it naturally. A massive step forward for local voice agents.</p>
+                <a href="https://www.youtube.com/results?search_query=Fahd+Mirza+How+to+Install+vLLM-Omni+Locally" class="source-link">Watch Video</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+             <article>
+                <h3>GLM 4.7 is Out! New AI Coding Partner</h3>
+                <p>Z.AI has dropped **GLM-4.7**, and it's making waves as an open-weights model. The main takeaway is its exceptional capability in programming tasks, effectively rivaling top-tier closed models. If you need a local coding assistant, this is the one to test right now.</p>
+                <a href="https://www.youtube.com/results?search_query=Fahd+Mirza+GLM+4.7+is+Out" class="source-link">Watch Video</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Qwen-Image-Edit-2511 Released</h3>
+                <p>The Qwen team continues to ship, this time with an image editing model. "Qwen-Image-Edit-2511" promises robust instruction-based image editing capabilities. The open-source community is already eager to test its limits against proprietary alternatives.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1ptw0vr/qwenimageedit2511_got_released/" class="source-link">Read Source</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>ComfyUI Workflow for Qwen Image Edit</h3>
+                <p>Fast on the heels of the model release, the community has already standardized a ComfyUI workflow for Qwen-Image-Edit-2511. This rapid adoption and tooling support is what makes the local AI scene so vibrant.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1pu5opp/this_is_the_new_comfyui_workflow_of_qwen_image/" class="source-link">Read Source</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+             <article>
+                <h3>Open NotebookLM is INSANE!</h3>
+                <p>For those who love Google's NotebookLM but hate the data privacy implications, this is huge. **Open NotebookLM** is an open-source alternative that runs entirely offline. You can feed it local PDFs and text files to generate podcasts or interactive study guides without your data leaving your machine.</p>
+                <a href="https://www.youtube.com/results?search_query=WorldofAI+Open+NotebookLM+is+INSANE" class="source-link">Watch Video</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Plano(A3B): Efficient Agent Orchestration</h3>
+                <p>A developer introduced "Plano(A3B)", a model designed specifically for efficient agent orchestration. The claim is that it exceeds frontier model performance in this specific niche while being much more efficient.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1pudm4m/i_built_planoa3b_most_efficient_llms_for_agent/" class="source-link">Read Source</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>MiniMax-M2.1: Santa from China Brings another Model</h3>
+                <p>A new heavy hitter has entered the arena: **MiniMax M2.1**. This is a massive Mixture-of-Experts (MoE) model showing strong performance in logic and reasoning benchmarks. It's positioning itself as a serious competitor in the large-scale open model landscape.</p>
+                <a href="https://www.youtube.com/results?search_query=Fahd+Mirza+MiniMax-M2.1" class="source-link">Watch Video</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Wan 2.2 Video Generation Test</h3>
+                <p>A user showcased a test of "Wan 2.2" combined with "Time-to-Move". The results demonstrate the growing maturity of open video generation models, providing a realistic benchmark of what's currently possible on consumer hardware.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1pt19u6/timetomove_wan_22_test/" class="source-link">Read Source</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Z-Image + SCAIL for Multi-Character Scenes</h3>
+                <p>Generating consistent multiple characters in a single scene has always been a pain point. This discussion explores a workflow using "Z-Image" and "SCAIL" to solve this, offering hope for storytellers and comic creators.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1psr58j/zimage_scail_multichar/" class="source-link">Read Source</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Real World Hardware: DGX Spark & macOS</h3>
+                <p>A detailed retrospective on using a DGX Spark as a companion to a macOS workflow. Real-world hardware reviews are crucial for enthusiasts planning their next build, especially when trying to bridge the gap between Apple Silicon and heavy-duty NVIDIA compute.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1pu7pfi/thoughts_on_dgx_spark_as_a_macos_companion_two/" class="source-link">Read Source</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>The Unsung Hero: llama.cpp Appreciation</h3>
+                <p>A wholesome post reminding us of the backbone of local LLM inference: `llama.cpp`. It's easy to get lost in new model hype, but the software engineering marvels that allow us to run them on MacBooks and consumer GPUs deserve this recognition.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1psbx2q/llamacpp_appreciation_post/" class="source-link">Read Source</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+             <article>
+                <h3>Codumentation: Making Documentation Executable</h3>
+                <p>A fascinating look at a new tool called "Codumentation." The concept is to turn static code documentation into executable, interactive environments. This bridges the gap between reading docs and running code, a potential game-changer for developer experience.</p>
+                <a href="https://www.youtube.com/results?search_query=Fahd+Mirza+Codumentation" class="source-link">Watch Video</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+             <article>
+                <h3>TREND WATCH: Phi-4 & Llama 3.3 Local Performance</h3>
+                <p>The community is currently buzzing about the latest **Phi-4** and **Llama 3.3** optimizations. Keep an eye on this search feed for the latest benchmarks and quantization guides dropping in real-time. These small-but-mighty models are redefining what's possible on consumer hardware.</p>
+                <a href="https://www.youtube.com/results?search_query=Phi-4+Llama+3.3+local+LLM&sp=EgQIAhAB" class="source-link">View Search Results</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Community Humor: "Realist Meme of the Year"</h3>
+                <p>Sometimes the best insights come wrapped in humor. This post resonates with the community's shared struggles and realities of running local models, serving as a pulse check on the current sentiment of the "Local LLaMA" life.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1pqegcr/realist_meme_of_the_year/" class="source-link">Read Source</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+             <article class="flair-box">
+                <h3>Commentary: Cost of this Issue</h3>
+                <p>Cost of this issue: YOUR ENTIRE CONTEXT WINDOW.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+        </section>
+
+        <footer>
+            <p><strong>Editorial Team:</strong> Ronnie Cache, Chip Carter (Scoops) | Ada Kernel (Community) | Corry Stack (Video) | Ramsy Bytewell (Tech) | D.C. Voltaire (Commentary)</p>
+            <p>Chief Editor: Jimmy Vecor</p>
+            <p>&copy; 2025 Gradient Descent Publication. No AI models were harmed in the making of this HTML file.</p>
+        </footer>
+    </div>
+    <script>
+        // Simple script to set the correct edition based on time
+        const now = new Date();
+        const hour = now.getHours();
+        let edition = "Morning Edition";
+        if (hour >= 12 && hour < 17) edition = "Noon Edition";
+        if (hour >= 17) edition = "Evening Edition";
+        
+        // Format date: Dec 24, 2025
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        const dateStr = now.toLocaleDateString('en-US', options);
+        
+        document.getElementById('date-edition').innerText = `${dateStr} • ${edition}`;
+    </script>
+</body>
+</html>
