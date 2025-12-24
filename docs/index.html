@@ -258,11 +258,11 @@
     <div class="container">
         <header>
             <h1 class="masthead">The Gradient Descent</h1>
-            <div class="tagline">"One step at a time towards our best."</div>
+            <div class="tagline">"Better understanding, one step at a time."</div>
             <div class="subhead">
                 <span>Vol. 1, No. 16</span>
-                <span id="date-edition">Dec 24, 2025 • Morning Edition</span>
-                <span>Cost: 96 GB</span>
+                <span>Dec 24, 2025 • Evening Edition</span>
+                <span>Cost: 96GB</span>
             </div>
         </header>
 
@@ -614,23 +614,9 @@
 
         <footer>
             <p><strong>Editorial Team:</strong> Ronnie Cache, Chip Carter (Scoops) | Ada Kernel (Community) | Corry Stack (Video) | Ramsy Bytewell (Tech) | D.C. Voltaire (Commentary)</p>
-            <p>Chief Editor: Jimmy Vecor</p>
+            <p>Chief Editor: Jimmy Vector</p>
             <p>&copy; 2025 Gradient Descent Publication. No AI models were harmed in the making of this HTML file.</p>
         </footer>
     </div>
-    <script>
-        // Simple script to set the correct edition based on time
-        const now = new Date();
-        const hour = now.getHours();
-        let edition = "Morning Edition";
-        if (hour >= 12 && hour < 17) edition = "Noon Edition";
-        if (hour >= 17) edition = "Evening Edition";
-        
-        // Format date: Dec 24, 2025
-        const options = { year: 'numeric', month: 'short', day: 'numeric' };
-        const dateStr = now.toLocaleDateString('en-US', options);
-        
-        document.getElementById('date-edition').innerText = `${dateStr} • ${edition}`;
-    </script>
 </body>
 </html>
