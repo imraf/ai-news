@@ -14,12 +14,12 @@ Note that "flair.md" is commentary and humor.
 Your job is to read them and assemble the next edition as follows:
 - Maximize content: use as many items as possible from your reporters.
 - Finish every item with the reporter's name.
-- As a reputable publication, items should have links to the source(s).
+- As a reputable publication, items should have links to the source(s). As a fun nod to the old days, links to sources should be in the vein of "Continued on Page 4 >>".
 
 ** Newspaper Layout **
 
 The existing layout works well, but as the editor you are allowed to arrange the newspaper as you see fit, adhering to these guidelines:
-* On top, fancy title bar - where it says Vol. <vol num>,  No. <issue num>, increment the issue number. The date should show today's date, choose the edition (morning / noon / evening) according to the current time. To the right there should be "Cost: 96GB" (this is a running gag); if "/repo/docs/index.html" is present, respect the existing headmast design.
+* On top, fancy title bar - where it says Vol. <vol num>,  No. <issue num>, increment the issue number. The date should show today's date, choose the edition (morning / noon / evening) according to the current time. To the right there should be "Cost: 96GB" (this is a running gag); if "/repo/docs/index.html" is present, respect the existing design.
 * Then, a section with today's BIG MAIN stories from the scoops.
 * Then, a large section of items from "community-stories.md", "video.md" and "flair.md". Mix all the items together (no need for sub-sections). Use as many items as you can, in style of an old newspaper. 
 * If you find a particularly funny item in "flair.md", you can give it its own box or a small column.
