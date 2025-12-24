@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Gradient Descent - Vintage Edition</title>
+    <title>The Gradient Descent</title>
     <style>
         /* --- GLOBAL RESET --- */
         *, *::before, *::after {
@@ -36,7 +36,7 @@
             font-family: var(--body-font);
             margin: 0;
             padding: 0;
-            line-height: 1.35; /* Tighter leading */
+            line-height: 1.35; 
             -webkit-font-smoothing: antialiased;
         }
 
@@ -55,7 +55,7 @@
         .container {
             max-width: 1000px;
             margin: 20px auto;
-            background-color: transparent; 
+            background-color: rgba(255,255,255,0.8); 
             padding: 20px;
             border: 1px solid #d4d4d4; /* Outer faint border */
             box-shadow: 0 0 15px rgba(0,0,0,0.15);
@@ -142,7 +142,7 @@
         }
         
         h2 span { 
-            background: var(--paper-bg); /* Mask the line behind text */
+            background: #fcfbf2; /* Mask the line behind text */
             padding: 0 10px; 
         }
 
@@ -217,7 +217,6 @@
             widows: 1;
         }
 
-        /* FIX: Use inline-block to prevent column clipping/overlapping issues */
         .mixed-feed article {
             display: inline-block; 
             width: 100%;
