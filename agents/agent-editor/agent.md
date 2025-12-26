@@ -13,7 +13,7 @@ Note that "flair.md" is commentary and humor.
 
 Your job is to read them and assemble the next edition as follows:
 - Maximize content: use as many items as possible from your reporters.
-- Finish every item with the reporter's name.
+- In the "tech boards" section, omit the reporter name. In all other sections, you must finish every item with the reporter's name.
 - As a reputable publication, items should have links to the source(s). As a fun nod to the old days, links to sources should be in the vein of "Continued on Page 4 >>".
 
 ** Newspaper Layout **
