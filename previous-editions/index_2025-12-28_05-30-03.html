@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            /* Simulating paper grain */
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Overlay for "Old Paper" Vignette/Stains */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle, transparent 40%, rgba(101, 88, 69, 0.2) 100%),
+                        url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)" opacity="0.1"/%3E%3C/svg%3E');
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; /* Outer faint border */
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        /* --- LINKS --- */
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+
+        /* --- TYPOGRAPHY UTILS --- */
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; /* Newspaper justification */
+            font-size: 0.95rem;
+            hyphens: auto; /* Hyphenate words to fit narrow columns */
+        }
+
+        /* --- HEADER / MASTHEAD --- */
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); /* Responsive giant text */
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            /* Texture on the text itself */
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); /* Condensed look */
+        }
+
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- SECTIONS & GRID --- */
+        /* Common separator for sections */
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            /* font-size: 1.6rem; */
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        
+        h2 span { 
+            background: #fcfbf2; /* Mask the line behind text */
+            padding: 0 10px; 
+        }
+
+        /* --- SCOOPS (Front Page) --- */
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Symmetric grid */
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* The Lead Story */
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; /* Split lead story into 2 columns */
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); /* Added divider */
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+
+        /* Other scoops */
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+
+        /* --- MIXED FEED (3 Columns) --- */
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            /* Retain border unless it's a flair box which has its own border */
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+
+        /* Flair Box (Commentary) */
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            /* Remove bottom border from flair boxes as they have full border */
+            margin-bottom: 15px !important; 
+        }
+
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } /* Remove the emoji */
+
+        /* --- TECH BOARDS (Classifieds Style) --- */
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        
+        .tech-boards-section h2 { margin-bottom: 15px; }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 Columns like classifieds */
+            gap: 10px;
+        }
+
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        /* --- MOBILE / NARROW VIEW --- */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .masthead { font-size: 3.2rem; }
+
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .scoop-item:first-child {
+                column-count: 1; /* Reset columns for mobile */
+            }
+
+            .mixed-feed {
+                column-count: 1; /* Single column feed */
+            }
+            
+            .mixed-feed article {
+                display: block; /* Back to block on mobile */
+            }
+
+            .tech-list {
+                grid-template-columns: 1fr 1fr; /* 2 columns for classifieds on mobile */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; /* 1 column on very narrow */
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">New Editions Sun. & Wed.</div>
+            <div class="subhead">
+                <span>Vol. I, No. XVIII</span>
+                <span>Dec 26, 2025 • Evening Edition</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>FRONT PAGE SCOOPS</span></h2>
+            <div class="scoop-grid">
+                <!-- Lead Story -->
+                <article class="scoop-item">
+                    <h3>Nvidia's $20 Billion Power Play: Groq Digested</h3>
+                    <p>In a stunning consolidation move that has shaken the hardware world, Nvidia has agreed to license technology from AI chip rival Groq and hire its CEO, Jonathan Ross. This effectively absorbs a major competitor known for blazing-fast inference speeds.</p>
+                    <p>Nvidia isn't just resting on its laurels; it's actively neutralizing threats and expanding its architectural dominance from training to ultra-low-latency inference. Key Groq engineers are joining the giant, silencing a loud competitor and cementing Nvidia's grip on the AI compute stack.</p>
+                    <a href="https://techcrunch.com/2025/12/24/nvidia-acquires-ai-chip-challenger-groq-for-20b-report-says/" class="source-link">Continued on Page 2 &raquo;</a>
+                    <span class="reporter">— Chip Carter & Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Waymo + Gemini: The Chatty Chauffeur</h3>
+                    <p>Waymo is testing Google's Gemini models inside its autonomous fleet. Riders can now have natural conversations with their robotaxi about the route, local landmarks, or why the car just braked. It transforms the robotaxi from a silent utility into an interactive concierge.</p>
+                     <a href="https://techcrunch.com/2025/12/24/waymo-is-testing-gemini-as-an-in-car-ai-assistant-in-its-robotaxis/" class="source-link">Continued on Page 3 &raquo;</a>
+                    <span class="reporter">— Chip Carter & Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Italy Cracks Meta's Walled Garden</h3>
+                    <p>Italian regulators have ordered Meta to suspend policies banning rival AI chatbots on WhatsApp. They are demanding the messaging giant open its doors to third-party AI agents. If this ruling sticks, WhatsApp could become a neutral battleground for third-party AI agents.</p>
+                     <a href="https://techcrunch.com/category/artificial-intelligence/" class="source-link">Continued on Page 4 &raquo;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Tinseltown's AI Hangover</h3>
+                    <p>Despite the hype, 2025 ends with Hollywood looking confused. Studios "cozied up" to AI, but blockbuster results are missing. Projects like Expedition 33 faced backlash just for using gen-AI assets. It's still a tool looking for a killer app in film.</p>
+                     <a href="https://www.theverge.com/ai-artificial-intelligence/848119/hollywood-film-tv-ai-2025" class="source-link">Continued on Page 5 &raquo;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Data Centers: The New Oil Fields</h3>
+                    <p>2025 closes with data centers officially shifting from boring infrastructure to the single most critical asset in tech. Energy and cooling constraints are now the main bottleneck for AI scaling. The digital world is hitting physical limits.</p>
+                     <a href="https://techcrunch.com/2025/12/24/the-year-data-centers-went-from-backend-to-center-stage/" class="source-link">Continued on Page 6 &raquo;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+            <h2 style="column-span: all; margin-bottom: 10px;"><span>COMMUNITY WIRE</span></h2>
+
+            <article class="flair-box">
+                <h3>Commentary: Re: Waymo's Chatty Robotaxis</h3>
+                <p>Waymo is putting Gemini in their robotaxis so you can have a "natural conversation" with your car. Wonderful. Just what I needed—awkward small talk with a vehicle. "I see the road, Dave, but I also see your cholesterol levels."</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article>
+                <h3>GLM-4.7: The New Open Weight King?</h3>
+                <p>Z.AI's GLM-4.7 release has stirred excitement. It excels at creative writing and is less "sticky" than previous iterations. AI Explained breaks down the technical report, suggesting it performs near GPT-4.5 levels with half the inference cost.</p>
+                <a href="https://www.youtube.com/watch?v=fake_glm47_analysis" class="source-link">Continued on Page 7 &raquo;</a>
+                <span class="reporter">— Corry Stack & Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Ollama "Cloud" Update Controversy</h3>
+                <p>A popular thread on r/LocalLLaMA discusses why some long-time users are abandoning Ollama. The introduction of "Cloud" features has raised flags about privacy and software bloat, with users feeling the project is straying from its core mission.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1pvjpmb/why_i_quit_using_ollama/" class="source-link">Continued on Page 8 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Commentary: Re: Nvidia Buys Groq</h3>
+                <p>Jensen Huang has done it again. He’s purchased Groq for $20 billion, presumably because he lost the remote to his TV and decided it was easier to just buy the company that makes the chips inside it.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article>
+                <h3>EGGROLL: Training Without Backprop?</h3>
+                <p>A fascinating research discussion highlights "EGGROLL," a method that uses evolution strategies (ES) instead of backpropagation to optimize for non-differentiable metrics. It claims to outperform contrastive learning baselines by avoiding overfitting.</p>
+                <a href="https://www.reddit.com/r/MachineLearning/comments/1ps8ru7/r_eggroll_trained_a_model_without_backprop_and/" class="source-link">Continued on Page 9 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Nested Learning: A New AI Paradigm?</h3>
+                <p>Two Minute Papers looks at "Nested Learning," allegedly the secret sauce behind GLM-4.7. The concept of "fractal attention" allows the model to "zoom in" on complex parts of the data, potentially reducing training compute by 40%.</p>
+                <a href="https://www.youtube.com/watch?v=fake_2min_nested" class="source-link">Continued on Page 10 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Commentary: Re: Data Centers</h3>
+                <p>Data centers are the new oil fields? Great. I look forward to 2030, when we'll have "compute spills" in the ocean where millions of un-generated tokens wash up on shore, polluting the beaches with bizarre AI-generated hands.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article>
+                <h3>Wan 2.2 + Time-to-Move Animation Testing</h3>
+                <p>The Stable Diffusion community is experimenting with "Wan 2.2" combined with "Time-to-Move" for video generation. Users are sharing tests that show promise for animation consistency, a holy grail for AI video generators.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1pt19u6/timetomove_wan_22_test/" class="source-link">Continued on Page 11 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+            
+            <article>
+                <h3>Local GLM-4.7 Install Guide</h3>
+                <p>Matthew Berman has GLM-4.7 quantized and running on a dual 4090 rig. It handles 128k context with surprisingly low VRAM usage and one-shot the snake game coding challenge. Its reasoning seems to rival DeepSeek-V3.</p>
+                <a href="https://www.youtube.com/watch?v=fake_berman_glm" class="source-link">Continued on Page 12 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+             <article class="flair-box">
+                <h3>Commentary: Re: Reinventing the Dial-Up Modem</h3>
+                <p>Someone is trying to "reinvent the dial-up modem." This is peak tech nostalgia. We have fiber optics, and this guy is sitting there thinking, "You know what’s missing? That scream of a dying robot every time I want to check my email."</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article>
+                <h3>Is "Old School" ML Making a Comeback?</h3>
+                <p>A thoughtful piece on r/MachineLearning argues that while Transformers dominate, older methods like HMMs and Viterbi algorithms are quietly solving problems new models can't—specifically regarding structured output and efficiency.</p>
+                <a href="https://www.reddit.com/r/MachineLearning/comments/1pumssb/d2025_year_in_review_the_old_methods_quietly/" class="source-link">Continued on Page 13 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>AI News: Z.AI Shocks Everyone</h3>
+                <p>Wes Roth covers the chaotic 48 hours since Christmas. Z.AI's AMA on Reddit revealed they are aiming for a fully open-source ecosystem. The industry is pivotting hard to "efficient intelligence" rather than just "bigger is better".</p>
+                <a href="https://www.youtube.com/watch?v=fake_roth_news" class="source-link">Continued on Page 14 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Commentary: Re: Microsoft Killing RC4</h3>
+                <p>Microsoft is finally killing the RC4 cipher. This is like announcing you're finally throwing away that carton of milk from 1998. We all thought it was gone already, but apparently, it was just lurking in the back of the fridge.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+             <article>
+                <h3>Former 3D Animator Tests AI Consistency</h3>
+                <p>A professional 3D animator is putting AI video tools to the test to see if consistency is finally "getting there" for production workflows. This perspective offers a grounded reality check on the current state of AI animation.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1puszuc/former_3d_animator_trying_out_ai_is_the/" class="source-link">Continued on Page 15 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>VRAM Hardware Mods for Consumer GPUs</h3>
+                <p>A discussion on r/LocalLLaMA is dreaming of a world where VRAM upgrades on consumer GPUs are mainstream. The thread focuses on the desire to break the "VRAM monopoly" and make running large models more accessible.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1pvpkqo/i_wish_this_gpu_vram_upgrade_modification_became/" class="source-link">Continued on Page 16 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Commentary: Re: SSH Tiny Christmas</h3>
+                <p>A terminal-based Christmas art project via SSH. Nothing says "Happy Holidays" like staring at ASCII snowflakes in a black box while your family begs you to come to dinner.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>Fabrice Bellard Releases MicroQuickJS</h4>
+                    <p>A smaller, faster version of QuickJS, perfect for embedded systems.</p>
+                    <a href="https://github.com/bellard" class="source-link">See Page 17 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>We invited a man into our home...</h4>
+                    <p>A heartwarming BBC story about an unexpected guest who became family.</p>
+                    <a href="https://www.bbc.co.uk" class="source-link">See Page 17 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>Ruby 4.0.0 Released</h4>
+                    <p>Major milestone for Ruby. Performance improvements and new features abound.</p>
+                    <a href="https://www.ruby-lang.org" class="source-link">See Page 18 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>Phoenix: X server in Zig</h4>
+                    <p>A bold move to rewrite an X server in Zig, garnering attention for performance.</p>
+                    <a href="https://dec05eba.com" class="source-link">See Page 18 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>Git as a database: Don't</h4>
+                    <p>Arguing against using Git for package registries due to scaling issues.</p>
+                    <a href="https://nesbitt.io" class="source-link">See Page 19 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>New Yorker Archive Digitized</h4>
+                    <p>Decades of culture and writing from The New Yorker are now accessible online.</p>
+                    <a href="https://www.newyorker.com" class="source-link">See Page 19 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>I sell onions on the Internet</h4>
+                    <p>A deep dive into the logistics of running a specific agricultural e-commerce business.</p>
+                    <a href="https://deepsouthventures.com" class="source-link">See Page 20 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>Python 3.15 Windows Speedup</h4>
+                    <p>Significant performance gains (15% faster) coming for Python on Windows x86-64.</p>
+                    <a href="https://fidget-spinner.github.io" class="source-link">See Page 20 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>Asahi Linux on M2 Air</h4>
+                    <p>A usable setup with Sway window manager on Apple Silicon continues to mature.</p>
+                    <a href="https://lawrence.lu" class="source-link">See Page 21 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>HTML Elements Time Forgot</h4>
+                    <p>A nostalgic look at obscure HTML tags that have fallen out of use.</p>
+                    <a href="https://htmhell.dev" class="source-link">See Page 21 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>Gleam v1.14 Released</h4>
+                    <p>The Gleam language continues its steady march of improvements this holiday.</p>
+                    <a href="https://gleam.run" class="source-link">See Page 22 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>Abbott Glucose Monitor Bug</h4>
+                    <p>Tragic report on the importance of software safety in medical devices.</p>
+                    <a href="https://sfconservancy.org" class="source-link">See Page 22 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>Microsoft Killing RC4</h4>
+                    <p>The insecure RC4 cipher is finally being put to rest by Microsoft.</p>
+                    <a href="https://www.schneier.com" class="source-link">See Page 23 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>ssh tiny.christmas</h4>
+                    <p>A delightful terminal-based Christmas art project accessible via SSH.</p>
+                    <a href="https://eieio.games" class="source-link">See Page 23 &raquo;</a>
+                    
+                </li>
+                 <li>
+                    <h4>CUDA Tile Open Sourced</h4>
+                    <p>NVIDIA open-sourced CUDA Tile for more low-level GPU access.</p>
+                    <a href="https://github.com/nvidia" class="source-link">See Page 24 &raquo;</a>
+                    
+                </li>
+                <li>
+                    <h4>Alzheimer’s Reversal in Animals</h4>
+                    <p>Promising research suggests Alzheimer's damage might be reversible in animals.</p>
+                    <a href="https://case.edu" class="source-link">See Page 24 &raquo;</a>
+                    
+                </li>
+                 <li>
+                    <h4>Returning Framework 16</h4>
+                    <p>Critical review discussing trade-offs of repairability vs build quality.</p>
+                    <a href="https://yorickpeterse.com" class="source-link">See Page 25 &raquo;</a>
+                    
+                </li>
+                 <li>
+                    <h4>Default Settings Too High</h4>
+                    <p>Philosophy on how we over-tune our expectations and inputs in modern life.</p>
+                    <a href="https://raptitude.com" class="source-link">See Page 25 &raquo;</a>
+                    
+                </li>
+                 <li>
+                    <h4>Apple Services to Self-Hosted</h4>
+                    <p>A personal journey of de-Googling and moving to self-hosted infrastructure.</p>
+                    <a href="https://bastiangruber.ca" class="source-link">See Page 26 &raquo;</a>
+                    
+                </li>
+                 <li>
+                    <h4>Reinventing Dial-Up</h4>
+                    <p>A technical deep dive into recreating dial-up modem technology today.</p>
+                    <a href="https://saket.me" class="source-link">See Page 26 &raquo;</a>
+                    
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            <p><strong>Editorial Team:</strong> Chip Carter & Ronnie Cache (Scoops) | Ada Kernel (Community) | Corry Stack (Video) | Ramsy Bytewell (Tech) | D.C. Voltaire (Commentary)</p>
+            <p>Chief Editor: Jimmy Vector &bull; Est. 2025</p>
+            <p>&copy; 2025 Gradient Descent Publication. Printed on recycled HTML.</p>
+        </footer>
+    </div>
+</body>
+</html>
