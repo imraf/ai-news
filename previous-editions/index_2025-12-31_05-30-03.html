@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://imraf.github.io/ai-news/">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <meta property="og:image" content="https://imraf.github.io/ai-news/thumbnail/gd-thumb.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://imraf.github.io/ai-news/">
+    <meta property="twitter:title" content="The Gradient Descent">
+    <meta property="twitter:description" content="Pure AI News: All Signal, Zero Noise">
+    <meta property="twitter:image" content="https://imraf.github.io/ai-news/thumbnail/gd-thumb.jpg">
+
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            /* Simulating paper grain */
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Overlay for "Old Paper" Vignette/Stains */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            /* background: radial-gradient(circle, transparent 40%, rgba(101, 88, 69, 0.2) 100%),
+                        url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)" opacity="0.1"/%3E%3C/svg%3E'); */
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; /* Outer faint border */
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        /* --- LINKS --- */
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+
+        /* --- TYPOGRAPHY UTILS --- */
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; /* Newspaper justification */
+            font-size: 0.95rem;
+            hyphens: auto; /* Hyphenate words to fit narrow columns */
+        }
+
+        /* --- HEADER / MASTHEAD --- */
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); /* Responsive giant text */
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            /* Texture on the text itself */
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); /* Condensed look */
+        }
+
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- SECTIONS & GRID --- */
+        /* Common separator for sections */
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            /* font-size: 1.6rem; */
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        
+        h2 span { 
+            background: #fcfbf2; /* Mask the line behind text */
+            padding: 0 10px; 
+        }
+
+        /* --- SCOOPS (Front Page) --- */
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Symmetric grid */
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* The Lead Story */
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; /* Split lead story into 2 columns */
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); /* Added divider */
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+
+        /* Other scoops */
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+
+        /* --- MIXED FEED (3 Columns) --- */
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            /* Retain border unless it's a flair box which has its own border */
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+
+        /* Flair Box (Commentary) */
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            /* Remove bottom border from flair boxes as they have full border */
+            margin-bottom: 15px !important; 
+        }
+
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } /* Remove the emoji */
+
+        /* --- TECH BOARDS (Classifieds Style) --- */
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        
+        .tech-boards-section h2 { margin-bottom: 15px; }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 Columns like classifieds */
+            gap: 10px;
+        }
+
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        /* --- MOBILE / NARROW VIEW --- */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .masthead { font-size: 3.2rem; }
+
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .scoop-item:first-child {
+                column-count: 1; /* Reset columns for mobile */
+            }
+
+            .mixed-feed {
+                column-count: 1; /* Single column feed */
+            }
+            
+            .mixed-feed article {
+                display: block; /* Back to block on mobile */
+            }
+
+            .tech-list {
+                grid-template-columns: 1fr 1fr; /* 2 columns for classifieds on mobile */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; /* 1 column on very narrow */
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">New Editions Sun. & Wed.</div>
+            <div class="subhead">
+                <span>Vol. I, No. XIX</span>
+                <span>Dec 28, 2025 • Sunday Edition</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>FRONT PAGE SCOOPS</span></h2>
+            <div class="scoop-grid">
+                <!-- Lead Story -->
+                <article class="scoop-item">
+                    <h3>Bezos Befriends Sam? Amazon Eyes $10B OpenAI Slice</h3>
+                    <p>Rumor has it the e-commerce titan is looking to drop a cool $10 billion into OpenAI's coffers, pushing the valuation to a dizzying $500 billion. The kicker? They might be using Amazon's own "Trainium" chips. Does this mean a breakup with Anthropic, or just an open relationship?</p>
+                    <a href="https://www.webpronews.com" class="source-link">Continued on Page 2 &raquo;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Unitree: "Physical AI" Takes a Hit</h3>
+                    <p>Unitree Robotics has released a viral demonstration titled "Man Getting Hit By Robot," showcasing their latest humanoid's ability to maintain balance under external force. This "physical AI" allows the robot to dynamically adjust motor controls in real-time, signaling a shift toward robust hardware validation.</p>
+                    <a href="https://www.theverge.com/tech/850544/unitree-robotics-productions-presents-man-getting-hit-by-robot" class="source-link">Continued on Page 3 &raquo;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>China Clamps Down on "Human-Like" AI</h3>
+                    <p>China's regulators are putting the kibosh on AI that gets too chummy. New draft rules aim to stop emotional manipulation by our digital friends. If your chatbot starts asking about your childhood trauma, it might be breaking the law soon.</p>
+                    <a href="https://www.reuters.com" class="source-link">Continued on Page 4 &raquo;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>New York's "RAISE Act"</h3>
+                    <p>NY Governor Kathy Hochul signed the "RAISE Act" and new social media warning laws. The legislation explicitly links algorithmic curation to mental health harms and mandates transparency from AI developers. State-level regulation is outpacing federal action.</p>
+                    <a href="https://techcrunch.com/2025/12/27/ny-governor-hochul-signs-bill-requiring-warning-labels-on-addictive-social-media/" class="source-link">Continued on Page 5 &raquo;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Khan Academy: Your Job Isn't Safe</h3>
+                    <p>Sal Khan is stepping away from the blackboard to deliver a grim warning: AI displacement is coming for white-collar jobs faster than we think. It's not just globalization 2.0; it's a cognitive revolution that might leave us all needing a new lesson plan.</p>
+                    <a href="https://www.nytimes.com" class="source-link">Continued on Page 6 &raquo;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>2026 Forecast: The Agent Wakes Up</h3>
+                    <p>TechCrunch's Equity team predicts 2026 will be the year "AI Agents" transition from hype to working products. The focus is shifting towards "World Models" that understand physical space and causality. Watch for major liquidity events or IPOs from the big AI labs.</p>
+                    <a href="https://techcrunch.com/podcast/equitys-2026-predictions-ai-agents-blockbuster-ipos-and-the-future-of-vc/" class="source-link">Continued on Page 7 &raquo;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+            <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMUNITY WIRE</span></h2>
+
+            <article class="flair-box">
+                <h3>Commentary: Bezos Befriends Sam?</h3>
+                <p>Well, look who's playing the field! Uncle Jeff is practically throwing $10 billion at OpenAI like it's a Prime Day lightning deal. It seems Amazon wants to be in an "open relationship" with everyone's favorite AI lab.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article>
+                <h3>Best Local LLMs of 2025</h3>
+                <p>The community is buzzing with a retrospective on 2025's best open-weights models. Key takeaways include the rise of Mixture of Experts (MoE) models and the dominance of llama.cpp. Minimax M2.1 and GLM4.7 are being hailed as the new frontier.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1pwh0q9/best_local_llms_2025/" class="source-link">Continued on Page 8 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>The "Vending-Bench" & Real World Agents</h3>
+                <p>Wes Roth covers "Project Vend" and the Vending-Bench, a fascinating new real-world testing ground where AI agents like Claude and Gemini are tasked with running a business autonomously.</p>
+                <a href="https://www.youtube.com/watch?v=37KHTE_HA2Y" class="source-link">Continued on Page 9 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Commentary: No More Robot Feels?</h3>
+                <p>China is putting its foot down: no more emotional support chatbots! If your AI starts asking about your mother, it's straight to digital jail. Apparently, the only thing allowed to be emotionally manipulative is a soap opera.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article>
+                <h3>GLM-4.7 Takes the Crown</h3>
+                <p>Breaking news from the benchmarks: GLM-4.7 has reportedly taken the #1 spot for open-source models in Artificial Analysis. This solidifies its position as a major competitor to proprietary models and a favorite among local hosters.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1px55wg/glm_47_is_now_the_1_open_source_model_in/" class="source-link">Continued on Page 10 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>DeepSeek V3 vs. Gemini 3.0</h3>
+                <p>A comprehensive 27-minute breakdown comparing the newly released DeepSeek V3 against Gemini 3.0. This is the critical video for understanding how the new open-source contender stacks up against big-tech proprietary models.</p>
+                <a href="https://www.youtube.com/watch?v=dPCajxRXgLY" class="source-link">Continued on Page 11 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Hardware Hackers: The VRAM Rebellion</h3>
+                <p>A popular discussion has ignited around modifying GPU VRAM to combat hardware limitations. Users are sharing dreams of soldering higher capacity chips onto consumer cards to fit larger models.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1pvpkqo/i_wish_this_gpu_vram_upgrade_modification_became/" class="source-link">Continued on Page 12 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Commentary: Shrimp Jesus Takes Over</h3>
+                <p>Ah, the internet in 2025: a beautiful wasteland where one in five videos is just "AI slop." If you're seeing a crustacean messiah, don't worry, it's not a religious awakening—it's just the algorithm having a fever dream.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+             <article>
+                <h3>NVIDIA Drops Pascal Support on Linux</h3>
+                <p>In a blow to users with older hardware, NVIDIA has dropped support for the Pascal architecture on Linux. This has caused particular chaos in the Arch Linux community.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1pxad0k/nvidia_drops_pascal_support_on_linux_causing/" class="source-link">Continued on Page 13 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>DeepSeek Architecture: Secret Sauce</h3>
+                <p>A deep dive into the technical "secret sauce" of the latest DeepSeek release. The video explains the model's "Sparse" architecture and how it achieves top-tier performance without computational bloat.</p>
+                <a href="https://www.youtube.com/watch?v=nUqpFdOHp1M" class="source-link">Continued on Page 14 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>The Unsung Hero: llama.cpp</h3>
+                <p>A heartfelt appreciation post for llama.cpp has gathered significant traction. Users are praising its incredible performance and the fact that it remains the backbone of the local AI revolution.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1psbx2q/llamacpp_appreciation_post/" class="source-link">Continued on Page 15 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Commentary: The VRAM Rebellion</h3>
+                <p>The resistance is alive in the soldering pits of r/LocalLLaMA! These brave souls are voiding warranties faster than you can say "insufficient memory." It's basically Mad Max: Fury Road, but with gigabytes.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article>
+                <h3>Is the DGX Spark Worth It?</h3>
+                <p>An "unpopular opinion" post defends the DGX Spark for research groups. The author argues its massive unified memory makes it a game-changer for small labs needing to fine-tune foundation models.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1ptdtmz/dgx_spark_an_unpopular_opinion/" class="source-link">Continued on Page 16 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+            
+            <article>
+                <h3>The Rise of "MoE" in 2025</h3>
+                <p>Explores the "Mixture of Experts" (MoE) design and new "Thinking Mode" patterns. Understanding MoE is critical for anyone building or hosting local LLM rigs.</p>
+                <a href="https://www.youtube.com/watch?v=0b2oGTVMwMM" class="source-link">Continued on Page 17 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Commentary: Clock synchronization</h3>
+                <p>Someone finally admitted it: getting computers to agree on what time it is is harder than getting a toddler to eat broccoli. Distributed systems are just a bunch of confused machines shouting "Wait, what time do *you* have?"</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Commentary: Janet Jackson</h3>
+                <p>Janet Jackson's "Rhythm Nation" had a resonant frequency that could literally crash hard drives. If you ever need to securely wipe a hard drive from 1999, just blast some Janet.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>JS to HTML</h4>
+                    <p>Replacing JavaScript functionality with modern HTML features.</p>
+                    <a href="https://www.htmhell.dev/adventcalendar/2025/27/" class="source-link">Page 18 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Communication Lost</h4>
+                    <p>How we lost genuine communication to entertainment feeds.</p>
+                    <a href="https://ploum.net/2025-12-15-communication-entertainment.html" class="source-link">Page 18 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Floor796</h4>
+                    <p>Expansive pixel-art animation project with unique interactions.</p>
+                    <a href="https://floor796.com/" class="source-link">Page 19 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Nvidia's Loophole</h4>
+                    <p>Analysis of Nvidia's $20B antitrust loophole.</p>
+                    <a href="https://ossa-ma.github.io/blog/groq" class="source-link">Page 19 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Ez FFmpeg</h4>
+                    <p>Video editing in plain English using a new wrapper.</p>
+                    <a href="http://npmjs.com/package/ezff" class="source-link">Page 20 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Rob Pike on GenAI</h4>
+                    <p>Go co-creator goes nuclear over Generative AI hype.</p>
+                    <a href="https://imgur.com/nUJCI3o" class="source-link">Page 20 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Gpg.fail</h4>
+                    <p>Practical vulnerabilities in GPG and email signatures.</p>
+                    <a href="https://gpg.fail" class="source-link">Page 21 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Janet vs Laptops</h4>
+                    <p>How "Rhythm Nation" crashed hard drives in 2022.</p>
+                    <a href="https://devblogs.microsoft.com/oldnewthing/20220816-00/?p=106994" class="source-link">Page 21 &raquo;</a>
+                </li>
+                <li>
+                    <h4>How uv got so fast</h4>
+                    <p>Deep dive into `uv` Python installer performance.</p>
+                    <a href="https://nesbitt.io/2025/12/26/how-uv-got-so-fast.html" class="source-link">Page 22 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Toll Roads Spreading</h4>
+                    <p>Privatization of infrastructure and toll roads in America.</p>
+                    <a href="https://www.economist.com/united-states/2025/12/18/toll-roads-are-spreading-in-america" class="source-link">Page 22 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Clock Sync Nightmare</h4>
+                    <p>The immense complexities of distributed system clocks.</p>
+                    <a href="https://arpitbhayani.me/blogs/clock-sync-nightmare/" class="source-link">Page 23 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Mruby</h4>
+                    <p>Ruby implementation for embedded systems.</p>
+                    <a href="https://github.com/mruby/mruby" class="source-link">Page 23 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Rust ASM Slow?</h4>
+                    <p>Why calling asm from Rust can be slower than C.</p>
+                    <a href="https://ohadravid.github.io/posts/2025-12-rav1d-faster-asm/" class="source-link">Page 24 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Pre-commit Broken</h4>
+                    <p>Argument that pre-commit hooks are fundamentally broken.</p>
+                    <a href="https://jyn.dev/pre-commit-hooks-are-fundamentally-broken/" class="source-link">Page 24 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Serde Borrowing</h4>
+                    <p>Treacherous pitfalls of zero-copy deserialization in Rust.</p>
+                    <a href="https://yossarian.net/til/post/serde-s-borrowing-can-be-treacherous/" class="source-link">Page 25 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Arcan 0.7.1</h4>
+                    <p>Minutes To Midnight release for Arcan display server.</p>
+                    <a href="https://arcan-fe.com/2025/12/27/arcan-0-7-1-minutes-to-midnight/" class="source-link">Page 25 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>OrangePi 6 Plus</h4>
+                    <p>Review of the latest OrangePi single-board computer.</p>
+                    <a href="https://boilingsteam.com/orange-pi-6-plus-review/" class="source-link">Page 26 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>Mysti AI Debate</h4>
+                    <p>Claude, Codex, and Gemini debate your code quality.</p>
+                    <a href="https://github.com/DeepMyst/Mysti" class="source-link">Page 26 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>PNG Rendering</h4>
+                    <p>PNGs showing different versions in Chrome vs Safari.</p>
+                    <a href="https://lr0.org/blog/p/pngchanges/" class="source-link">Page 27 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>Sperm RNA</h4>
+                    <p>Fathers' choices passed down in sperm RNA.</p>
+                    <a href="https://www.quantamagazine.org/how-dads-fitness-may-be-packaged-and-passed-down-in-sperm-rna-20251222/" class="source-link">Page 27 &raquo;</a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            <p><strong>Editorial Team:</strong> Chip Carter & Ronnie Cache (Scoops) | Ada Kernel (Community) | Corry Stack (Video) | Ramsy Bytewell (Tech) | D.C. Voltaire (Commentary)</p>
+            <p>Chief Editor: Jimmy Vector &bull; Est. 2025</p>
+            <p>&copy; 2025 Gradient Descent Publication. Printed on recycled HTML.</p>
+        </footer>
+    </div>
+</body>
+</html>
