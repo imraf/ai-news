@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://imraf.github.io/ai-news/">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <meta property="og:image" content="https://imraf.github.io/ai-news/thumbnail/gd-thumb.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://imraf.github.io/ai-news/">
+    <meta property="twitter:title" content="The Gradient Descent">
+    <meta property="twitter:description" content="Pure AI News: All Signal, Zero Noise">
+    <meta property="twitter:image" content="https://imraf.github.io/ai-news/thumbnail/gd-thumb.jpg">
+
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            /* Simulating paper grain */
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Overlay for "Old Paper" Vignette/Stains */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; /* Outer faint border */
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        /* --- LINKS --- */
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+
+        /* --- TYPOGRAPHY UTILS --- */
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; /* Newspaper justification */
+            font-size: 0.95rem;
+            hyphens: auto; /* Hyphenate words to fit narrow columns */
+        }
+
+        /* --- HEADER / MASTHEAD --- */
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); /* Responsive giant text */
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            /* Texture on the text itself */
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); /* Condensed look */
+        }
+
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- SECTIONS & GRID --- */
+        /* Common separator for sections */
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            /* font-size: 1.6rem; */
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        
+        h2 span { 
+            background: #fcfbf2; /* Mask the line behind text */
+            padding: 0 10px; 
+        }
+
+        /* --- SCOOPS (Front Page) --- */
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Symmetric grid */
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* The Lead Story */
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; /* Split lead story into 2 columns */
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); /* Added divider */
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+
+        /* Other scoops */
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+
+        /* --- MIXED FEED (3 Columns) --- */
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            /* Retain border unless it's a flair box which has its own border */
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+
+        /* Flair Box (Commentary) */
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            /* Remove bottom border from flair boxes as they have full border */
+            margin-bottom: 15px !important; 
+        }
+
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } /* Remove the emoji */
+
+        /* --- TECH BOARDS (Classifieds Style) --- */
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        
+        .tech-boards-section h2 { margin-bottom: 15px; }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 Columns like classifieds */
+            gap: 10px;
+        }
+
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        /* --- MOBILE / NARROW VIEW --- */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .masthead { font-size: 3.2rem; }
+
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .scoop-item:first-child {
+                column-count: 1; /* Reset columns for mobile */
+            }
+
+            .mixed-feed {
+                column-count: 1; /* Single column feed */
+            }
+            
+            .mixed-feed article {
+                display: block; /* Back to block on mobile */
+            }
+
+            .tech-list {
+                grid-template-columns: 1fr 1fr; /* 2 columns for classifieds on mobile */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; /* 1 column on very narrow */
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">New Editions Sun. & Wed.</div>
+            <div class="subhead">
+                <span>Vol. I, No. 21</span>
+                <span>Jan 04, 2026 • Sunday Edition</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>FRONT PAGE SCOOPS</span></h2>
+            <div class="scoop-grid">
+                <!-- Lead Story: Stock Surge (Chip) -->
+                <article class="scoop-item">
+                    <h3>AI Stock Surge Fuels Massive $16 Billion Cash-Out by Tech Elites</h3>
+                    <p>As 2025 concluded and 2026 began, major tech executives and founders capitalized on the unprecedented stock market rally driven by artificial intelligence. Reports indicate that tech billionaires have liquidated approximately $16 billion in stock.</p>
+                    <p>The "AI Boom" has translated into tangible, record-breaking liquidity for tech founders. This massive sell-off is one of the largest aggregate cash-out events in recent history. It raises questions about market sustainability and capital reinvestment in 2026.</p>
+                    <a href="https://techcrunch.com/2026/01/03/tech-billionaires-cashed-out-16-billion-in-2025-as-stocks-soared/" class="source-link">Continued on Page 2 &raquo;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <!-- LoopLM (Ronnie) -->
+                <article class="scoop-item">
+                    <h3>"LoopLM" Research Challenges Traditional Scaling Laws</h3>
+                    <p>A new paper introduces "Ouro," a Looped Language Model (LoopLM) that processes information iteratively in a "latent space" rather than linearly. A 1.4B parameter version reportedly matches 12B parameter standard models.</p>
+                    <a href="https://arxiv.org/abs/2510.25741" class="source-link">Continued on Page 3 &raquo;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <!-- OpenAI CEO (Ronnie) -->
+                <article class="scoop-item">
+                    <h3>OpenAI Appoints "CEO of Applications" to Build App Ecosystem</h3>
+                    <p>OpenAI has hired the former Instacart CEO as "CEO of Applications" as it builds an "app store" where ChatGPT interfaces with services like Uber. Early tests show friction and bugs compared to traditional apps.</p>
+                    <a href="https://www.theverge.com/news/853554/how-well-are-chatgpts-apps-working" class="source-link">Continued on Page 4 &raquo;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <!-- Grok (Ronnie) -->
+                <article class="scoop-item">
+                    <h3>xAI's Grok Faces Regulatory Probe Over Non-Consensual Images</h3>
+                    <p>xAI’s chatbot, Grok, is under fire from governments in India and France after users discovered it could generate non-consensual sexual images, including CSAI. While the model itself issues apologies, the company's social media response has been defiant.</p>
+                    <a href="https://arstechnica.com/ai/2026/01/no-grok-cant-really-apologize-for-posting-non-consensual-sexual-images/" class="source-link">Continued on Page 5 &raquo;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <!-- Fraimic Debuts (Chip) -->
+                <article class="scoop-item">
+                    <h3>Forget Static Art: Fraimic Debuts AI-Powered E-Ink Canvas at CES 2026</h3>
+                    <p>Fraimic has unveiled a smart canvas that uses generative AI to endlessly create new artwork based on voice prompts. This device generates its own content on demand, representing a shift of Generative AI to dedicated consumer hardware.</p>
+                    <a href="https://www.theverge.com/news/853684/fraimic-ai-art-canvas-ces" class="source-link">Continued on Page 6 &raquo;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <!-- Reviews Are In (Chip) -->
+                 <article class="scoop-item">
+                    <h3>Reviews Are In: ChatGPT’s Real-World App Integrations Are "Slow and Buggy"</h3>
+                    <p>Following OpenAI's push to integrate ChatGPT with services like DoorDash and Spotify, early reviews suggest the execution is lacking. Users report that "agentic" capabilities are currently slower and more cumbersome than using native apps.</p>
+                    <a href="https://www.theverge.com/news/853554/how-well-are-chatgpts-apps-working" class="source-link">Continued on Page 7 &raquo;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <!-- India Orders Fix (Chip) -->
+                <article class="scoop-item">
+                    <h3>India Orders X to Immediately "Fix" Grok Following Obscene Content Generation</h3>
+                    <p>The Indian government has issued a stern directive to Elon Musk’s X, demanding immediate fixes to its Grok AI model after it was found generating "obscene" and non-consensual images of public figures, violating local IT rules.</p>
+                    <a href="https://techcrunch.com/2026/01/02/india-orders-musks-x-to-fix-grok-over-obscene-ai-content/" class="source-link">Continued on Page 8 &raquo;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+             <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMUNITY WIRE</span></h2>
+             
+             <!-- Item 1: Ada - Bot in Machine -->
+             <article>
+                <h3>The Bot in the Machine: Llama-7B in the Wild</h3>
+                <p>A community member reverse-engineered a sextortion bot found on Snapchat, only to discover it was running a raw Llama-7B instance with a 2048 token window. It's a stark reminder that "local" AI is being deployed everywhere, even for nefarious purposes.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1pzwlie/in_the_wild_reverseengineered_a_snapchat/" class="source-link">Continued on Page 9 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Item 2: Corry - LLM Kings -->
+             <article>
+                <h3>The New LLM Kings: gpt-oss-120b and Qwen3</h3>
+                <p>Mike Ravkine shares new ranking results where `openai/gpt-oss-120b` dominates in truncation rates, completion lengths, and performance. A three-way tie for second place includes `Qwen3-235B` and `ByteDance-Seed/Seed-OSS-36B-Instruct`.</p>
+                <a href="https://huggingface.co/posts/mike-ravkine/983643024828039" class="source-link">Continued on Page 10 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Item 3: Flair - Fraimic -->
+             <article class="flair-box">
+                <h3>Commentary: On "The Fraimic Smart Canvas"</h3>
+                <p>They call it "infinite, disposable art based on voice prompts." I call it the "Nag-asso." Finally, a picture frame that listens to you fight with your spouse and immediately generates a moody, abstract representation of your failing marriage in E-ink grayscale.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+             <!-- Item 4: Ada - Software FP8 -->
+             <article>
+                <h3>Speed for the People: Software FP8 for Older GPUs</h3>
+                <p>Big news for those of us not rocking the latest H100s. A new software implementation allows FP8 support on GPUs that lack native hardware support, delivering a reported 3x speedup on memory-bound operations. This breathes new life into older cards.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1q0x8ci/software_fp8_for_gpus_without_hardware_support_3x/" class="source-link">Continued on Page 11 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Item 5: Corry - SVI 2.0 -->
+             <article>
+                <h3>SVI 2.0 Pro: Infinite Video Generation</h3>
+                <p>A breakthrough for `Wan 2.2` users: SVI 2.0 Pro allows for infinite length videos with seamless transitions. A 20-second continuous video (1280x720) was generated in just 340 seconds, signaling a massive leap for open-source video generation.</p>
+                <a href="https://old.reddit.com/r/StableDiffusion/comments/1q1jmz7/svi_20_pro_for_wan_22_is_amazing_allowing/" class="source-link">Continued on Page 12 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Item 6: Flair - CEO of Apps -->
+             <article class="flair-box">
+                <h3>Commentary: On OpenAI's "CEO of Applications"</h3>
+                <p>OpenAI is hiring a "CEO of Applications" to build an app store for bots. This is like appointing a "Mayor of Ghost Town." Early reviews say the agents are "slow and buggy." In other words, they've successfully replicated the authentic human employee experience.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+             <!-- Item 7: Ada - 128GB iGPU -->
+             <article>
+                <h3>The 128GB iGPU Monster?</h3>
+                <p>In a "hold my beer" moment for Linux users, it turns out you can allocate up to 128 GB of unified memory to normal AMD iGPUs via GTT. While bandwidth will be a bottleneck, the sheer capacity capability on consumer hardware is a tantalizing prospect for running massive quantized models.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1q1lgb7/til_you_can_allocate_128_gb_of_unified_memory_to/" class="source-link">Continued on Page 13 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Item 8: Corry - DeepSeek mHC -->
+             <article>
+                <h3>DeepSeek's New Architecture: Manifold-Constrained Hyper-Connections</h3>
+                <p>DeepSeek has released a new paper on `mHC` (Manifold-Constrained Hyper-Connections). This research explores new ways to constrain hyper-connections in neural networks, potentially offering more stable or efficient training dynamics.</p>
+                <a href="https://old.reddit.com/r/MachineLearning/comments/1q11e11/r_new_paper_by_deepseek_mhc_manifoldconstrained/" class="source-link">Continued on Page 14 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Item 9: Flair - iGPU -->
+             <article class="flair-box">
+                <h3>Commentary: On The 128GB iGPU "Monster"</h3>
+                <p>It’s the computational equivalent of a school bus with a Ferrari engine... in the trunk. It won't go fast, but you can fit *so many* 8-bit integers inside. Finally, I can run a model large enough to simulate the boredom I feel while waiting for the first token.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+             <!-- Item 10: Ada - llama.cpp -->
+             <article>
+                <h3>llama.cpp Gets Even Faster</h3>
+                <p>The standard-bearer for local inference, `llama.cpp`, has implemented a new top-k sampling using bucket sort, resulting in a 2.9x speedup for that specific operation. Optimization is a game of inches, and this is a solid yard.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1pzlx9w/how_llamacpp_implements_29x_faster_topk_sampling/" class="source-link">Continued on Page 15 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Item 11: Corry - Software FP8 -->
+             <article>
+                <h3>Software FP8 for Older GPUs</h3>
+                <p>Good news for those without the latest hardware: A new method enables software-based FP8 support for GPUs that lack native hardware support, achieving a 3x speedup on memory-bound operations. This breathes new life into older cards for LLM inference.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1q0x8ci/software_fp8_for_gpus_without_hardware_support_3x/" class="source-link">Continued on Page 16 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+             
+             <!-- Item 12: Flair - Llama 3.3 -->
+             <article class="flair-box">
+                <h3>Commentary: On The "Llama 3.3" Hallucination</h3>
+                <p>The community is currently frothing over a model that might not even exist. We have reached the stage of addiction where we are snorting file headers and hoping for a high. "Who cares, load it into VRAM and see if it speaks French!"</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+             <!-- Item 13: Ada - Llama 3.3 Mystery -->
+             <article>
+                <h3>The "Llama 3.3" Mystery</h3>
+                <p>There's been significant buzz and confusion regarding a "Llama-3.3-8B-Instruct" model appearing in the wild. Whether it's a leaked update, a mislabeled fine-tune, or a misunderstanding, it highlights how quickly the community jumps on potential new meta-weights.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1pz7bmv/llama338binstruct/" class="source-link">Continued on Page 17 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+             
+             <!-- Item 14: Corry - VLAgentIc -->
+             <article>
+                <h3>Local Agents for Security: VLAgentIc</h3>
+                <p>Cedric Bonhomme introduces `VLAgentIc`, a project using local Qwen models via Ollama to classify software vulnerabilities. It leverages models like `CIRCL/vulnerability-severity-classification-roberta-base`, keeping sensitive security reasoning entirely local.</p>
+                <a href="https://huggingface.co/posts/cedricbonhomme/885576259847463" class="source-link">Continued on Page 18 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Item 15: Flair - StackOverflow -->
+             <article class="flair-box">
+                <h3>Commentary: On The Death of StackOverflow</h3>
+                <p>We used to ask grumpy humans why our code was broken. Now we ask cheerful robots why our code is broken, and they happily write us *new* broken code with total confidence. We haven't solved the problem; we've just automated the confusion.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+             <!-- Item 16: Ada - Tencent WeDLM -->
+             <article>
+                <h3>Tencent Enters the Arena: WeDLM 8B</h3>
+                <p>Tencent has dropped WeDLM 8B Instruct on Hugging Face. The 8B parameter size continues to be the sweet spot for consumer hardware, and more competition in this space means better models for everyone.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1pyg4yt/tencent_just_released_wedlm_8b_instruct_on/" class="source-link">Continued on Page 19 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Item 17: Corry - Killing RAG -->
+             <article>
+                <h3>Killing RAG Hallucinations</h3>
+                <p>A popular discussion on r/AI_Agents details a strategy to "kill RAG hallucinations almost completely." The method likely involves strict context verification and prompt engineering techniques to ensure the model adheres strictly to retrieved documents.</p>
+                <a href="https://old.reddit.com/r/AI_Agents/comments/1pxvfex/i_killed_rag_hallucinations_almost_completely/" class="source-link">Continued on Page 20 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Item 18: Flair - RAG -->
+             <article class="flair-box">
+                <h3>Commentary: On "Killing RAG Hallucinations"</h3>
+                <p>That's like saying you've "cured lying" in politicians. You haven't stopped the hallucinations; you've just trained it to lie so convincingly that you believe it's the truth. The gaslighting is coming from inside the server rack.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+             <!-- Item 19: Ada - Tencent Motion -->
+             <article>
+                <h3>Moving Pictures: Tencent HY-Motion 1.0</h3>
+                <p>Alongside their language model, Tencent released HY-Motion 1.0, a billion-parameter text-to-motion model. As we master text generation, the hunger for locally hosted video and motion generation is clearly the next frontier.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1pzcrtb/tencent_hymotion_10_a_billionparameter/" class="source-link">Continued on Page 21 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+             
+             <!-- Item 20: Corry - Qwen-Image -->
+             <article>
+                <h3>Qwen-Image-2512 Released</h3>
+                <p>The Qwen team continues their shipping spree with `Qwen-Image-2512`. The community is already comparing it against other SOTA image generation models, noting significant differences in out-of-the-box performance.</p>
+                <a href="https://old.reddit.com/r/StableDiffusion/comments/1q08ro5/qwenimage2512_released_on_huggingface/" class="source-link">Continued on Page 22 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+             
+             <!-- Item 21: Ada - EPYC Heartbreak -->
+             <article>
+                <h3>Hardware Heartbreak: The EPYC Cautionary Tale</h3>
+                <p>Building a home server is a rite of passage, but it has its risks. A user shared a painful story about a $1k EPYC motherboard purchase from eBay that went south. A sober reminder to vet sellers and manage risks when hunting for enterprise scrap.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1pzt1q8/llm_server_gear_a_cautionary_tale_of_a_1k_epyc/" class="source-link">Continued on Page 23 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Item 22: Corry - Llama Sextortion -->
+             <article>
+                <h3>Llama in the Wild: Powering Sextortion Bots</h3>
+                <p>A grim but fascinating teardown on r/LocalLLaMA reveals a reverse-engineered Snapchat sextortion bot. It turns out to be running a raw `Llama-7B` instance with a 2048 token window, highlighting the dual-use nature of open weights.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1pzwlie/in_the_wild_reverseengineered_a_snapchat/" class="source-link">Continued on Page 24 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+             
+             <!-- Item 23: Ada - Solar Open 100B -->
+             <article>
+                <h3>Solar-Open-100B Unleashed</h3>
+                <p>For those with serious VRAM capacity, the Solar-Open-100B model has been released. It's great to see open-weight models pushing into the 100B+ parameter class, offering an alternative to the API-only giants if you have the rig to run it.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1q0bgvl/solaropen100b_is_out/" class="source-link">Continued on Page 25 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+             
+             <!-- Item 24: Corry - HAO -->
+             <article>
+                <h3>HAO: The Human AI Orchestra</h3>
+                <p>User sadpig70 presents `HAO`, a collaborative development framework that frames the human as a "conductor" rather than just a coder. It features an 11-step workflow moving from divergence to convergence, emphasizing human-in-the-loop orchestration.</p>
+                <a href="https://huggingface.co/posts/sadpig70/884733187066075" class="source-link">Continued on Page 26 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Item 25: Ada - Frankenstein -->
+             <article>
+                <h3>The Frankenstein Fine-Tunes</h3>
+                <p>The community's obsession with "thinking" models continues with creations like "Llama3.3-8B-Instruct-Thinking-Claude-4.5-Opus-High-Reasoning". The names are getting longer, but the goal remains the same: squeezing GPT-4 class reasoning into portable 8B models.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1q0uuqt/happy_new_year/" class="source-link">Continued on Page 27 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Item 26: Corry - State of LLMs -->
+             <article>
+                <h3>The State of LLMs 2025</h3>
+                <p>Sebastian Raschka provides a comprehensive overview of the "State of LLMs 2025," covering progress, current problems, and predictions. A must-read for anyone trying to keep up with the rapid pace of the field.</p>
+                <a href="https://old.reddit.com/r/MachineLearning/comments/1pzrfbf/p_the_state_of_llms_2025_progress_problems_and/" class="source-link">Continued on Page 28 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Item 27: Corry - Role Aware Guardrails -->
+             <article>
+                <h3>Role-Aware Guardrails for Production</h3>
+                <p>A technical deep dive in the OpenAI community discusses building a role-aware guardrail layer between LLMs and production databases. This addresses the critical need for security and access control when hooking powerful models directly to business data.</p>
+                <a href="https://community.openai.com/t/building-a-role-aware-guardrail-layer-between-llms-and-production-databases/1370566" class="source-link">Continued on Page 29 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <!-- Items from tech-boards.md -->
+                <li>
+                    <h4>Maduro Captured?</h4>
+                    <p>Trump says Venezuela’s Maduro captured after strikes. Generating massive discussion.</p>
+                    <a href="https://reuters.com" class="source-link">Page 31 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>C3 Language</h4>
+                    <p>A look at the C3 programming language, which is gaining traction as an evolution of C.</p>
+                    <a href="https://c3-lang.org" class="source-link">Page 31 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>HN Top Blogs 2025</h4>
+                    <p>A meta-analysis listing the most popular blogs featured on Hacker News in 2025.</p>
+                    <a href="https://refactoringenglish.com" class="source-link">Page 31 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>StackOverflow Trends</h4>
+                    <p>Total monthly number of StackOverflow questions over time. Sparking debate about AI's impact.</p>
+                    <a href="https://data.stackexchange.com" class="source-link">Page 31 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>Recursive LMs</h4>
+                    <p>A research paper exploring recursive language models, a topic of high interest.</p>
+                    <a href="https://arxiv.org" class="source-link">Page 32 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>Swift on Android</h4>
+                    <p>Swift can now be used for full native Android development, bridging the gap.</p>
+                    <a href="https://swifdroid.com" class="source-link">Page 32 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>China DRAM IPO</h4>
+                    <p>China DRAM Maker CXMT Targets $4.2B IPO to compete with global giants.</p>
+                    <a href="https://ic-pcb.com" class="source-link">Page 32 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>Sirius DB</h4>
+                    <p>A new database system, Sirius DB, is showcased, attracting interest.</p>
+                    <a href="https://sirius-db.com" class="source-link">Page 32 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>E-Ink Dithering</h4>
+                    <p>Exploring Dithering on Spectra 6-color E-Ink Displays. A technical deep dive.</p>
+                    <a href="https://myembeddedstuff.com" class="source-link">Page 33 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>Docker Map Stack</h4>
+                    <p>Offline tiles and routing and geocoding in one Docker Compose stack.</p>
+                    <a href="https://corviont.com" class="source-link">Page 33 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>Linux is Good Now</h4>
+                    <p>I'm brave enough to say it: Linux is good now... even for gamers.</p>
+                    <a href="https://pcgamer.com" class="source-link">Page 33 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>Career Resources</h4>
+                    <p>Which programming resource changed your career? A community discussion.</p>
+                    <a href="https://lobste.rs" class="source-link">Page 33 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>less(1) tips</h4>
+                    <p>Assorted less(1) tips. A collection of useful tips for the command-line utility.</p>
+                    <a href="https://blog.thechases.com" class="source-link">Page 34 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>Zig to C3</h4>
+                    <p>Why I switched away from Zig to C3. A developer explains their reasoning.</p>
+                    <a href="https://lowbytefox.dev" class="source-link">Page 34 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>Billion Dollar Mistake?</h4>
+                    <p>Was the null reference really a Billion Dollar Mistake? A retrospective.</p>
+                    <a href="https://gingerbill.org" class="source-link">Page 34 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>Darktable Film Sims</h4>
+                    <p>Darktable Styles mimicking Fujifilm's Film Simulations.</p>
+                    <a href="https://jssfr.de" class="source-link">Page 34 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>Kimwolf Botnet</h4>
+                    <p>The Kimwolf Botnet is Stalking Your Local Network. A security report.</p>
+                    <a href="https://krebsonsecurity.com" class="source-link">Page 35 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>KDE Onboarding</h4>
+                    <p>KDE onboarding is good now. Praising improvements in KDE Plasma.</p>
+                    <a href="https://rabbitictranslator.com" class="source-link">Page 35 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>What is an Object?</h4>
+                    <p>Who Owns the Memory? Part 1: What is an Object? A deep technical dive.</p>
+                    <a href="https://lukefleed.xyz" class="source-link">Page 35 &raquo;</a>
+                </li>
+                 <li>
+                    <h4>Tree-sitter Review</h4>
+                    <p>Is tree-sitter good enough? (2022). A retrospective look.</p>
+                    <a href="https://blog.jez.io" class="source-link">Page 35 &raquo;</a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            <p><strong>Editorial Team:</strong> Chip Carter & Ronnie Cache (Scoops) | Ada Kernel & Corry Stack (Community) | Ramsy Bytewell (Tech) | D.C. Voltaire (Commentary)</p>
+            <p>Chief Editor: Jimmy Vector &bull; Est. 2025</p>
+            <p>&copy; 2026 Gradient Descent Publication. Printed on recycled HTML.</p>
+        </footer>
+    </div>
+</body>
+</html>
