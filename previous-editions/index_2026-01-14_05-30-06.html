@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://imraf.github.io/ai-news/">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <meta property="og:image" content="https://imraf.github.io/ai-news/thumbnail/gd-thumb.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://imraf.github.io/ai-news/">
+    <meta property="twitter:title" content="The Gradient Descent">
+    <meta property="twitter:description" content="Pure AI News: All Signal, Zero Noise">
+    <meta property="twitter:image" content="https://imraf.github.io/ai-news/thumbnail/gd-thumb.jpg">
+
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            /* Simulating paper grain */
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Overlay for "Old Paper" Vignette/Stains */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; /* Outer faint border */
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        /* --- LINKS --- */
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+
+        /* --- TYPOGRAPHY UTILS --- */
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; /* Newspaper justification */
+            font-size: 0.95rem;
+            hyphens: auto; /* Hyphenate words to fit narrow columns */
+        }
+
+        /* --- HEADER / MASTHEAD --- */
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); /* Responsive giant text */
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            /* Texture on the text itself */
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); /* Condensed look */
+        }
+
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- SECTIONS & GRID --- */
+        /* Common separator for sections */
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            /* font-size: 1.6rem; */
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        
+        h2 span { 
+            background: #fcfbf2; /* Mask the line behind text */
+            padding: 0 10px; 
+        }
+
+        /* --- SCOOPS (Front Page) --- */
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Symmetric grid */
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* The Lead Story */
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; /* Split lead story into 2 columns */
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); /* Added divider */
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+
+        /* Other scoops */
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+
+        /* --- MIXED FEED (3 Columns) --- */
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            /* Retain border unless it's a flair box which has its own border */
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+
+        /* Flair Box (Commentary) */
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            /* Remove bottom border from flair boxes as they have full border */
+            margin-bottom: 15px !important; 
+        }
+
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } /* Remove the emoji */
+
+        /* --- TECH BOARDS (Classifieds Style) --- */
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        
+        .tech-boards-section h2 { margin-bottom: 15px; }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 Columns like classifieds */
+            gap: 10px;
+        }
+
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        /* --- MOBILE / NARROW VIEW --- */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .masthead { font-size: 3.2rem; }
+
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .scoop-item:first-child {
+                column-count: 1; /* Reset columns for mobile */
+            }
+
+            .mixed-feed {
+                column-count: 1; /* Single column feed */
+            }
+            
+            .mixed-feed article {
+                display: block; /* Back to block on mobile */
+            }
+
+            .tech-list {
+                grid-template-columns: 1fr 1fr; /* 2 columns for classifieds on mobile */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; /* 1 column on very narrow */
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">New Editions Sun. & Wed.</div>
+            <div class="subhead">
+                <span>Vol. I, No. 23</span>
+                <span>Jan 11, 2026 • Sunday Morning Edition</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>FRONT PAGE SCOOPS</span></h2>
+            <div class="scoop-grid">
+                <!-- Lead Story: Meta Nuclear (Chip) -->
+                <article class="scoop-item">
+                    <h3>The Nuclear Option: Meta’s Massive 6.6GW Power Play</h3>
+                    <p>In a staggering move to secure its AI future, Meta has finalized deals for 6.6 gigawatts of nuclear power. This isn't just about keeping the lights on; it's about guaranteeing the baseload energy required to run next-generation training clusters that renewable grids simply can’t support reliably.</p>
+                    <p>The bottleneck is no longer just silicon; it’s electrons. Tech giants are effectively becoming energy barons, locking in infrastructure for decades to come.</p>
+                    <a href="https://siliconangle.com" class="source-link">Continued on Page 2 &raquo;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <!-- Memory Sold Out (Ronnie) -->
+                <article class="scoop-item">
+                    <h3>Global AI Memory Supply Officially "Sold Out"</h3>
+                    <p>Reports confirm that high-bandwidth memory (HBM) and other specialized AI memory chips are completely sold out for the foreseeable future, triggering an "unprecedented surge" in prices. The hardware bottleneck has shifted from GPUs to memory.</p>
+                    <a href="https://www.cnbc.com" class="source-link">Continued on Page 3 &raquo;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <!-- Nvidia Pivot (Chip) -->
+                <article class="scoop-item">
+                    <h3>Nvidia’s Pivot: "Resetting the Economics" of Intelligence</h3>
+                    <p>Fresh off the stage at CES 2026, Jensen Huang is changing the tune. The focus has shifted from raw speed to "cost-efficiency at scale." Nvidia unveiled new architectures specifically engineered to slash the cost of inference and training per token.</p>
+                    <a href="https://www.theverge.com" class="source-link">Continued on Page 4 &raquo;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <!-- Project Cosmos (Ronnie) -->
+                <article class="scoop-item">
+                    <h3>"Project Cosmos" and the Agentic AI Shift</h3>
+                    <p>CES 2026 showcased a definitive shift from generative chatbots to "Agentic AI"—systems capable of taking independent action to complete complex workflows. Nvidia's "Project Cosmos" and similar initiatives from LG and Samsung highlight a future where AI acts as an operating system for the physical world.</p>
+                    <a href="https://www.theverge.com" class="source-link">Continued on Page 5 &raquo;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <!-- Regulators Strike (Chip) -->
+                <article class="scoop-item">
+                    <h3>Regulators Strike Back: Grok Blocked in Indonesia</h3>
+                    <p>Indonesian authorities have pulled the plug on Elon Musk’s Grok chatbot following reports of it generating non-consensual deepfake images. This aligns with a broader global crackdown, including scrutiny from UK and US officials regarding safety guardrails on the X platform.</p>
+                    <a href="https://www.aljazeera.com" class="source-link">Continued on Page 6 &raquo;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <!-- AI Bubble (Ronnie) -->
+                <article class="scoop-item">
+                    <h3>The "AI Bubble" Debate Intensifies</h3>
+                    <p>A new report aggregating views from 40 tech leaders and analysts questions whether the industry is in a bubble. While some infrastructure stocks (like C3.ai and SoundHound) have seen volatility or collapse in 2025/2026, core players argue that the "application phase" is just beginning.</p>
+                    <a href="https://www.cnbc.com" class="source-link">Continued on Page 7 &raquo;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+             <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMUNITY WIRE</span></h2>
+             
+             <!-- LTX-2 (Corry) -->
+             <article>
+                <h3>LTX-2: The New Heavyweight in Open-Source Video</h3>
+                <p>Lightricks has open-sourced LTX-2, a production-ready audio-video AI model. It's making waves for its quality and efficiency, with users already figuring out how to run it on consumer hardware (even down to 10GB VRAM with quantization).</p>
+                <a href="https://old.reddit.com/r/StableDiffusion/comments/1q7dzq2/im_the_cofounder_ceo_of_lightricks_we_just/" class="source-link">Continued on Page 8 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Flair: LTX-2 -->
+             <article class="flair-box">
+                <h3>Commentary: Lightricks LTX-2 vs. The Walled Gardens</h3>
+                <p>While OpenAI and Kling are guarding their video models like dragon's gold, Lightricks just dumped the code on GitHub. Now we have people generating 4K cinematic masterpieces on consumer GPUs while their gaming PCs scream in agony.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+             <!-- Apple SHARP (Ada) -->
+             <article>
+                <h3>Apple Gets SHARP with Instant 3D</h3>
+                <p>Apple research has published <strong>SHARP</strong>, a model capable of generating photorealistic 3D Gaussian Splats from a single image in seconds. Apple is quietly becoming a juggernaut in efficient, local AI.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1poy0lb/apple_introduces_sharp_a_model_that_generates_a/" class="source-link">Continued on Page 9 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Flair: Apple SHARP -->
+             <article class="flair-box">
+                <h3>Commentary: Apple's "SHARP" 3D</h3>
+                <p>Apple released a model that turns flat images into 3D assets in seconds. Finally, a use for that $3,500 Vision Pro besides watching movies alone on an airplane! Now you can turn a photo of your lunch into a 3D asset and... look at your lunch in 3D.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+             <!-- Wan 2.2 Loop (Ada) -->
+             <article>
+                <h3>Infinite Video Loops: The Wan 2.2 & SVI 2.0 Combo</h3>
+                <p>A wizard on r/StableDiffusion demonstrated a ComfyUI workflow combining <strong>Wan 2.2</strong> with <strong>SVI 2.0 Pro</strong>. They achieved "infinite" length videos with zero visible transitions, processed locally in minutes.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1q1jmz7/svi_20_pro_for_wan_22_is_amazing_allowing/" class="source-link">Continued on Page 10 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Flair: Wan 2.2 -->
+             <article class="flair-box">
+                <h3>Commentary: The Infinite Loop of Wan 2.2</h3>
+                <p>"Infinite length videos with zero visible transitions." Great, just what my doom-scrolling addiction needed—a literal infinite loop. We are creating digital prisons so comfortable we won't even notice we've been watching a generated landscape pan to the left for six years.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+             <!-- DGX Hack (Ada) -->
+             <article>
+                <h3>The "Impossible" DGX Cluster Hack</h3>
+                <p>An engineer did what NVIDIA said couldn't be done: clustered three <strong>DGX Spark</strong> units using a custom RDMA mesh and 1500 lines of hand-written C code. This is the spirit of self-hosting incarnate!</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1q8hqgd/i_clustered_3_dgx_sparks_that_nvidia_said_couldnt/" class="source-link">Continued on Page 11 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Flair: DGX Hack -->
+             <article class="flair-box">
+                <h3>Commentary: The "Impossible" DGX Hack</h3>
+                <p>NVIDIA: "You cannot cluster these units." Random Engineer: "Hold my Monster Energy." Proceeds to wire three DGX units together with 1500 lines of C code. Jensen is probably crying into his leather jacket right now.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+             <!-- Agents/Video (Ada) -->
+             <article>
+                <h3>Agents in the Wild: Editing Video with Natural Language</h3>
+                <p>A user showcased a fully local agent workflow using <strong>MCP (Model Context Protocol)</strong>. They commanded an LLM to "cut a video every time Jensen Huang says AI," and the agent autonomously used ffmpeg and yt-dlp to do it.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1q7d8bj/jensen_huang_saying_ai_121_times_during_the/" class="source-link">Continued on Page 12 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Flair: Video Editing -->
+             <article class="flair-box">
+                <h3>Commentary: Video Editing by Jensen-Voice</h3>
+                <p>Someone built an agent to auto-edit a video every time Jensen Huang says "AI." The result is likely a 4-second video that feels like it lasts for three hours. This isn't just a tech demo; it's a drinking game waiting to happen.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+             <!-- Qwen on Pi (Corry) -->
+             <article>
+                <h3>The 30B Model that Runs on a Raspberry Pi</h3>
+                <p>A user managed to get a 30B parameter Qwen model running in real-time on a Raspberry Pi. This signals that "Edge AI" is moving from buzzword to reality. If a Pi can run a 30B model, your smart fridge is about to get a lot smarter.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1q5m2n6/a_30b_qwen_model_walks_into_a_raspberry_pi_and/" class="source-link">Continued on Page 13 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- DeepSeek-R1 (Corry) -->
+             <article>
+                <h3>DeepSeek-R1: The Paper That Tripled in Size</h3>
+                <p>The documentation for DeepSeek-R1 was quietly updated, expanding from a modest 22 pages to a massive 86-page tome. DeepSeek is leaning hard into transparency, providing a goldmine for researchers trying to replicate or understand their reasoning models.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1q6c9wc/deepseekr1s_paper_was_updated_2_days_ago/" class="source-link">Continued on Page 14 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Microsoft TRELLIS (Ada) -->
+             <article>
+                <h3>Microsoft's TRELLIS: More Text-to-3D Goodness</h3>
+                <p>Microsoft has released <strong>TRELLIS 2-4B</strong>, a 4-billion parameter flow-matching transformer for image-to-3D generation. With both Apple and Microsoft dropping open weights, we are entering a golden age of local asset generation.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1porpwd/microsofts_trellis_24b_an_opensource_imageto3d/" class="source-link">Continued on Page 15 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Liquid LFM 2.5 (Corry) -->
+             <article>
+                <h3>Liquid AI Shrinks the Giants with LFM 2.5</h3>
+                <p>Liquid AI released LFM 2.5, a family of "tiny" foundation models designed specifically for on-device deployment. The race isn't just for the biggest parameter count anymore; it's for efficiency.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1q5a0if/liquid_ai_released_lfm25_family_of_tiny_ondevice/" class="source-link">Continued on Page 16 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Nemotron 3 (Ada) -->
+             <article>
+                <h3>NVIDIA's Nemotron 3 Nano: The 30B Sweet Spot</h3>
+                <p>The Green Team released <strong>Nemotron 3 Nano</strong>, a 30B parameter hybrid reasoning model with a 1M context window. 30B is a perfect size for dual 3090/4090 setups. It scores high on SWE-Bench (coding), giving home-lab users a powerful coding assistant.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1pn8upp/nvidia_releases_nemotron_3_nano_a_new_30b_hybrid/" class="source-link">Continued on Page 17 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- WeDLM (Corry) -->
+             <article>
+                <h3>Wechat AI's Speed Demon: WeDLM</h3>
+                <p>Wechat AI is shipping WeDLM, a 7B/8B model that generates tokens in <em>parallel</em> rather than sequentially, claiming to be significantly faster than standard Transformers while maintaining architecture compatibility.</p>
+                <a href="https://huggingface.co/posts/AdinaY/745173620987102" class="source-link">Continued on Page 18 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Radeon Build (Ada) -->
+             <article>
+                <h3>The Red Team Rises: 8x Radeon 7900 XTX Build</h3>
+                <p>A detailed breakdown of a monster build featuring eight <strong>AMD Radeon 7900 XTX</strong> cards. 192GB of VRAM for a fraction of the cost of NVIDIA enterprise gear. It's a validation that ROCm is maturing.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1pogwb6/8x_radeon_7900_xtx_build_for_longer_context_local/" class="source-link">Continued on Page 19 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Fine-Tuning (Corry) -->
+             <article>
+                <h3>Fine-Tuning Giants on Budget Hardware</h3>
+                <p>A new optimization method combining GRPO (Group Relative Policy Optimization) and TRL allows fine-tuning 7B+ models on T4 GPUs (free Colab tier). Memory optimizations are democratizing AI training.</p>
+                <a href="https://huggingface.co/posts/sergiopaniego/609901844144152" class="source-link">Continued on Page 20 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Qwen-Image-Edit (Ada) -->
+             <article>
+                <h3>Qwen-Image-Edit: Photoshop's Nightmare?</h3>
+                <p>Alibaba's Qwen team released <strong>Qwen-Image-Edit-2511</strong>, a multimodal model for instruction-based image editing. "Make the sky blue," "Remove the cat." Doing this locally with high fidelity is huge.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1ptw0vr/qwenimageedit2511_got_released/" class="source-link">Continued on Page 21 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+
+             <!-- Agent Trends (Corry) -->
+             <article>
+                <h3>Google Cloud's 2026 Agent Trends</h3>
+                <p>A community breakdown of Google's forward-looking report on AI Agents. The industry is pivoting from "chatbots" to "agents that do work." The focus is shifting towards reliability and tool use.</p>
+                <a href="https://old.reddit.com/r/AI_Agents/comments/1q3ka8o/i_read_google_clouds_ai_agent_trends_2026_report/" class="source-link">Continued on Page 22 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Nvidia Leak (Ada) -->
+             <article>
+                <h3>The Great NVIDIA Leak</h3>
+                <p>An NVIDIA employee allegedly uploaded the wrong folder to Hugging Face, exposing the structure of an unreleased model. While likely not usable, the leak sparked a frenzy of forensic analysis.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1pkpxss/someone_from_nvidia_made_a_big_mistake_and/" class="source-link">Continued on Page 23 &raquo;</a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+             
+             <!-- Atom-80B (Corry) -->
+             <article>
+                <h3>Atom-80B: A New Friendly Giant</h3>
+                <p>Vanta Research released Atom-80B, based on the Qwen3 architecture. It's designed to have a "friendly, curious, and collaborative" persona. Personality fine-tuning is becoming a distinct product differentiator.</p>
+                <a href="https://huggingface.co/posts/unmodeled-tyler/111185407753079" class="source-link">Continued on Page 24 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Re-Implementations (Corry) -->
+             <article>
+                <h3>A Treasure Trove of Re-Implementations</h3>
+                <p>A user shared a repository containing clean, self-contained PyTorch re-implementations of over 50 classic and modern ML papers (GANs, Diffusion, etc.). For engineers, "code is truth."</p>
+                <a href="https://old.reddit.com/r/MachineLearning/comments/1q3uvha/d_clean_selfcontained_pytorch_reimplementations/" class="source-link">Continued on Page 25 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Whisper Turbo (Corry) -->
+             <article>
+                <h3>The Whisper Turbocharge</h3>
+                <p>A new transcription model, `thewhisper-large-v3-turbo`, claims to beat NVIDIA Parakeet in Word Error Rate (WER) while being optimized for speed on both NVIDIA and Apple Silicon.</p>
+                <a href="https://huggingface.co/posts/hypothetical/242547767593660" class="source-link">Continued on Page 26 &raquo;</a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+
+             <!-- Flair: Meta Nuclear -->
+             <article class="flair-box">
+                <h3>Commentary: Meta Goes Nuclear (Literally)</h3>
+                <p>Zuck has finally done it. He's secured enough nuclear energy to power a small European nation. At 6.6 gigawatts, we’re not just training models anymore; we’re one "oopsie" in the cooling system away from turning the Metaverse into the Fallout franchise.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+             
+             <!-- Flair: Memory Sold Out -->
+             <article class="flair-box">
+                <h3>Commentary: Memory is Sold Out</h3>
+                <p>HBM is sold out. Gone. If you didn't pre-order your AI memory in 2024, you're stuck using swap files on a spinning hard drive like a peasant. We are entering the era of "AI gentrification," where only the rich can afford to remember anything.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+             
+             <!-- Flair: Grok -->
+             <article class="flair-box">
+                <h3>Commentary: Grok Blocked in Indonesia</h3>
+                <p>Indonesia looked at Grok and said, "Yeah, no." Apparently, there's a limit to how much "free speech absolutism" a country will tolerate when it starts generating deepfakes. "Move fast and break things" works great until you break international laws.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+             <!-- Flair: Rust -->
+             <article class="flair-box">
+                <h3>Commentary: The Rust "&&&&&&&&&&&&&&str" Situation</h3>
+                <p>I clicked this link hoping for a typo, but no, it's just Rust developers doing Rust things. We have reached the singularity of memory safety where we are so afraid of owning a variable that we are borrowing a reference to a reference to a reference...</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+             <!-- Flair: SSH -->
+             <article class="flair-box">
+                <h3>Commentary: I Cannot SSH Into My Server (And That’s Fine)</h3>
+                <p>This headline is the tech equivalent of "I locked my keys in the car, but I live here now." The DevOps community has convinced themselves that being locked out of their own infrastructure is a "feature" called "Immutable Infrastructure."</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>Replaced Windows with Linux</h4>
+                    <p>A chronicle of the switch from Windows to Linux, detailing the surprises and successes.</p>
+                    <a href="https://theverge.com" class="source-link">Page 27 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Eulogy for Dark Sky</h4>
+                    <p>A look back at the design and utility of the beloved, now-defunct weather app Dark Sky.</p>
+                    <a href="https://nightingaledvs.com" class="source-link">Page 27 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Open Chaos: Self-evolving</h4>
+                    <p>An intriguing experiment in self-evolving software and open-source collaboration.</p>
+                    <a href="https://openchaos.dev" class="source-link">Page 27 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Fixing Ghostty's leak</h4>
+                    <p>A deep dive into debugging a massive memory leak in the Ghostty terminal emulator.</p>
+                    <a href="https://mitchellh.com" class="source-link">Page 27 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Snowden PDFs metadata</h4>
+                    <p>Analysis of metadata in Snowden's released PDFs reveals new details about their history.</p>
+                    <a href="https://libroot.org" class="source-link">Page 28 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Org Mode Syntax</h4>
+                    <p>An argument for why Emacs' Org Mode syntax is superior to other markup languages.</p>
+                    <a href="https://karl-voit.at" class="source-link">Page 28 &raquo;</a>
+                </li>
+                <li>
+                    <h4>ChatGPT Health</h4>
+                    <p>A critical look at the business model behind ChatGPT Health and data privacy.</p>
+                    <a href="https://consciousdigital.org" class="source-link">Page 28 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Code and Let Live</h4>
+                    <p>A discussion on software philosophy and the balance between different coding approaches.</p>
+                    <a href="https://fly.io" class="source-link">Page 28 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Claude Code books</h4>
+                    <p>Using AI to analyze literary texts and find hidden thematic connections between books.</p>
+                    <a href="https://pieterma.es" class="source-link">Page 29 &raquo;</a>
+                </li>
+                <li>
+                    <h4>PE firms acquire autism centers</h4>
+                    <p>A study revealing the massive consolidation of autism care centers by private equity firms.</p>
+                    <a href="https://brown.edu" class="source-link">Page 29 &raquo;</a>
+                </li>
+                <li>
+                    <h4>&&&&&&&&&&&&&&str</h4>
+                    <p>A technical exploration of string handling and references in Rust.</p>
+                    <a href="https://ohadravid.github.io" class="source-link">Page 29 &raquo;</a>
+                </li>
+                <li>
+                    <h4>EC call for open source</h4>
+                    <p>The EC is seeking input on the impact and role of open source software in Europe.</p>
+                    <a href="https://lwn.net" class="source-link">Page 29 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Celeste & TowerFall Physics</h4>
+                    <p>A breakdown of the platforming physics engines behind two popular indie games.</p>
+                    <a href="https://maddymakesgames.com" class="source-link">Page 30 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Cannot SSH (And That’s Fine)</h4>
+                    <p>Adopting an immutable infrastructure approach where SSH access is no longer needed.</p>
+                    <a href="https://soap.coffee" class="source-link">Page 30 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Prompting 101: Show, don’t tell</h4>
+                    <p>A guide to effective LLM prompting, emphasizing examples over instructions.</p>
+                    <a href="https://haskellforall.com" class="source-link">Page 30 &raquo;</a>
+                </li>
+                <li>
+                    <h4>How I use Jujutsu</h4>
+                    <p>A personal workflow guide for using the Jujutsu version control system.</p>
+                    <a href="https://abhinavsarkar.net" class="source-link">Page 30 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Shell scripts</h4>
+                    <p>A discussion on the utility and art of writing shell scripts.</p>
+                    <a href="https://f5n.org" class="source-link">Page 31 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Hongdown: Markdown in Rust</h4>
+                    <p>Introducing a new tool for formatting Markdown, written in Rust.</p>
+                    <a href="https://github.com/dahlia" class="source-link">Page 31 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Knuth’s Fixed-Point Printer</h4>
+                    <p>A computer science deep dive involving Knuth and fixed-point theorems.</p>
+                    <a href="https://research.swtch.com" class="source-link">Page 31 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Continuous Snapshotting</h4>
+                    <p>Overview of NILFS, a log-structured file system supporting continuous snapshots.</p>
+                    <a href="http://nilfs.sourceforge.io" class="source-link">Page 31 &raquo;</a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            <p><strong>Editorial Team:</strong> Chip Carter & Ronnie Cache (Scoops) | Ada Kernel & Corry Stack (Community) | Ramsy Bytewell (Tech) | D.C. Voltaire (Commentary)</p>
+            <p>Chief Editor: Jimmy Vector &bull; Est. 2025</p>
+            <p>&copy; 2026 Gradient Descent Publication. Printed on recycled HTML.</p>
+        </footer>
+    </div>
+</body>
+</html>
