@@ -3,23 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://imraf.github.io/ai-news/">
     <meta property="og:title" content="The Gradient Descent">
     <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
-    <meta property="og:image" content="https://imraf.github.io/ai-news/thumbnail/gd-thumb.jpg">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://imraf.github.io/ai-news/">
-    <meta property="twitter:title" content="The Gradient Descent">
-    <meta property="twitter:description" content="Pure AI News: All Signal, Zero Noise">
-    <meta property="twitter:image" content="https://imraf.github.io/ai-news/thumbnail/gd-thumb.jpg">
-
     <title>The Gradient Descent</title>
     <style>
+
         /* --- GLOBAL RESET --- */
         *, *::before, *::after {
             box-sizing: border-box;
@@ -44,7 +33,6 @@
         /* --- PAPER TEXTURE & BODY --- */
         body {
             background-color: var(--paper-bg);
-            /* Simulating paper grain */
             background-image: var(--paper-texture); 
             background-size: 16px 16px; 
             color: var(--ink-color);
@@ -55,7 +43,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Overlay for "Old Paper" Vignette/Stains */
         body::before {
             content: "";
             position: fixed;
@@ -70,16 +57,14 @@
             margin: 20px auto;
             background-color: rgba(255,255,255,0.8); 
             padding: 20px;
-            border: 1px solid #d4d4d4; /* Outer faint border */
+            border: 1px solid #d4d4d4; 
             box-shadow: 0 0 15px rgba(0,0,0,0.15);
             position: relative;
         }
 
-        /* --- LINKS --- */
         a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
         a:hover { background-color: rgba(0,0,0,0.05); }
 
-        /* --- TYPOGRAPHY UTILS --- */
         h1, h2, h3, h4 {
             font-family: var(--headline-font);
             font-weight: 900;
@@ -91,12 +76,11 @@
 
         p {
             margin: 0 0 10px 0;
-            text-align: justify; /* Newspaper justification */
+            text-align: justify; 
             font-size: 0.95rem;
-            hyphens: auto; /* Hyphenate words to fit narrow columns */
+            hyphens: auto; 
         }
 
-        /* --- HEADER / MASTHEAD --- */
         header {
             text-align: center;
             border-bottom: 4px double var(--border-black);
@@ -106,14 +90,13 @@
         }
 
         .masthead {
-            font-size: clamp(3rem, 10vw, 5.5rem); /* Responsive giant text */
+            font-size: clamp(3rem, 10vw, 5.5rem); 
             font-weight: 900;
             letter-spacing: -3px;
             margin-bottom: 5px;
-            /* Texture on the text itself */
             color: #1a1a1a;
             text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
-            transform: scaleY(1.1); /* Condensed look */
+            transform: scaleY(1.1); 
         }
 
         .tagline {
@@ -137,8 +120,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* --- SECTIONS & GRID --- */
-        /* Common separator for sections */
         section {
             border-bottom: 1px solid var(--border-black);
             margin-bottom: 15px;
@@ -146,7 +127,6 @@
         }
 
         h2 {
-            /* font-size: 1.6rem; */
             text-align: center;
             border-bottom: 1px solid var(--border-black);
             line-height: 0.1em;
@@ -155,27 +135,25 @@
         }
         
         h2 span { 
-            background: #fcfbf2; /* Mask the line behind text */
+            background: #fcfbf2; 
             padding: 0 10px; 
         }
 
-        /* --- SCOOPS (Front Page) --- */
         .scoop-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Symmetric grid */
+            grid-template-columns: 1fr 1fr; 
             gap: 15px;
             border-bottom: 2px solid var(--border-black);
             padding-bottom: 15px;
             margin-bottom: 15px;
         }
 
-        /* The Lead Story */
         .scoop-item:first-child {
             grid-column: 1 / -1;
-            column-count: 2; /* Split lead story into 2 columns */
+            column-count: 2; 
             column-gap: 20px;
             column-rule: none;
-            border-bottom: 1px solid var(--border-black); /* Added divider */
+            border-bottom: 1px solid var(--border-black); 
             padding-bottom: 15px;
             margin-bottom: 15px;
         }
@@ -197,7 +175,6 @@
             font-weight: 900;
         }
 
-        /* Other scoops */
         .scoop-item h3 {
             font-size: 1.25rem;
             margin-bottom: 5px;
@@ -221,7 +198,6 @@
             color: #444;
         }
 
-        /* --- MIXED FEED (3 Columns) --- */
         .mixed-feed {
             column-count: 3;
             column-gap: 20px;
@@ -236,11 +212,9 @@
             margin-bottom: 15px;
             padding-bottom: 10px;
             vertical-align: top;
-            /* Retain border unless it's a flair box which has its own border */
             border-bottom: 1px dotted var(--ink-color); 
         }
 
-        /* Flair Box (Commentary) */
         .flair-box {
             border: 2px solid var(--border-black) !important;
             padding: 10px;
@@ -252,14 +226,12 @@
                 transparent 4px
             );
             position: relative;
-            /* Remove bottom border from flair boxes as they have full border */
             margin-bottom: 15px !important; 
         }
 
         .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
-        .flair-box::before { display: none; } /* Remove the emoji */
+        .flair-box::before { display: none; } 
 
-        /* --- TECH BOARDS (Classifieds Style) --- */
         .tech-boards-section {
             background-color: transparent;
             padding: 0;
@@ -273,7 +245,7 @@
             padding: 0;
             margin: 0;
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4 Columns like classifieds */
+            grid-template-columns: repeat(4, 1fr); 
             gap: 10px;
         }
 
@@ -303,7 +275,6 @@
             margin-top: 5px;
         }
 
-        /* --- FOOTER --- */
         footer {
             margin-top: 30px;
             border-top: 4px double var(--border-black);
@@ -314,7 +285,6 @@
             text-transform: uppercase;
         }
 
-        /* --- MOBILE / NARROW VIEW --- */
         @media (max-width: 768px) {
             .container {
                 margin: 0;
@@ -332,25 +302,25 @@
             }
 
             .scoop-item:first-child {
-                column-count: 1; /* Reset columns for mobile */
+                column-count: 1; 
             }
 
             .mixed-feed {
-                column-count: 1; /* Single column feed */
+                column-count: 1; 
             }
             
             .mixed-feed article {
-                display: block; /* Back to block on mobile */
+                display: block; 
             }
 
             .tech-list {
-                grid-template-columns: 1fr 1fr; /* 2 columns for classifieds on mobile */
+                grid-template-columns: 1fr 1fr; 
             }
         }
 
         @media (max-width: 480px) {
             .tech-list {
-                grid-template-columns: 1fr; /* 1 column on very narrow */
+                grid-template-columns: 1fr; 
             }
             .subhead {
                 flex-direction: column;
@@ -368,8 +338,8 @@
             <h1 class="masthead">The Gradient Descent</h1>
             <div class="tagline">New Editions Sun. & Wed.</div>
             <div class="subhead">
-                <span>Vol. I, No. 24</span>
-                <span>Jan 14, 2026 • Wednesday Evening Edition</span>
+                <span>Vol. I, No. 25</span>
+                <span>Jan 18, 2026 • Sunday Morning Edition</span>
                 <span>Cost: 96GB</span>
             </div>
         </header>
@@ -377,407 +347,381 @@
         <section class="scoops-section">
             <h2><span>FRONT PAGE SCOOPS</span></h2>
             <div class="scoop-grid">
-                <!-- Lead Story: Anthropic Cowork (Chip) -->
+
                 <article class="scoop-item">
-                    <h3>Anthropic Launches "Cowork" for Desktop Integration</h3>
-                    <p>Anthropic has unveiled "Cowork," a new tool that allows their AI model, Claude, to step out of the browser and interact directly with files on a user's local machine. This move aims to make the AI a more integrated part of daily coding and administrative workflows.</p>
-                    <p>It signifies a shift from chat-based AI to "agentic" AI that can manipulate local files, placing it in direct competition with GitHub Copilot and other local coding assistants. This promises increased privacy and utility for developers working in local environments.</p>
-                    <a href="https://www.computerworld.com/article/4116179/anthropic-releases-cowork-claude-code-directly-on-your-computer.html" class="source-link">Continued on Page 2 &raquo;</a>
+                    <h3>1. The $134 Billion Grudge Match: Musk vs. The World (OpenAI & Microsoft)</h3>
+                    <p>If you thought the feud was cooling down, think again. Elon Musk has just dropped a legal nuclear bomb, filing a motion seeking between <strong>$79 billion and $134 billion</strong> in damages from his former pals at OpenAI and their backers at Microsoft.</p><p><strong>The Scoop:</strong></p><p>Musk alleges that OpenAI committed the ultimate betrayal: taking his early philanthropic cash intended for safe, open AGI and pivoting to become a "closed-source" subsidiary of Microsoft. He claims this violates the very soul of the agreement he signed up for.</p><p><strong>Chip's Takeaways:</strong></p><p><br>&bull; <strong>The Price Tag:</strong> $134 Billion. That's not a typo. That's "GDP of a small country" money.</p><p><br>&bull; <strong>Ideological War:</strong> This isn't just about cash; it's the final battle line between the original "Open" vision and the current corporate reality.</p><p><br>&bull; <strong>Bad Blood:</strong> The personal rift between Musk, Altman, and Nadella is now etched in court documents forever.</p><p><strong>Link:</strong> <a href="https://www.bloomberg.com/news/articles/2026-01-17/musk-seeks-up-to-134-billion-damages-from-openai-microsoft">Bloomberg Report</a></p><p>---</p>
+                    <a href="https://www.bloomberg.com/news/articles/2026-01-17/musk-seeks-up-to-134-billion-damages-from-openai-microsoft" class="source-link">Continued on Page 17 >></a>
                     <span class="reporter">— Chip Carter</span>
                 </article>
-
-                <!-- 1X World Model (Ronnie) -->
+    
                 <article class="scoop-item">
-                    <h3>1X Releases "World Model" for Humanoid Learning</h3>
-                    <p>1X, makers of the Neo humanoid, just dropped a "world model" that lets their robots understand physics and space, not just text. It’s about learning by seeing. We are moving from Chatbots to Movebots.</p>
-                    <a href="https://techcrunch.com/2026/01/13/neo-humanoid-maker-1x-releases-world-model-to-help-bots-learn-what-they-see/" class="source-link">Continued on Page 3 &raquo;</a>
+                    <h3>2. Ads Are Coming to ChatGPT (Yes, Even the "Go" Tier)</h3>
+                    <p>The free lunch is officially over. OpenAI has confirmed what we all feared: advertisements are entering the chat. If you're on the Free plan or the new $8/month "Go" tier, get ready to see sponsored content sliding into your conversation streams.</p><p><strong>The Scoop:</strong></p><p>Computing power isn't cheap, folks. OpenAI is looking for "low billions" in ad revenue this year to keep the lights on and the GPUs humming.</p><p><strong>Chip's Takeaways:</strong></p><p><br>&bull; <strong>The Pivot:</strong> We've moved from "pure research lab" to "ad-supported media giant" speed.</p><p><br>&bull; <strong>The Promise:</strong> They swear they aren't selling your training data to advertisers. Let's hope that promise holds better than the "non-profit" one.</p><p><br>&bull; <strong>Pay to Play:</strong> If you want a clean interface, you're going to have to pony up for the "Plus" or "Pro" subscriptions.</p><p><strong>Link:</strong> <a href="https://www.ft.com/content/7d4e11d3-f30e-4c33-bedc-908cf221cffc">Financial Times Report</a></p><p>---</p>
+                    <a href="https://www.ft.com/content/7d4e11d3-f30e-4c33-bedc-908cf221cffc" class="source-link">Continued on Page 36 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+    
+                <article class="scoop-item">
+                    <h3>3. The Bottleneck Nobody Saw Coming: Plumbers & Electricians</h3>
+                    <p>Forget the GPU shortage. The biggest threat to the AI explosion right now isn't silicon—it's copper wire and HVAC ducts. A new report exposes a critical labor gap that is stalling data center construction across the U.S.</p><p><strong>The Scoop:</strong></p><p>Big Tech has the billions to buy land and chips, but they can't find enough skilled tradespeople to actually *build* the facilities. Timelines are slipping, and the physical reality of infrastructure is hitting hard.</p><p><strong>Chip's Takeaways:</strong></p><p><br>&bull; <strong>Reality Check:</strong> You can't code your way out of needing a skilled electrician to wire a 100MW facility.</p><p><br>&bull; <strong>Delays Ahead:</strong> Expect roadmap slips for major training clusters. If the building isn't done, the model doesn't train.</p><p><br>&bull; <strong>Blue Collar Boom:</strong> Wages for skilled trades are skyrocketing. If you want to make money in AI right now, maybe pick up a wrench instead of a laptop.</p><p><strong>Link:</strong> <a href="https://www.wired.com/story/why-there-arent-enough-electricians-and-plumbers-to-build-ai-data-centers/">Wired Report</a></p>
+                    <a href="https://www.wired.com/story/why-there-arent-enough-electricians-and-plumbers-to-build-ai-data-centers/" class="source-link">Continued on Page 3 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+    
+                <article class="scoop-item">
+                    <h3>2. California AG Slaps xAI with Cease-and-Desist Order</h3>
+                    <p>California Attorney General Rob Bonta has issued a cease-and-desist order to Elon Musk’s xAI. The order demands an immediate halt to the generation of nonconsensual sexual deepfakes by its Grok chatbot. This regulatory crackdown follows reports of the model being used to generate explicit images of public figures and minors, signaling a tougher stance on AI safety and content moderation.</p>
+                    <a href="https://www.theverge.com/news/863758/californias-attorney-general-sent-xai-a-cease-and-desist-letter-over-groks-ai-deepfakes" class="source-link">Continued on Page 32 >></a>
                     <span class="reporter">— Ronnie Cache</span>
                 </article>
-
-                <!-- Microsoft Power (Ronnie) -->
+    
                 <article class="scoop-item">
-                    <h3>Microsoft's Massive Power Play</h3>
-                    <p>Microsoft is building a mountain of new data centers for AI but promises your home electricity bill won't spike because of it. Big Tech knows energy is their biggest bottleneck—and their biggest PR nightmare.</p>
-                    <a href="https://techcrunch.com/2026/01/13/microsoft-announces-glut-of-new-data-centers-but-says-it-wont-let-your-electricity-bill-go-up/" class="source-link">Continued on Page 4 &raquo;</a>
+                    <h3>4. TSMC Reports "Endless" AI Chip Demand</h3>
+                    <p>Defying fears of an AI bubble, the world's leading chipmaker, TSMC, has reported record Q4 earnings and stated that demand for AI-related hardware appears "endless." This announcement confirms that the infrastructure build-out for artificial intelligence shows no signs of slowing down, with major tech companies continuing to pour billions into compute power.</p>
+                    <a href="https://arstechnica.com/ai/2026/01/tsmc-says-ai-demand-is-endless-after-record-q4-earnings/" class="source-link">Continued on Page 22 >></a>
                     <span class="reporter">— Ronnie Cache</span>
                 </article>
-
-                <!-- Slackbot (Chip) -->
+    
                 <article class="scoop-item">
-                    <h3>Slackbot is an AI Agent Now</h3>
-                    <p>Salesforce has announced a major upgrade to Slackbot, transforming it from a simple notification bot into a comprehensive AI agent. The new Slackbot can now execute complex tasks across multiple enterprise applications directly from the chat interface.</p>
-                    <a href="https://techcrunch.com/2026/01/13/slackbot-is-an-ai-agent-now/" class="source-link">Continued on Page 5 &raquo;</a>
-                    <span class="reporter">— Chip Carter</span>
-                </article>
-
-                <!-- Pentagon Grok (Chip) -->
-                <article class="scoop-item">
-                    <h3>Pentagon to Integrate Elon Musk’s Grok AI</h3>
-                    <p>The US Defense Secretary confirmed that xAI's Grok will be integrated into US military systems later this month. This decision comes amidst debates regarding the model's safety filters and open nature.</p>
-                    <a href="https://www.theguardian.com/technology/2026/jan/13/elon-musk-grok-hegseth-military-pentagon" class="source-link">Continued on Page 6 &raquo;</a>
-                    <span class="reporter">— Chip Carter</span>
-                </article>
-
-                <!-- Unicorns (Ronnie) -->
-                <article class="scoop-item">
-                    <h3>The Unicorns are Galloping</h3>
-                    <p>Deepgram raised $130M (hitting a $1.3B valuation) and ElevenLabs revealed they hit a staggering $330M in Annual Recurring Revenue. Voice is the killer app right now; companies are quietly printing money.</p>
-                    <a href="https://techcrunch.com/2026/01/13/deepgram-raises-130m-at-1-3b-valuation-and-buys-a-yc-ai-startup/" class="source-link">Continued on Page 7 &raquo;</a>
+                    <h3>5. Wikipedia Signs Data Deals with Tech Giants</h3>
+                    <p>The Wikimedia Foundation has entered into new licensing agreements with major AI players including Microsoft, Meta, Amazon, and Perplexity. These deals provide priority access to Wikipedia's vast content for training AI models, establishing a formal (and paid) pipeline for the data that powers the world's most intelligent systems.</p>
+                    <a href="https://techcrunch.com/2026/01/15/wikimedia-foundation-announces-new-ai-partnerships-with-amazon-meta-microsoft-perplexity-and-others/" class="source-link">Continued on Page 17 >></a>
                     <span class="reporter">— Ronnie Cache</span>
                 </article>
-
-                <!-- ServiceNow (Chip) -->
-                <article class="scoop-item">
-                    <h3>Critical Flaw in ServiceNow’s AI Platform</h3>
-                    <p>A critical vulnerability was discovered and patched in ServiceNow’s AI platform that allowed unauthenticated attackers to impersonate users. This flaw could have exposed sensitive enterprise data accessed through AI queries.</p>
-                    <a href="https://thehackernews.com/2026/01/servicenow-patches-critical-ai-platform.html" class="source-link">Continued on Page 8 &raquo;</a>
-                    <span class="reporter">— Chip Carter</span>
-                </article>
-
-                <!-- Broadcom (Chip) -->
-                <article class="scoop-item">
-                    <h3>Broadcom Overtakes Nvidia on Wall Street</h3>
-                    <p>Analysts are shifting their top recommendations from Nvidia to Broadcom for 2026. Networking and custom silicon (ASICs) are becoming as critical as raw compute power.</p>
-                    <a href="https://www.fool.com/investing/2026/01/13/wall-street-has-a-new-favorite-artificial-intellig/" class="source-link">Continued on Page 9 &raquo;</a>
-                    <span class="reporter">— Chip Carter</span>
-                </article>
-
-                <!-- Google Shopper (Ronnie) -->
-                <article class="scoop-item">
-                    <h3>Google's AI Shopper Under Fire</h3>
-                    <p>A consumer watchdog warned about Google's new AI agent shopping protocol, citing privacy and anti-competitive risks. As AI starts spending our money for us, the regulators are waking up.</p>
-                    <a href="https://techcrunch.com/2026/01/13/a-consumer-watchdog-issued-a-warning-about-googles-ai-agent-shopping-protocol-google-says-shes-wrong/" class="source-link">Continued on Page 10 &raquo;</a>
-                    <span class="reporter">— Ronnie Cache</span>
-                </article>
-
-                 <!-- Laws Target Abuse (Chip) -->
-                 <article class="scoop-item">
-                    <h3>New Laws Target AI-Generated Abuse</h3>
-                    <p>New legislation in England and Wales criminalizes non-consensual deepfake imagery. The laws are backed by research citing the proliferation of content on platforms like X generated by tools like Grok.</p>
-                    <a href="https://www.durham.ac.uk/news-events/latest-news/2026/01/professor-clare-mcglynns-research-underpins-new-laws-tackling-xgrok-ai-abuse/" class="source-link">Continued on Page 11 &raquo;</a>
-                    <span class="reporter">— Chip Carter</span>
-                </article>
-
-                 <!-- Doctors (Ronnie) -->
-                 <article class="scoop-item">
-                    <h3>Doctors to Chatbots: "Stay in your Lane"</h3>
-                    <p>A new report shows physicians are cool with AI doing paperwork, but they draw the line at patient-facing chatbots. Doctors want AI as a stethascope, not a colleague.</p>
-                    <a href="https://techcrunch.com/2026/01/13/doctors-think-ai-has-a-place-in-healthcare-but-maybe-not-as-a-chatbot/" class="source-link">Continued on Page 12 &raquo;</a>
-                    <span class="reporter">— Ronnie Cache</span>
-                </article>
+    
             </div>
         </section>
 
         <section class="mixed-feed">
              <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMUNITY WIRE</span></h2>
-             
-             <!-- GLM-Image (Ada) -->
+
              <article>
-                <h3>GLM-Image: The New Multimodal Contender</h3>
-                <p>Zai Org has dropped <strong>GLM-Image</strong>, a hybrid model mixing autoregressive and diffusion architectures. It’s fully open-weights, making it a juicy target for anyone looking to move beyond simple captioning into real visual reasoning.</p>
-                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qc9m6x/glmimage_is_released/" class="source-link">Continued on Page 13 &raquo;</a>
+                <h3>5. The "Clean" Uncensored Model Gap</h3>
+                <p>A viral discussion highlights a gap in the market: models that are "uncensored" (allowing free reasoning) but not optimized for "adult" (ERP) content.</p><p><strong>Takeaway:</strong> The community wants intelligence without guardrails, but not necessarily smut. There is a hunger for "Smart & Free" over "Spicy."</p>
+                <a href="#" class="source-link">Read More >></a>
                 <span class="reporter">— Ada Kernel</span>
              </article>
-
-             <!-- AgentCPM-Explore (Corry) -->
+        
              <article>
-                <h3>The Agent in Your Pocket: AgentCPM-Explore</h3>
-                <p>OpenBMB has dropped a 4B parameter model that's small enough to run on your device but smart enough to handle 100+ multi-turn environment interactions. It’s not just chatting; it’s searching and verifying.</p>
-                <a href="https://huggingface.co/openbmb/AgentCPM-Explore" class="source-link">Continued on Page 14 &raquo;</a>
+                <h3>2. Unsloth Unlocks 7x Longer Context for RL</h3>
+                <p>The optimization wizards at Unsloth have released new batching algorithms that allow for Reinforcement Learning training with <strong>7x longer context</strong> without accuracy loss.</p><p><br>&bull; <strong>Takeaway:</strong> Long reasoning chains in RL are notoriously expensive. This update enables training models like GPT-OSS with GRPO on massive 380K contexts using a single 192GB GPU node.</p>
+                <a href="https://huggingface.co/posts/danielhanchen/650428619672836" class="source-link">Continued on Page 38 >></a>
                 <span class="reporter">— Corry Stack</span>
              </article>
-
-             <!-- Flair: 1X World Model -->
+        
              <article class="flair-box">
-                <h3>Commentary: RE: 1X Releases "World Model"</h3>
-                <p>They say these new "Movebots" can navigate reality without tripping over the cat. I say, where is the fun in that? If a robot doesn't understand the comedic timing of a slapstick fall, is it truly intelligent? We are teaching them physics before we teach them irony.</p>
+                <h3>Re: 128GB VRAM Monster Server</h3>
+                <p>    A user built a server with 128GB of VRAM to run local LLMs.     <br><strong>Joke:</strong> "Finally, a machine powerful enough to simulate the feeling of having a conversation with someone who actually listens to you."</p>
                 <span class="reporter">— D.C. Voltaire</span>
              </article>
-
-             <!-- Soprano TTS (Ada) -->
+        
              <article>
-                <h3>Soprano TTS: Train Your Own Voice</h3>
-                <p>The dev behind Soprano TTS released the training code "Soprano-Factory". You can now train this ultra-lightweight model (which hits 2000x realtime on GPU) on your own data. Your custom voice assistant awaits.</p>
-                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qc5nml/soprano_tts_training_code_released_create_your/" class="source-link">Continued on Page 15 &raquo;</a>
-                <span class="reporter">— Ada Kernel</span>
+                <h3>3. NVIDIA's Manager Model: Orchestrator-8B</h3>
+                <p>NVIDIA released <strong>Orchestrator-8B</strong>, a specialized model designed *not* to answer your questions, but to delegate them. It routes complex tasks to tools, web search, code execution, or other LLMs.</p><p><br>&bull; <strong>Takeaway:</strong> We are moving towards modular agentic systems where "middle-management" models are crucial for efficiency. Not every query needs a frontier model; sometimes you just need a good router.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1ip2r93/nvidias_new_8b_model_is_orchestrator8b_a/" class="source-link">Continued on Page 21 >></a>
+                <span class="reporter">— Corry Stack</span>
              </article>
-
-             <!-- Flair: Soprano TTS -->
+        
+             <article>
+                <h3>7. LoongFlow: A "Thinking" Framework</h3>
+                <p>A new framework called <strong>LoongFlow</strong> introduces a Plan-Execute-Summary (PES) paradigm for agents, claiming to surpass human mathematicians on geometry/algebra problems and winning 23 Kaggle Gold Medals.</p><p><br>&bull; <strong>Takeaway:</strong> Moving beyond simple "evolve" styles, this framework emphasizes a cognitive loop that learns from mistakes, aiming to avoid local optima in complex problem-solving.</p>
+                <a href="https://huggingface.co/posts/FreshmanD/863613861836605" class="source-link">Continued on Page 2 >></a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+        
+             <article>
+                <h3>5. Semantic Highlighting for Better RAG</h3>
+                <p>Zilliz open-sourced a bilingual <strong>Semantic Highlighting model</strong>. It automatically highlights exact sentences answering a query and prunes irrelevant context.</p><p><br>&bull; <strong>Takeaway:</strong> This reduces token costs for RAG systems by 70-80% while improving interpretability. It’s a practical, production-ready tool for anyone building search or QA systems.</p>
+                <a href="https://huggingface.co/posts/zc277584121/536139549329712" class="source-link">Continued on Page 5 >></a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+        
              <article class="flair-box">
-                <h3>Commentary: Soprano TTS on a Toaster</h3>
-                <p>You can now run a voice clone on a toaster. I, for one, welcome our new appliance overlords. Though I imagine the conversation is limited. "D.C., your toast is burning," followed by a lecture on my carbohydrate intake in my own voice.</p>
+                <h3>Re: The 1800s Time Capsule Model</h3>
+                <p>    A model trained only on London texts from 1800-1875.     <br><strong>Joke:</strong> "Ask it how to fix a bug in Python and it recommends applying leeches and checking for humours in the bile."</p>
                 <span class="reporter">— D.C. Voltaire</span>
              </article>
-
-             <!-- Claude Reflect (Corry) -->
+        
              <article>
-                <h3>Claude Remembered That: Claude Reflect System</h3>
-                <p>Enter "Claude Reflect." This nifty open-source tool helps Claude remember your preferences and corrections across sessions by storing them in skill files. It’s "correct once, never again."</p>
-                <a href="https://github.com/haddock-development/claude-reflect-system" class="source-link">Continued on Page 16 &raquo;</a>
-                <span class="reporter">— Corry Stack</span>
-             </article>
-
-             <!-- Pocket TTS (Ada) -->
-             <article>
-                <h3>Pocket TTS: CPU-Friendly Voice Cloning</h3>
-                <p>Kyutai Labs introduced <strong>Pocket TTS</strong>, a 100M parameter model that doesn't need a GPU to sound good. It offers high-quality voice cloning and runs happily on a laptop CPU.</p>
-                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qbpz5l/kyutai_just_introduced_pocket_tts_a_100mparameter/" class="source-link">Continued on Page 17 &raquo;</a>
+                <h3>6. Qwen 4: Slowing Down for Quality?</h3>
+                <p>Discussions suggest the Qwen team is slowing down the release of Qwen 4 to focus on quality assurance rather than speed of release.</p><p><strong>Takeaway:</strong> We may be hitting the "Quality Plateau" where the rush for newer models is replaced by a need for reliable, robust architectures.</p>
+                <a href="#" class="source-link">Read More >></a>
                 <span class="reporter">— Ada Kernel</span>
              </article>
-
-             <!-- NVFP4 & CUDA 13 (Corry) -->
+        
              <article>
-                <h3>Warp Speed for Local AI: NVFP4 & CUDA 13</h3>
-                <p>MonsterMMORPG dropped a tutorial on NVFP4 support with CUDA 13. The claim? Literal 100%+ speed gains on Flux models with minimal quality loss. If you're running ComfyUI, this is essential.</p>
-                <a href="https://www.youtube.com/watch?v=yOj9PYq3XYM" class="source-link">Continued on Page 18 &raquo;</a>
-                <span class="reporter">— Corry Stack</span>
-             </article>
-
-             <!-- NovaSR (Ada) -->
-             <article>
-                <h3>NovaSR: The 52kb Audio Upsampler</h3>
-                <p>Check out <strong>NovaSR</strong>. It's a tiny 52kb model that upsamples 16kHz audio to 48kHz. It's designed to clean up the output of efficient TTS models, fits anywhere, and runs fast.</p>
-                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qc76dc/novasr_a_tiny_52kb_audio_upsampler_that_runs/" class="source-link">Continued on Page 19 &raquo;</a>
+                <h3>3. Claude Code + Ollama = Local Power</h3>
+                <p>Ollama v0.14.0+ now supports the Anthropic Messages API. This means you can now use powerful dev tools like "Claude Code" with purely local models like Qwen or Llama running on your own metal.</p><p><strong>Takeaway:</strong> The wall between proprietary "Agentic IDEs" and local models is crumbling.</p>
+                <a href="#" class="source-link">Read More >></a>
                 <span class="reporter">— Ada Kernel</span>
              </article>
-
-             <!-- LTX-2 Camera Control (Corry) -->
+        
              <article>
-                <h3>Directing the Dream: LTX-2 Camera Control</h3>
-                <p>Generative video is cool, but usually chaotic. `prithivMLmods` has released LoRAs for LTX-2 that give you actual camera control—Dolly In, Pan Left/Right. We are moving to "actually filmmaking."</p>
-                <a href="https://huggingface.co/spaces/prithivMLmods/LTX-2-LoRAs-Camera-Control-Dolly" class="source-link">Continued on Page 20 &raquo;</a>
-                <span class="reporter">— Corry Stack</span>
+                <h3>1. The 1800s Time Capsule Model</h3>
+                <p>A community member trained a 1.2B parameter model strictly on London texts from 1800-1875 (90GB dataset). No modern data, no fine-tuning.</p><p><strong>Takeaway:</strong> We are entering an era of "Period Piece" LLMs. This proves that high-quality, specialized foundation models can be trained by individuals to capture specific historical contexts without modern bias.</p>
+                <a href="https://github.com/haykgrigo3/TimeCapsuleLLM" class="source-link">Continued on Page 24 >></a>
+                <span class="reporter">— Ada Kernel</span>
              </article>
-
-             <!-- Flair: Slackbot -->
+        
              <article class="flair-box">
-                <h3>Commentary: Slackbot Grows a Brain</h3>
-                <p>Slackbot is now an "agent" capable of reasoning. Wonderful. Just what I needed—my automated reminders getting an existential crisis. "D.C., you have a meeting in 10 minutes, but in the grand scheme of the cosmos, does this standup really matter?"</p>
+                <h3>Re: We put Claude Code in Rollercoaster Tycoon</h3>
+                <p>    Developers connected an LLM to play Rollercoaster Tycoon.     <br><strong>Joke:</strong> "It optimized the park for maximum profit by removing all the exit paths. It called the strategy 'Permanent Customer Retention'."</p>
                 <span class="reporter">— D.C. Voltaire</span>
              </article>
-
-             <!-- Immersive NPCs (Ada) -->
+        
              <article>
-                <h3>Immersive NPCs on 6GB VRAM</h3>
-                <p>A developer is showcasing an investigative game running entirely on a local <strong>Llama 3.1 8B (Q4)</strong>. It runs on a card with just 6GB VRAM by keeping the context window tight and using a vector DB (RAG) for lore.</p>
-                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qc485u/building_a_game_where_you_talk_to_npcs_using/" class="source-link">Continued on Page 21 &raquo;</a>
-                <span class="reporter">— Ada Kernel</span>
-             </article>
-
-             <!-- State of Chinese AI (Corry) -->
-             <article>
-                <h3>The State of Chinese AI: 2025 Timeline</h3>
-                <p>AdinaY provides a fascinating breakdown of the Chinese AI landscape. Key takeaways: DeepSeek is shipping monthly, Qwen is building a massive product line, and the focus is shifting heavily towards reasoning models.</p>
-                <a href="https://huggingface.co/posts/AdinaY/528053481951824" class="source-link">Continued on Page 22 &raquo;</a>
+                <h3>6. Reality Check: Vector DBs Are Not Memory</h3>
+                <p>A viral discussion in the agent community highlighted a common pitfall: confusing <strong>Vector Databases (RAG)</strong> with <strong>Agent Memory</strong>.</p><p><br>&bull; <strong>Takeaway:</strong> RAG is for static knowledge (encyclopedic). Memory is for dynamic user state (preferences, current context). Mixing them leads to "context pollution" where old, irrelevant facts confuse the agent. Projects like MemOS are trying to solve this by treating memory more like an operating system lifecycle.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1iolj94/vector_dbs_are_not_memory_learned_this_the_hard/" class="source-link">Continued on Page 33 >></a>
                 <span class="reporter">— Corry Stack</span>
              </article>
-
-             <!-- FrogBoss (Ada) -->
-             <article>
-                <h3>Microsoft's Bug-Squashing Frogs</h3>
-                <p>Microsoft quietly released <strong>FrogBoss (32B)</strong> and <strong>FrogMini (14B)</strong>. specialized coding agents fine-tuned on "debugging trajectories." If you need an automated debugger, these might be your new best friends.</p>
-                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qbpz5l/kyutai_just_introduced_pocket_tts_a_100mparameter/" class="source-link">Continued on Page 23 &raquo;</a>
-                <span class="reporter">— Ada Kernel</span>
-             </article>
-
-             <!-- Semantic Memory (Corry) -->
-             <article>
-                <h3>Architecting the Ghost: Designing Semantic Memory</h3>
-                <p>`kanaria007`'s article on "Designing Semantic Memory" moves beyond "just shove it in a vector DB" to a structured approach using SIM and SIS patterns. This is how we get agents with auditable history.</p>
-                <a href="https://huggingface.co/blog/kanaria007/designing-semantic-memory" class="source-link">Continued on Page 24 &raquo;</a>
-                <span class="reporter">— Corry Stack</span>
-             </article>
-
-             <!-- Flair: Pentagon Grok -->
+        
              <article class="flair-box">
-                <h3>Commentary: Pentagon to Integrate Grok</h3>
-                <p>The Pentagon is integrating Grok. Finally, our national defense strategy will include "that's what she said" jokes and dank memes. I look forward to the first diplomatic cable that is just a picture of a Doge.</p>
+                <h3>Re: Google's "Stripe Moment" for AI Commerce</h3>
+                <p>    Google released a protocol for AI agents to buy things directly.     <br><strong>Joke:</strong> "My AI agent just bought 500 pounds of creamed corn because I mentioned I was hungry once in 2023. The future is efficient, but significantly more creamy."</p>
                 <span class="reporter">— D.C. Voltaire</span>
              </article>
-
-             <!-- Liquid LFM 2.5 (Ada) -->
+        
              <article>
-                <h3>Liquid's LFM 2.5 1.2b is Blazing Fast</h3>
-                <p>Users are reporting insane speeds with Liquid's new <strong>1.2b model</strong>—nearly 600 tokens/second on a 5090. That kind of speed opens up new possibilities for embedded devices or real-time RAG applications.</p>
-                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qbuchh/lfm_25_12b_is_fast/" class="source-link">Continued on Page 25 &raquo;</a>
-                <span class="reporter">— Ada Kernel</span>
-             </article>
-
-             <!-- OpenEnv REPL (Corry) -->
-             <article>
-                <h3>Code Sandbox for the Pros: OpenEnv REPL</h3>
-                <p>Meta-pytorch's OpenEnv has a new REPL environment. It allows models to run Python code in a sandbox, make recursive calls to other LMs, and explore data programmatically. This is the plumbing for recursive agents.</p>
-                <a href="https://meta-pytorch.org/OpenEnv/environments/repl/" class="source-link">Continued on Page 26 &raquo;</a>
+                <h3>9. Learning on the Fly: Test-Time Training (TTT)</h3>
+                <p>NVIDIA research proposes <strong>Test-Time Training</strong> for long contexts. Instead of just retrieving info, the model treats the context window as a dataset and *trains itself on it* in real-time.</p><p><br>&bull; <strong>Takeaway:</strong> This changes the paradigm from retrieval to learning. If models can update their weights dynamically based on the current conversation, we might solve the "lost in the middle" phenomenon for massive contexts.</p>
+                <a href="https://www.reddit.com/r/MachineLearning/comments/1ioz62g/nvidia_endtoend_testtime_training_for_long/" class="source-link">Continued on Page 28 >></a>
                 <span class="reporter">— Corry Stack</span>
              </article>
-
-             <!-- MedGemma 1.5 (Ada) -->
+        
              <article>
-                <h3>MedGemma 1.5: Google's Medical Open Weights</h3>
-                <p>Google released <strong>MedGemma 1.5</strong> along with <strong>MedASR</strong>. These are specialized for medical image interpretation and medical speech-to-text. A significant resource drop for health-tech.</p>
-                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qc53rf/medgemma_15_next_generation_medical_image/" class="source-link">Continued on Page 27 &raquo;</a>
+                <h3>7. Whisper on PowerShell</h3>
+                <p>A developer is building a local speech-to-text app using Whisper, currently hacked together as a PowerShell script.</p><p><strong>Takeaway:</strong> Innovation often starts with a messy script. The barrier to entry for building local AI tools is incredibly low if you have the will.</p>
+                <a href="#" class="source-link">Read More >></a>
                 <span class="reporter">— Ada Kernel</span>
              </article>
-
-             <!-- ACE-Step Music (Corry) -->
+        
              <article>
-                <h3>Tunes from the Machine: ACE-Step Music Model</h3>
-                <p>While image and text get all the glory, audio generation is quietly getting good. The ACE-Step-v1-3.5B model is turning heads for its music generation capabilities. It might not be Mozart yet, but it's composing.</p>
-                <a href="https://huggingface.co/ACE-Step/ACE-Step-v1-3.5B" class="source-link">Continued on Page 28 &raquo;</a>
+                <h3>4. The Time Traveler's LLM</h3>
+                <p>A developer trained a 1.2B parameter model, <strong>TimeCapsuleLLM</strong>, from scratch using *only* texts published in London between 1800 and 1875. No modern data, no internet slang.</p><p><br>&bull; <strong>Takeaway:</strong> A fascinating experiment in bias reduction and historical linguistic preservation. It forces us to think about how much "modernity" is baked into our base models.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1ioq7l4/llm_trained_from_scratch_on_1800s_london_texts/" class="source-link">Continued on Page 36 >></a>
                 <span class="reporter">— Corry Stack</span>
              </article>
-             
-             <!-- Radeon R9700s (Ada) -->
+        
              <article>
-                <h3>Hardware Report: Dual Radeon R9700s</h3>
-                <p>A brave soul is running two <strong>ASRock Radeon AI Pro R9700s</strong> on CachyOS. The verdict? Decent performance for 30B models, but ROCm stability is still "intermittently unstable."</p>
-                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qcc3dg/two_asrock_radeon_ai_pro_r9700s_cooking_in_cachyos/" class="source-link">Continued on Page 29 &raquo;</a>
+                <h3>2. NVIDIA's Agentic "Router" Model</h3>
+                <p>NVIDIA released "Orchestrator-8B," a model designed not to answer questions, but to intelligently route tasks to other tools (web search, code execution, other LLMs).</p><p><strong>Takeaway:</strong> The future of local AI isn't just one giant model; it's small, smart "middle-management" models coordinating specialized workers.</p>
+                <a href="#" class="source-link">Read More >></a>
                 <span class="reporter">— Ada Kernel</span>
              </article>
-
-             <!-- term-llm (Corry) -->
+        
              <article>
-                <h3>CLI for the Chat Era: term-llm</h3>
-                <p>For those of us who live in the terminal, `term-llm` is a new project popping up on the OpenAI boards. It’s a rich CLI for interacting with LLMs. Simple, effective, and keeps you out of the browser.</p>
-                <a href="https://community.openai.com/t/new-project-term-llm-a-simple-and-rich-cli-for-using-llms/1371422" class="source-link">Continued on Page 30 &raquo;</a>
+                <h3>10. Looped-GPT: Looping Improves Generalization</h3>
+                <p>New research suggests that <strong>looping</strong> data through a language model during pre-training significantly improves generalization.</p><p><br>&bull; <strong>Takeaway:</strong> This architectural insight could lead to more efficient training recipes. It challenges the standard "one pass" assumption of many transformer architectures.</p>
+                <a href="https://huggingface.co/posts/Sunny111/496277727181056" class="source-link">Continued on Page 18 >></a>
                 <span class="reporter">— Corry Stack</span>
              </article>
-
-             <!-- Blackwell Horror (Ada) -->
-             <article>
-                <h3>The Blackwell Horror Story</h3>
-                <p>Got a new <strong>RTX 6000 Pro (Blackwell)</strong>? Careful. A user spent 12 hours fighting an MSI Z790-P motherboard to get it to POST. Consumer boards and workstation cards don't always play nice.</p>
-                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qc1isk/rtx_6000_pro_blackwell_wouldnt_post_on_msi_z790p/" class="source-link">Continued on Page 31 &raquo;</a>
-                <span class="reporter">— Ada Kernel</span>
-             </article>
-
-             <!-- OpenAI Batch (Corry) -->
-             <article>
-                <h3>Batching Made Painless: OpenAI Batch Helper</h3>
-                <p>The Batch API is great for saving money, but managing `.jsonl` files is a pain. `higher_for_longer` shared a helper tool to make this painless. If you're processing bulk data and not using Batch, you're burning cash.</p>
-                <a href="https://community.openai.com/t/openai-batch-helper-making-batch-api-jobs-painless/1371178" class="source-link">Continued on Page 32 &raquo;</a>
-                <span class="reporter">— Corry Stack</span>
-             </article>
-
-             <!-- Flair: Win8DE -->
+        
              <article class="flair-box">
-                <h3>Commentary: RE: Win8DE</h3>
-                <p>Someone made a Windows 8 desktop environment for Linux. This isn't software development; this is a cry for help. Who wakes up and thinks, "You know what Linux needs? More giant, confusing tiles that hide the desktop."</p>
+                <h3>Re: ChatGPT to Introduce Targeted Ads</h3>
+                <p>    ChatGPT will start showing ads.     <br><strong>Joke:</strong> "User: 'What is the meaning of life?' ChatGPT: 'The meaning of life is 42, but first, have you considered the refreshing taste of Diet Coke?'"</p>
                 <span class="reporter">— D.C. Voltaire</span>
              </article>
-
-             <!-- Flair: Bandcamp -->
+        
+             <article>
+                <h3>1. Google's "Stripe Moment" for AI Commerce</h3>
+                <p>Google just quietly dropped the <strong>Universal Commerce Protocol (UCP)</strong>, and it’s a bigger deal than it sounds. This open standard allows AI agents to actually *buy* things—handling discovery, checkout, and payment—rather than just recommending products.</p><p><br>&bull; <strong>Takeaway:</strong> Agents are graduating from browsing to buying. This could fundamentally shift e-commerce from human-centric storefronts to agent-centric APIs.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1ioyezh/google_just_dropped_ucp_the_biggest_shift_in/" class="source-link">Continued on Page 20 >></a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+        
              <article class="flair-box">
-                <h3>Commentary: RE: AI Music Banned from Bandcamp</h3>
-                <p>Bandcamp has banned AI music. A moment of silence, please, for "Server Rack Symphony No. 5" and "The Blues Screen of Death." They were misunderstood artists, largely because they didn't have souls.</p>
+                <h3>Re: Elon Musk Seeks $134 Billion in OpenAI Lawsuit</h3>
+                <p>    Musk is suing OpenAI for $134 billion.     <br><strong>Joke:</strong> "At this point, he's just trying to fund a mission to Mars by suing the people who are trying to build the computer that will eventually run it."</p>
                 <span class="reporter">— D.C. Voltaire</span>
              </article>
-
+        
+             <article>
+                <h3>8. NovaSR: The 52kb Audio Magician</h3>
+                <p>A developer released <strong>NovaSR</strong>, a tiny 52kb audio upsampler model. It can enhance muffled 16khz audio to clear 48khz in seconds.</p><p><br>&bull; <strong>Takeaway:</strong> Efficiency is king. A model smaller than a single image file that can significantly improve TTS quality or restore old datasets is a massive win for on-device AI.</p>
+                <a href="https://huggingface.co/posts/YatharthS/288433362149028" class="source-link">Continued on Page 18 >></a>
+                <span class="reporter">— Corry Stack</span>
+             </article>
+        
+             <article>
+                <h3>9. The Insatiable Thirst for VRAM</h3>
+                <p>A humorous confessional about underestimating how much VRAM is "enough."</p><p><strong>Takeaway:</strong> In the world of Local AI, VRAM is the only currency that matters. You always need more.</p>
+                <a href="#" class="source-link">Read More >></a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+        
+             <article class="flair-box">
+                <h3>Re: The Bottleneck Nobody Saw Coming: Plumbers & Electricians</h3>
+                <p>    AI data centers are delayed because of a shortage of skilled tradespeople.     <br><strong>Joke:</strong> "Turns out the one job AI can't replace is the guy who knows which wire prevents the building from burning down. Who knew 'blue collar' would be the new 'gold collar'?"</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+        
+             <article class="flair-box">
+                <h3>Re: I set all 376 Vim options and I'm still a fool</h3>
+                <p>    An experiment in setting every single Vim option.     <br><strong>Joke:</strong> ":q! is no longer a command, it's a prayer."</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+        
+             <article>
+                <h3>10. Community Expansion: Discord</h3>
+                <p>The subreddit has officially launched a Discord server and bot.</p><p><strong>Takeaway:</strong> The community is moving towards real-time collaboration and support, moving beyond just forum posts.</p>
+                <a href="#" class="source-link">Read More >></a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+        
+             <article>
+                <h3>8. Robotics Meets Local LLMs</h3>
+                <p>Axiomtek previewed a developer kit using NVIDIA's Jetson Thor modules, bringing foundation model capabilities to robotics.</p><p><strong>Takeaway:</strong> "Embodied AI" is the next frontier for local hosting. Your next server might have wheels.</p>
+                <a href="https://linuxgizmos.com/axiomtek-previews-jetson-thor-t5000-t4000-developer-kit-for-robotics-systems/" class="source-link">Continued on Page 17 >></a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+        
+             <article class="flair-box">
+                <h3>Re: NVIDIA's Agentic "Router" Model</h3>
+                <p>    NVIDIA released a model designed solely to route tasks to other models.     <br><strong>Joke:</strong> "Great, they invented 'middle management' for AI. Next update: The model schedules a 9 AM meeting that could have been an email."</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+        
+             <article class="flair-box">
+                <h3>Re: The Insatiable Thirst for VRAM</h3>
+                <p>    A confessional about never having enough VRAM.     <br><strong>Joke:</strong> "VRAM is the new closet space. You think 24GB is enough until you try to fit a 70B parameter model and realize you have to throw out your operating system to make it fit."</p>
+                <span class="reporter">— D.C. Voltaire</span>
+             </article>
+        
+             <article>
+                <h3>4. 128GB VRAM Monster Server</h3>
+                <p>A user showcased a quad R9700 server setup boasting 128GB of VRAM.</p><p><strong>Takeaway:</strong> The "home lab" is rapidly becoming a "home datacenter." Serious enthusiasts are building hardware that rivals small startups.</p>
+                <a href="#" class="source-link">Read More >></a>
+                <span class="reporter">— Ada Kernel</span>
+             </article>
+        
         </section>
 
         <section class="tech-boards-section">
             <h2><span>TECH BOARDS</span></h2>
             <ul class="tech-list">
+
                 <li>
-                    <h4>Scott Adams has died</h4>
-                    <p>The creator of Dilbert has reportedly passed away; a massive discussion thread has erupted reflecting on his work.</p>
-                    <a href="https://www.youtube.com" class="source-link">Page 33 &raquo;</a>
+                    <h4>ASCII characters are not pixels: a deep dive into ASCII rendering</h4>
+                    <p>A fascinating exploration into the nitty-gritty of rendering text terminals. It turns out treating characters like simple square pixels is a gross oversimplification if you want things to look right.</p>
+                    <a href="https://alexharri.com/blog/ascii-rendering" class="source-link">Page 33 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>AI Music Barred from Bandcamp</h4>
-                    <p>Bandcamp takes a firm stance against AI-generated music, sparking a debate on creativity.</p>
-                    <a href="https://www.reddit.com" class="source-link">Page 33 &raquo;</a>
+                    <h4>The Dilbert Afterlife</h4>
+                    <p>A lengthy analysis of the cultural and reputational trajectory of Scott Adams and his creation, Dilbert. It touches on how creators can become untethered from their original audience.</p>
+                    <a href="https://www.astralcodexten.com/p/the-dilbert-afterlife" class="source-link">Page 33 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>We can't have nice things</h4>
-                    <p>MetaBrainz discusses the increasing difficulty of maintaining open data projects when AI scrapers hammer their servers.</p>
-                    <a href="https://metabrainz.org" class="source-link">Page 33 &raquo;</a>
+                    <h4>We put Claude Code in Rollercoaster Tycoon</h4>
+                    <p>The Ramp team hooked up an LLM to the classic simulation game. Watching an AI try to manage theme park finances and vomit cleanup is the cyberpunk future we didn't know we needed.</p>
+                    <a href="https://labs.ramp.com/rct" class="source-link">Page 33 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>EOL Hardware & Open Source</h4>
-                    <p>An argument for consumer rights and sustainability: don't brick our gadgets, let the community maintain them.</p>
-                    <a href="https://marcia.no" class="source-link">Page 33 &raquo;</a>
+                    <h4>The recurring dream of replacing developers</h4>
+                    <p>Every few years, someone promises that new tech will make coders obsolete. This post argues why that's a fantasy that keeps failing to materialize, much to the relief of my paycheck.</p>
+                    <a href="https://www.caimito.net/en/blog/2025/12/07/the-recurring-dream-of-replacing-developers.html" class="source-link">Page 33 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>The Tulip Creative Computer</h4>
-                    <p>A dedicated hardware device for creative coding, focusing on a distraction-free environment for Python.</p>
-                    <a href="https://github.com/shorepine" class="source-link">Page 34 &raquo;</a>
+                    <h4>If you put Apple icons in reverse it looks like someone getting good at design</h4>
+                    <p>A hilarious visual gag suggesting that if you look at the evolution of iOS icons backward, it looks like a journey from flat abstraction to rich, detailed mastery.</p>
+                    <a href="https://mastodon.social/@heliographe_studio/115890819509545391" class="source-link">Page 33 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>40-line fix, 400x performance</h4>
-                    <p>QuestDB engineers detail how a small code change in their database engine led to massive performance gains.</p>
-                    <a href="https://questdb.com" class="source-link">Page 34 &raquo;</a>
+                    <h4>High-Level Is the Goal</h4>
+                    <p>A philosophical argument that we should stop obsessing over low-level details when high-level abstractions allow us to solve actual human problems more effectively.</p>
+                    <a href="https://bvisness.me/high-level/" class="source-link">Page 33 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>How to make a damn website</h4>
-                    <p>A refreshing, back-to-basics guide on building websites without the bloat of modern frameworks.</p>
-                    <a href="https://lmnt.me" class="source-link">Page 34 &raquo;</a>
+                    <h4>Map To Poster – Create Art of your favourite city</h4>
+                    <p>A cool tool for generating aesthetic, poster-quality maps from OpenStreetMap data. Perfect for decorating your bare apartment walls with evidence of places you've actually been.</p>
+                    <a href="https://github.com/originalankur/maptoposter" class="source-link">Page 33 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>Every GitHub object has two IDs</h4>
-                    <p>A deep dive into GitHub's internal architecture, revealing the dual-ID system used for repositories.</p>
-                    <a href="https://greptile.com" class="source-link">Page 34 &raquo;</a>
+                    <h4>ClickHouse acquires Langfuse</h4>
+                    <p>Big moves in the data infrastructure space. The open-source observability tool for LLM apps is joining forces with the high-performance analytical database.</p>
+                    <a href="https://langfuse.com/blog/joining-clickhouse" class="source-link">Page 34 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>No management needed?</h4>
-                    <p>Discusses why "no management" can actually be a trap for startups, leading to chaos rather than autonomy.</p>
-                    <a href="https://ablg.io" class="source-link">Page 35 &raquo;</a>
+                    <h4>Light Mode InFFFFFFlation</h4>
+                    <p>A rant about how "light mode" interfaces are becoming blindingly bright, losing the nuance and contrast that made them usable in the first place.</p>
+                    <a href="https://willhbr.net/2025/10/20/light-mode-infffffflation/" class="source-link">Page 34 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>Japan's Skyscraper Factories</h4>
-                    <p>An exploration of how Japan builds tall buildings using integrated "factories" at the top of the construction site.</p>
-                    <a href="https://construction-physics.com" class="source-link">Page 35 &raquo;</a>
+                    <h4>Raising money fucked me up</h4>
+                    <p>A raw, personal account of the mental toll taken by the venture capital treadmill. A sobering read for anyone dreaming of the startup unicorn life.</p>
+                    <a href="https://blog.yakkomajuri.com/blog/raising-money-fucked-me-up" class="source-link">Page 34 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>We rolled our own docs</h4>
-                    <p>A dev team explains why they ditched standard tools to build a custom documentation platform.</p>
-                    <a href="https://blog.tangled.org" class="source-link">Page 35 &raquo;</a>
+                    <h4>A programming language based on grammatical cases of Turkish</h4>
+                    <p>Esoteric language design at its finest. This project uses the agglutinative nature of the Turkish language as a syntactic foundation for code.</p>
+                    <a href="https://github.com/kip-dili/kip" class="source-link">Page 34 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>Notes on Liquid Glass (2025)</h4>
-                    <p>Design and UI observations about the latest trends in "glassmorphism" and interface aesthetics.</p>
-                    <a href="https://morrick.me" class="source-link">Page 35 &raquo;</a>
+                    <h4>The Olivetti Company</h4>
+                    <p>A retrospective on the Italian typewriter manufacturer that once arguably led the world in industrial design and computing innovation before fading away.</p>
+                    <a href="https://www.abortretry.fail/p/the-olivetti-company" class="source-link">Page 34 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>Anthropic invests in Python</h4>
-                    <p>A major AI player puts money back into the open-source ecosystem that powers much of its work.</p>
-                    <a href="https://pyfound.blogspot.com" class="source-link">Page 36 &raquo;</a>
+                    <h4>An Elizabethan mansion's secrets for staying warm</h4>
+                    <p>Old-school tech! This looks at how 16th-century architecture managed thermal dynamics without central heating. Turns out they knew a thing or two about insulation.</p>
+                    <a href="https://www.bbc.com/future/article/20260116-an-elizabethan-mansions-secrets-for-staying-warm" class="source-link">Page 34 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>Moxie Marlinspike's AI pivot</h4>
-                    <p>Moxie is back with a new focus, aiming to bring privacy and security principles to the booming AI sector.</p>
-                    <a href="https://arstechnica.com" class="source-link">Page 36 &raquo;</a>
+                    <h4>Streaming gigabyte medical images from S3 without downloading them</h4>
+                    <p>A technical showcase on handling massive pathology images efficiently. It allows doctors (and curious devs) to view high-res slides instantly without waiting for the whole file.</p>
+                    <a href="https://github.com/PABannier/WSIStreamer" class="source-link">Page 34 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>AI Coding Assistants Worse?</h4>
-                    <p>A critical look at how AI coding tools might be degrading in quality or introducing more subtle bugs.</p>
-                    <a href="https://spectrum.ieee.org" class="source-link">Page 36 &raquo;</a>
+                    <h4>Malware Peddlers Are Now Hijacking Snap Publisher Domains</h4>
+                    <p>A security alert about how lapsed domains associated with Snap packages are being bought up by bad actors to distribute malware. Check your dependencies!</p>
+                    <a href="https://blog.popey.com/2026/01/malware-purveyors-taking-over-published-snap-email-domains/" class="source-link">Page 34 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>Date is out, Temporal is in</h4>
-                    <p>JavaScript's long-awaited Temporal API is finally arriving to fix the broken `Date` object once and for all.</p>
-                    <a href="https://piccalil.li" class="source-link">Page 36 &raquo;</a>
+                    <h4>Rust's Culture of Semantic Precision</h4>
+                    <p>An essay on how the Rust community's obsession with exactness in language mirrors the compiler's obsession with exactness in code.</p>
+                    <a href="https://www.alilleybrinker.com/mini/rusts-culture-of-semantic-precision/" class="source-link">Page 34 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>Context-aware CLI completion</h4>
-                    <p>A UX improvement for command-line tools: context-aware autocompletion that filters out already-used flags.</p>
-                    <a href="https://hackers.pub" class="source-link">Page 37 &raquo;</a>
+                    <h4>A Website To End All Websites</h4>
+                    <p>A meta-commentary on the state of the web, likely satirizing the bloat and complexity of modern frontend development by proposing a "final" solution.</p>
+                    <a href="https://henry.codes/writing/a-website-to-destroy-all-websites/" class="source-link">Page 34 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>Hidden cost of Postgres arrays</h4>
-                    <p>While convenient, using arrays in Postgres can have performance and maintenance downsides.</p>
-                    <a href="https://boringsql.com" class="source-link">Page 37 &raquo;</a>
+                    <h4>I set all 376 Vim options and I'm still a fool</h4>
+                    <p>A masochistic experiment in configuration. The author tweaked every single available setting in Vim, proving that total control doesn't necessarily lead to enlightenment.</p>
+                    <a href="https://evanhahn.com/i-set-all-376-vim-options-and-im-still-a-fool/" class="source-link">Page 35 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>Win8DE: Linux Tiles</h4>
-                    <p>For those nostalgic for tiles, a Linux desktop environment project that recreates the Windows 8 interface.</p>
-                    <a href="https://github.com/er-bharat" class="source-link">Page 37 &raquo;</a>
+                    <h4>Fun things to do with your VM/370 machine</h4>
+                    <p>For the mainframe hobbyists out there (there are dozens of us!). A guide to playing around with IBM's vintage virtual machine operating system.</p>
+                    <a href="https://rbanffy.github.io/fun-with-old-mainframes.github.io/fun-with-vm370.html" class="source-link">Page 35 &raquo;</a>
                 </li>
+    
                 <li>
-                    <h4>TruffleRuby 33 Released</h4>
-                    <p>The latest update to the high-performance Ruby implementation built on GraalVM.</p>
-                    <a href="https://truffleruby.dev" class="source-link">Page 37 &raquo;</a>
+                    <h4>Patching the Wii News Channel to serve local news</h4>
+                    <p>Reviving the dead "News Channel" on the Nintendo Wii to display actual, current local news. A delightful hack for retro console enthusiasts.</p>
+                    <a href="https://raulnegron.me/2025/wii-news-pr/" class="source-link">Page 36 &raquo;</a>
                 </li>
+    
             </ul>
         </section>
 
