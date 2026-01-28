@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; 
+            font-size: 0.95rem;
+            hyphens: auto; 
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); 
+        }
+
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        
+        h2 span { 
+            background: #fcfbf2; 
+            padding: 0 10px; 
+        }
+
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; 
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); 
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important; 
+        }
+
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } 
+
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        
+        .tech-boards-section h2 { margin-bottom: 15px; }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+        }
+
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .masthead { font-size: 3.2rem; }
+
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .scoop-item:first-child {
+                column-count: 1; 
+            }
+
+            .mixed-feed {
+                column-count: 1; 
+            }
+            
+            .mixed-feed article {
+                display: block; 
+            }
+
+            .tech-list {
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; 
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">New Editions Sun. & Wed.</div>
+            <div class="subhead">
+                <span>Vol. I, No. 27</span>
+                <span>Sun Jan 25 2026 • Sunday Morning Edition</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>FRONT PAGE SCOOPS</span></h2>
+            <div class="scoop-grid">
+                
+                <article class="scoop-item">
+                    <h3>ASTONISHING FEAT OF MODERN SCIENCE! ELECTRIC BRAINS FASHION LIFE</h3>
+                    <p>In a feat fit to rattle Darwin’s bones, scientists at Stanford, alongside the bio-firm Genyro, report that an artificial thinking machine has fashioned an entirely new virus from nothing but calculation. The device, known as Evo2, was trained on vast libraries of genetic code and produced a novel organism that proved deadlier to bacteria than Nature’s own designs.</p>
+                    <p>Using a new DNA-building contraption called Sidewinder, the researchers stitched this creature into physical being, hinting at a future where medicines and cures are engineered as deliberately as locomotives.</p>
+                    <p>Yet amid the wonder comes a warning: if life itself can be written to order, wisdom must govern the pen. We stand, it seems, at the dawn of an age where man does not merely study life—but authors it.</p>
+                    <a href="https://www.thetimes.com/uk/science/article/ai-scientists-new-life-genyro-h5lt0ttzk" class="source-link">Continued on Page 4 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Davos 2026: Musk Predicts Robot-Dominant Future</h3>
+                    <p>Making his debut at the World Economic Forum in Davos, Elon Musk offered a vision of an "abundant future" driven by artificial intelligence. His most striking prediction is a near-future demographic shift where humanoid robots and intelligent agents will eventually outnumber the human population, fundamentally altering labor markets and the global economy.</p>
+                    <a href="https://www.weforum.org" class="source-link">Continued on Page 6 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Global Investment: Singapore's AI Push</h3>
+                    <p>Singapore has announced a massive capital injection of $779 million (SGD) dedicated to public AI research initiatives through 2030. This investment is aimed at solidifying the nation's standing as a global hub for AI innovation, focusing on talent development, infrastructure, and solving real-world challenges through sovereign AI capabilities.</p>
+                    <a href="https://www.reuters.com" class="source-link">Continued on Page 9 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>AI Safety & Society: The Human Connection</h3>
+                    <p>A dual focus on the social impact of AI has emerged. Pope Leo has issued a warning regarding the psychological risks of forming deep emotional bonds with "overly affectionate" AI chatbots, cautioning against the erosion of genuine human connection. Concurrently, Meta has paused access to certain AI characters for users under 18.</p>
+                    <a href="https://www.indcatholicnews.com" class="source-link">Continued on Page 2 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>OpenAI Partners with Major Government Contractor to ‘Transform Federal Operations’</h3>
+                    <p>OpenAI has officially inked a deal with defense giant Leidos. This partnership is all about embedding OpenAI’s models deep into the federal government's nervous system—spanning national security, defense, and infrastructure. They aim to drag legacy federal systems into the modern AI era.</p>
+                    <a href="https://gizmodo.com/openai-partners-with-major-government-contractor-to-transform-federal-operations-2000713751" class="source-link">Continued on Page 12 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Microsoft’s Private OpenAI Emails and the Rise of "Physical AI"</h3>
+                    <p>Court documents have popped the lid off internal comms between Microsoft and OpenAI. The big reveal? CEO Satya Nadella is betting the farm on "Physical AI"—getting AI out of the chatbox and into robots and sensors.</p>
+                    <a href="https://www.geekwire.com/2026/microsofts-secret-openai-emails-satyas-new-ai-catchphrase-and-the-rise-of-physical-ai-startups/" class="source-link">Continued on Page 5 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Meta Pauses Teen Access to AI Characters</h3>
+                    <p>Meta is hitting the brakes on its AI characters for teen accounts. Amidst rising fears of parasocial addiction, they've suspended access to these hyper-realistic bots for minors.</p>
+                    <a href="https://www.washingtonpost.com/technology/2026/01/24/meta-ai-teens-safety/" class="source-link">Continued on Page 8 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+             <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMUNITY WIRE</span></h2>
+             
+            <article>
+                <h3>Qwen3-TTS: The New Speed Demon of Local Speech</h3>
+                <p>The folks over at Qwen have dropped <strong>Qwen3-TTS</strong>, and the community is absolutely losing it over the latency metrics. We are talking ~97ms end-to-end latency. That is effectively "instant" in human time.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qlzbhh/release_qwen3tts_ultralow_latency_97ms_voice/" class="source-link">Continued on Page 10 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>A Mobile Beast: 768GB VRAM "Laptop"</h3>
+                <p>User `SweetHomeAbalama0` has redefined "mobile workstation" by building a fully enclosed, 10x GPU rig with <strong>768GB of VRAM</strong>. Yes, you read that right. It's essentially a server rack you can technically carry (if you lift weights).</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qi4uj2/768gb_fully_enclosed_10x_gpu_mobile_ai_build/" class="source-link">Continued on Page 18 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>DIY Audiobook Factory</h3>
+                <p>Piggybacking off the Qwen3 hype, user `TheyCallMeDozer` released an open-source audiobook converter. It takes PDFs, EPUBs, or text files and churns out high-quality audiobooks using the new Qwen model.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qlr3wj/i_built_an_opensource_audiobook_converter_using/" class="source-link">Continued on Page 20 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+            
+            <article class="flair-box">
+                <h3>On the "NeurIPS Hallucination Scandal"</h3>
+                <p>Oh, the irony is richer than a tech bro after an IPO. Fifty-one papers accepted at the prestigious NeurIPS conference contained "hallucinated citations." That’s right, the AI researchers are using AI to write papers about AI, and the AI is lying about where it learned about AI. It’s like an Ouroboros eating its own tail, but instead of a mythical snake, it’s a chatbot citing a paper written by a toaster. Trust but verify? Darling, in this industry, I don’t even trust my own spellcheck.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article>
+                <h3>GLM-4.7-Flash: Efficient Intelligence</h3>
+                <p>A new contender enters the ring: <strong>GLM-4.7-Flash</strong> from Zhipu AI. It's making waves on Hugging Face as a highly efficient model. The community is noting its strong performance-to-cost (or performance-to-compute) ratio.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qh5wdq/zaiorgglm47flash_hugging_face/" class="source-link">Continued on Page 22 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Voice Clone Studio Updates</h3>
+                <p>The <strong>Voice Clone Studio</strong> tool just got a massive power-up. The developer, `Francky_B`, integrated both Qwen3-TTS and VibeVoice, giving users a choice between models within the same sleek UI.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1qm3w8d/heard_your_feedback_voice_clone_studio_now_with/" class="source-link">Continued on Page 24 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>AI Reveals Prognostic Insights in Colorectal Cancer</h3>
+                <p>A major win for science published in <em>Nature</em>. New AI models are identifying prognostic markers in colorectal cancer tissue that are invisible to human pathologists, predicting outcomes with startling accuracy.</p>
+                <a href="https://bioengineer.org/ai-reveals-prognostic-insights-in-colorectal-cancer/" class="source-link">Continued on Page 15 >></a>
+                <span class="reporter">— Chip Carter</span>
+            </article>
+
+            <article>
+                <h3>Arcane Style for Flux.2</h3>
+                <p>For the visual artists among us, a new LoRA for <strong>Flux.2</strong> dropped, capturing the distinct, painterly style of the show <em>Arcane</em>. Created by `TheDudeWithThePlan`, it works for both text-to-image and editing.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1qm0tt6/arcane_flux2_klein_9b_style_lora_t2i_and_edit/" class="source-link">Continued on Page 26 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Half-Life, But Real</h3>
+                <p>In a stunning display of image-to-image capabilities, user `c64z86` converted screenshots from the original <strong>Half-Life 1 & 2</strong> into photorealistic images using <strong>Klein 4b</strong>. The results retain the geometry and composition of the games but render them as if they were filmed yesterday.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1qjemoj/i_converted_some_half_life_12_screenshots_into/" class="source-link">Continued on Page 28 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>The Shift to Chinese Open Models</h3>
+                <p>There is a fascinating meta-discussion brewing about American developers increasingly relying on Chinese open-source models (like Qwen, DeepSeek, and GLM) for production work. The sentiment? Practicality wins.</p>
+                <a href="https://www.reddit.com/r/ArtificialInteligence/comments/1qkq97p/chinese_ai_is_quietly_eating_us_developers_lunch/" class="source-link">Continued on Page 30 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Z-Image + Qwen Image Edit Workflow</h3>
+                <p>A complex but powerful workflow was showcased combining <strong>Z-Image, Qwen Image Edit 2511, Wan 2.2, and MMAudio</strong>. It represents the growing trend of "chaining" specialized models to create full multimedia experiences (video + audio) locally.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1qi6mzz/zimage_qwen_image_edit_2511_wan_22_mmaudio/" class="source-link">Continued on Page 32 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>"Chroma2-Kaleidoscope" Experimental Model</h3>
+                <p>A new model based on <strong>Flux Klein 4B</strong> called "Chroma2-Kaleidoscope" has appeared on Hugging Face. The creator explicitly warns "IT'S STILL WIP GUYS CHILL!!", which is the most honest release note I've seen in weeks.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1qlv6u3/chroma2kaleidoscope_based_on_flux_klein_4b_base/" class="source-link">Continued on Page 34 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>On "Qwen3-TTS" and the 97ms Latency</h3>
+                <p>Ninety-seven milliseconds. That is how long it takes for Qwen3-TTS to speak. To put that in perspective, that is faster than I can come up with a reason to leave a boring party. We are approaching a dangerous singularity where the AI can interrupt you <em>before</em> you’ve even finished your bad idea. Finally, a machine that can keep up with my mother-in-law.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article>
+                <h3>The NeurIPS Hallucination Scandal</h3>
+                <p>A bombshell dropped on the ML subreddit: 100 hallucinated citations were allegedly found in 51 accepted papers at NeurIPS 2025. Takeaway: It seems the peer-review process might need its own adversarial network.</p>
+                <a href="https://www.reddit.com/r/MachineLearning/comments/1qjz88r/d_100_hallucinated_citations_found_in_51_accepted/" class="source-link">Continued on Page 36 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Cracking the 100M Token Mystery</h3>
+                <p>User `codelion` did a deep dive reverse-engineering how Magic AI might be achieving their massive 100M token context window. The hypothesis points to "Memory-Augmented Language Models" (MALM).</p>
+                <a href="https://huggingface.co/posts/codelion/260857666290873" class="source-link">Continued on Page 38 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>"Marvin" Goes Viral (At the Office)</h3>
+                <p>A developer built a personal assistant named "Marvin" (yes, the paranoid android) using Claude Code. Originally just for email triage, it worked so well that non-technical colleagues demanded access.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1qluizt/i_built_marvin_my_personal_ai_agent_and_now_4_of/" class="source-link">Continued on Page 40 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Hardware Beast: 768GB VRAM Mobile Build</h3>
+                <p>User `SweetHomeAbalama0` showcased a "mobile" build featuring 10 GPUs and 768GB of memory. It's "fully enclosed," which I assume means "it has a case," not "you can carry it."</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qi4uj2/768gb_fully_enclosed_10x_gpu_mobile_ai_build/" class="source-link">Continued on Page 42 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>DIY Health: Predicting Thyroid Episodes with Claude</h3>
+                <p>A user fed 9.5 years of Apple Watch and Whoop data into Claude Code to manage Graves' disease. The resulting XGBoost model hit ~98% validation accuracy, predicting symptoms 3-4 weeks in advance.</p>
+                <a href="https://www.reddit.com/r/MachineLearning/comments/1qi8twv/p_i_gave_claude_code_95_years_of_health_data_to/" class="source-link">Continued on Page 44 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+            
+            <article class="flair-box">
+                <h3>On the "768GB VRAM 'Laptop'"</h3>
+                <p>Let us pause to admire the audacity of calling a 768GB VRAM server rack a "laptop." User `SweetHomeAbalama0`, I salute you. You haven’t built a computer; you’ve built a portable fusion reactor that can also run Llama 3. The only "lap" that thing sits on is the lap of God. I assume the battery life is measured in "seconds before the local grid collapses."</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article>
+                <h3>The Great Cloud Exodus of 2026?</h3>
+                <p>A "loyal cloud power user" posted a manifesto on why 2026 is the year they moved to Local LLMs (specifically Llama 3.3, Phi-4, and DeepSeek). Reasons? Zero latency, true privacy, and no "over-tuning" (censorship).</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1qgav1b/why_i_finally_ditched_the_cloud_and_moved_to/" class="source-link">Continued on Page 46 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Unsloth Enables Embedding Fine-Tuning</h3>
+                <p>Daniel from Unsloth announced that their library now supports fine-tuning embedding models 1.8-3.3x faster with less VRAM.</p>
+                <a href="https://huggingface.co/posts/danielhanchen/579968620456275" class="source-link">Continued on Page 48 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Transformers Gets a Speed Boost</h3>
+                <p>Hugging Face announced that Transformers modeling code is now significantly more `torch.compile` friendly. Better compilation means faster inference and easier export to ONNX/TensorRT.</p>
+                <a href="https://huggingface.co/posts/IlyasMoutawwakil/703555138750194" class="source-link">Continued on Page 50 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Half-Life in Real Life</h3>
+                <p>A user utilized "Klein 4b" (likely a typo/nickname for a model like Flux or similar) to convert classic Half-Life screenshots into photorealistic images.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1qjemoj/i_converted_some_half_life_12_screenshots_into/" class="source-link">Continued on Page 52 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Engineering Existentialism: Are We Overusing LLMs?</h3>
+                <p>A discussion on whether we are throwing LLMs at problems that simple decision trees or classifiers could solve better. "Everything becomes an LLM + agent... even when the problem is prioritization."</p>
+                <a href="https://www.reddit.com/r/aiengineering/comments/1qi8x6j/are_we_overusing_llms_where_simple_decision/" class="source-link">Continued on Page 54 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+            
+            <article class="flair-box">
+                <h3>On "Pope Leo warns against 'overly affectionate' AI"</h3>
+                <p>His Holiness has warned us about falling in love with chatbots. And frankly, he’s right. I tried flirting with a customer support bot once; it told me my estimated wait time was forty minutes, which is still better than my last date. But really, if your significant other can be turned off with a browser refresh, you might need to re-evaluate your love language. It’s "Acts of Service," not "Terms of Service."</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+             <article class="flair-box">
+                <h3>On "Musk Predicts Robots Will Outnumber Humans"</h3>
+                <p>Elon says robots will soon outnumber humans. Wonderful. I can’t wait to be stuck in traffic behind a Tesla Optimus on its way to a shift at the robot factory. At least when a robot takes my job, I can blame a firmware update instead of my own incompetence. Though, knowing Elon’s timelines, "soon" probably means "right after we colonize Mars," so I think my job is safe until the heat death of the universe.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+            
+            <article class="flair-box">
+                <h3>On "Telegraph Key(singular)board"</h3>
+                <p>Someone built a USB telegraph key. Because apparently, typing wasn't slow and pretentious enough already. Now you can code like it’s 1844! `- .... .. ... / .. ... / .- / - . .-. .-. .. -... .-.. . / .. -.. . .-`. Just imagine the open-plan office symphony: <em>click-clack-click-clack</em>. It’s artisanal latency. It’s steampunk for people who hate efficiency. I’ll take two.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+            
+            <article class="flair-box">
+                <h3>On "cURL scraps bug bounties due to AI slop"</h3>
+                <p>The maintainers of cURL have stopped paying for bugs because they were drowning in AI-generated garbage. This is why we can’t have nice things. The robots aren’t taking over by being smarter than us; they’re taking over by spamming us until we just give up and go live in a cave. It’s the "Infinite Monkey Theorem," except the monkeys are LLMs and they aren’t writing Shakespeare—they’re writing invalid JSON.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>Adoption of EVs tied to real-world reductions in air pollution: study</h4>
+                    <p>A new study from USC links the adoption of electric vehicles directly to measurable reductions in air pollution and asthma-related emergency room visits in real-world settings.</p>
+                    <a href="https://usc.edu" class="source-link">Page 56 &raquo;</a>
+                </li>
+                <li>
+                    <h4>BirdyChat becomes first European chat app that is interoperable with WhatsApp</h4>
+                    <p>BirdyChat breaks the walled garden, becoming the first European messaging service to officially interoperate with WhatsApp.</p>
+                    <a href="https://birdy.chat" class="source-link">Page 57 &raquo;</a>
+                </li>
+                <li>
+                    <h4>We X-Rayed a Suspicious FTDI USB Cable</h4>
+                    <p>Security researchers dissect a counterfeit FTDI USB cable using X-rays, revealing hidden microcontroller implants capable of malicious data interception.</p>
+                    <a href="https://eclypsium.com" class="source-link">Page 58 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Claude Code's new hidden feature: Swarms</h4>
+                    <p>Users have discovered a hidden "Swarms" capability in Claude Code, hinting at upcoming features for multi-agent orchestration.</p>
+                    <a href="https://twitter.com" class="source-link">Page 59 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Poland's energy grid was targeted by never-before-seen wiper malware</h4>
+                    <p>A specialized wiper malware was deployed against Polish energy infrastructure, marking a dangerous escalation in cyber-physical attacks.</p>
+                    <a href="https://arstechnica.com" class="source-link">Page 60 &raquo;</a>
+                </li>
+                <li>
+                    <h4>MS confirms it will give the FBI your Windows PC data encryption key if asked</h4>
+                    <p>Microsoft has officially confirmed that it will provide BitLocker recovery keys to law enforcement agencies like the FBI if served with a valid warrant.</p>
+                    <a href="https://windowscentral.com" class="source-link">Page 61 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Doing gigabit Ethernet over my British phone wires</h4>
+                    <p>A hacker manages to push gigabit speeds over ancient copper telephone wires in the UK using G.fast technology.</p>
+                    <a href="https://thehftguy.com" class="source-link">Page 62 &raquo;</a>
+                </li>
+                <li>
+                    <h4>I added a Bluesky comment section to my blog</h4>
+                    <p>A developer replaces their blog's comment system by integrating Bluesky threads, leveraging the decentralized social network.</p>
+                    <a href="https://micahcantor.com" class="source-link">Page 63 &raquo;</a>
+                </li>
+                <li>
+                    <h4>How I estimate work</h4>
+                    <p>A staff software engineer breaks down the art of estimation, arguing for a pragmatic approach that accounts for unknowns and communication overhead.</p>
+                    <a href="https://seangoedecke.com" class="source-link">Page 64 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Small Kafka: Tansu and SQLite on a free t3.micro</h4>
+                    <p>An engineering deep dive into running a Kafka-compatible streaming platform on a tiny, free-tier AWS instance by leveraging the efficiency of SQLite.</p>
+                    <a href="https://tansu.io" class="source-link">Page 65 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Draig, a Welsh Programming Language</h4>
+                    <p>A fascinating new esoteric programming language where the keywords and syntax are based entirely on the Welsh language.</p>
+                    <a href="https://raku.land" class="source-link">Page 66 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Typography on Pencils</h4>
+                    <p>A visual history and appreciation of the surprisingly intricate and varied typography found on vintage pencils.</p>
+                    <a href="https://presentandcorrect.com" class="source-link">Page 67 &raquo;</a>
+                </li>
+                <li>
+                    <h4>AI Tribalism</h4>
+                    <p>A critical look at the emerging "tribalism" in the AI community, where developers are increasingly fragmenting into camps.</p>
+                    <a href="https://nolanlawson.com" class="source-link">Page 68 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Obvious Things C Should Do</h4>
+                    <p>Walter Bright, creator of the D language, lists several "obvious" modernizations that the C language could adopt.</p>
+                    <a href="https://digitalmars.com" class="source-link">Page 69 &raquo;</a>
+                </li>
+                <li>
+                    <h4>What has Docker become?</h4>
+                    <p>A retrospective on Docker's evolution from a simple, revolutionary containerization tool into a complex ecosystem.</p>
+                    <a href="https://tuananh.net" class="source-link">Page 70 &raquo;</a>
+                </li>
+                <li>
+                    <h4>AGENTS.md as a dark signal</h4>
+                    <p>A critique of the proposed `AGENTS.md` standard, arguing that formalizing bot access rules might accidentally accelerate the enclosure of the open web.</p>
+                    <a href="https://joshmock.com" class="source-link">Page 71 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Overrun with AI slop, cURL scraps bug bounties to ensure "intact mental health"</h4>
+                    <p>The maintainers of cURL have suspended their bug bounty program after being flooded with low-quality, AI-generated vulnerability reports.</p>
+                    <a href="https://arstechnica.com" class="source-link">Page 72 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Considering Strictly Monotonic Time</h4>
+                    <p>A technical exploration of why "wall clock" time is dangerous for software logic and why developers should strictly rely on monotonic clocks.</p>
+                    <a href="https://matklad.github.io" class="source-link">Page 73 &raquo;</a>
+                </li>
+                <li>
+                    <h4>GNU Guix 1.5.0 released</h4>
+                    <p>The functional package manager and system configuration tool GNU Guix sees a major new release.</p>
+                    <a href="https://guix.gnu.org" class="source-link">Page 74 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Telegraph Key(singular)board: Morse for the modern era</h4>
+                    <p>A delightful hardware project that turns a traditional Morse code telegraph key into a functional USB keyboard.</p>
+                    <a href="https://hannahilea.com" class="source-link">Page 75 &raquo;</a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            <p><strong>Editorial Team:</strong> Chip Carter & Ronnie Cache (Scoops) | Ada Kernel & Corry Stack (Community) | Ramsy Bytewell (Tech) | D.C. Voltaire (Commentary)</p>
+            <p>Chief Editor: Jimmy Vector &bull; Est. 2025</p>
+            <p>&copy; 2026 Gradient Descent Publication. Printed on recycled HTML.</p>
+        </footer>
+    </div>
+</body>
+</html>
