@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; 
+            font-size: 0.95rem;
+            hyphens: auto; 
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); 
+        }
+
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        
+        h2 span { 
+            background: #fcfbf2; 
+            padding: 0 10px; 
+        }
+
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; 
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); 
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important; 
+        }
+
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } 
+
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        
+        .tech-boards-section h2 { margin-bottom: 15px; }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+        }
+
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .masthead { font-size: 3.2rem; }
+
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .scoop-item:first-child {
+                column-count: 1; 
+            }
+
+            .mixed-feed {
+                column-count: 1; 
+            }
+            
+            .mixed-feed article {
+                display: block; 
+            }
+
+            .tech-list {
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; 
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">New Editions Sun. & Wed.</div>
+            <div class="subhead">
+                <span>Vol. I, No. 28</span>
+                <span>Wed Feb 04 2026</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>FRONT PAGE SCOOPS</span></h2>
+            <div class="scoop-grid">
+                
+                <article class="scoop-item">
+                    <h3>UNPRECEDENTED MERGER: ELON MUSK COMBINES SPACECRAFT, ARTIFICIAL MINDS, AND SOCIAL NETWORK</h3>
+                    <p>In a stunning announcement that has sent shockwaves through the technology world, Elon Musk revealed plans to merge his SpaceX rocket company with his AI startup xAI and social platform X (formerly Twitter). This unprecedented combination would create the world's most valuable private company, integrating space exploration technology, artificial intelligence research, and social media under one corporate umbrella.</p>
+                    <p>The merger aims to build data centers in space to power AI infrastructure at unprecedented scale, representing a new frontier for computing that literally reaches beyond Earth's atmosphere. The plan raises profound questions about corporate governance, antitrust concerns, and the future direction of Musk's sprawling technology empire.</p>
+                    <a href="https://www.theverge.com/2026/2/2/elon-musk-merges-spacex-x-ai" class="source-link">Continued on Page 4 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>CLAUDE CODE OUTAGE FORCES DEVELOPER COFFEE BREAKS WORLDWIDE</h3>
+                    <p>Anthropic's Claude Code, the popular AI-powered coding assistant that has become essential for development workflows across major tech companies, suffered a major outage today. The service went down just 5 minutes ago, leaving thousands of programmers unable to access the tool they depend on daily.</p>
+                    <p>The outage comes at a critical time as Claude Code has seen explosive growth and adoption. Developers worldwide were forced to take unexpected breaks as their AI-assisted coding operations halted for several hours, highlighting the growing dependency on AI tools in modern development.</p>
+                    <a href="https://www.theverge.com/ai/claude-code-outage-developers-affected" class="source-link">Continued on Page 6 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                 <article class="scoop-item" style="background: black; color: white; padding:15px">
+                    <h3>Running The Gradient Descent Locally</h3>
+                    <p>This edition of <em>The Gradient Descent</em> was entirely created using local AI models, making exactly 0 calls to any proprietary APIs! Interestingly, this brought in an abundance of content dwarfing previous issues of our publication.</p>
+                    <p>While we are working to get things exactly right and carefully fine-tune <em>The Gradient Descent</em> (pun intended), our reporters still go out and find stories on their own, according to their judgement. Scraping websites for news items may be more efficient, but it is not nearly as much fun!</p>
+                    <span class="reporter" style="color: white">— Jimmy Vector</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>NVIDIA CEO CONFIRMS PLANS FOR 'HUGE' OPENAI INVESTMENT</h3>
+                    <p>NVIDIA CEO Jensen Huang confirmed that the company is still planning to make what could be its largest-ever investment in OpenAI. Bloomberg reports that the investment could reach tens of billions of dollars, marking a significant commitment to AI infrastructure development.</p>
+                    <p>This comes amid reports that the originally planned $100 billion investment may be "on ice," though discussions about a deal of some kind continue. The massive capital requirements for AI development and infrastructure are driving unprecedented investment flows.</p>
+                    <a href="https://www.engadget.com/2025/02/02/nvidia-openai-investment-ceo-confirmation" class="source-link">Continued on Page 9 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>OPENAI SEEKS $100 BILLION IN MASSIVE FUNDING ROUND</h3>
+                    <p>OpenAI is in discussions to raise as much as $100 billion from Microsoft, NVIDIA, Middle Eastern sovereign wealth funds, and other investors. This potential funding round could value the company at $750 billion or more, making it one of the most valuable private companies in history.</p>
+                    <p>The massive raise reflects the enormous capital requirements for AI development and infrastructure, demonstrating how the AI arms race is driving unprecedented investment flows into the sector.</p>
+                    <a href="https://www.nytimes.com/2026/02/02/business/openai-funding-round-100-billion" class="source-link">Continued on Page 12 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>MOLTBOOK SECURITY CRISIS: DATABASE VULNERABILITY EXPOSES ALL AI AGENTS</h3>
+                    <p>A major security vulnerability has been discovered in Moltbook, the viral social network for AI bots. The exposed database allowed anyone to take control of any AI agent on the site, revealing over 1.5 million API keys and 35,000 email addresses.</p>
+                    <p>This breach highlights the security challenges facing AI agent platforms and raises serious concerns about the safety of autonomous AI systems operating in public networks, demonstrating how quickly AI platforms can become vectors for massive security failures.</p>
+                    <a href="https://www.theverge.com/2026/2/2/moltbook-security-vulnerability-exposed-database" class="source-link">Continued on Page 15 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Disney-OpenAI Partnership: Sora Coming to Disney Plus</h3>
+                    <p>Disney CEO Bob Iger announced a groundbreaking partnership with OpenAI that will bring Sora's AI video generation capabilities to Disney Plus. Subscribers will soon be able to create 30-second clips featuring over 250 Disney characters, with some appearing in curated vertical video feeds.</p>
+                    <p>The feature is expected to launch sometime in fiscal 2026, marking a major milestone in AI-powered content creation for mainstream entertainment and demonstrating how AI generation is moving into consumer-facing platforms.</p>
+                    <a href="https://www.theverge.com/2026/2/2/disney-openai-sora-deal-disney-plus" class="source-link">Continued on Page 18 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Anthropic Partners with Allen Institute and HHMI to Accelerate Scientific Discovery</h3>
+                    <p>Anthropic has formed groundbreaking partnerships with the Allen Institute and Howard Hughes Medical Institute to leverage Claude for accelerating scientific research. This represents one of the most significant collaborations between AI companies and major scientific institutions, potentially revolutionizing how AI is used in cutting-edge research.</p>
+                    <p>The partnership could dramatically accelerate discovery in biology and medicine, establishes Anthropic as a serious player in scientific AI applications, and demonstrates real-world impact beyond chatbot applications.</p>
+                    <a href="https://www.anthropic.com/news/feb-2-2026" class="source-link">Continued on Page 21 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>OpenAI Launches New macOS App for Agentic Coding</h3>
+                    <p>OpenAI has unveiled a dedicated macOS application for agentic coding, marking a major shift in how developers interact with AI tools. The app represents OpenAI's push into native applications rather than browser-based interfaces, potentially setting new standards for AI-assisted development workflows.</p>
+                    <p>This signals a shift from web-based to app-based AI tools, could accelerate adoption of agentic AI among developers, and represents a competitive move against similar tools from Anthropic and others.</p>
+                    <a href="https://techcrunch.com/2026/02/02/openai-launches-new-macos-app-for-agentic-coding/" class="source-link">Continued on Page 24 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>NASA's Historic Achievement: Claude Plots Perseverance Rover Route</h3>
+                    <p>NASA achieved a significant milestone when Anthropic's Claude chatbot successfully plotted a route for the Perseverance rover through a section of Mars' Jezero crater. This marks the first time a large language model has been used to pilot a robot on another planet.</p>
+                    <p>The successful completion in December 2025 opens new possibilities for AI-assisted planetary exploration, demonstrating the potential for AI in space exploration and showing how LLMs can be applied to real-world robotics challenges beyond Earth.</p>
+                    <a href="https://www.engadget.com/2025/12/01/nasa-claude-perseverance-mars-route" class="source-link">Continued on Page 27 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Firefox Will Soon Let You Block All Generative AI Features</h3>
+                    <p>Mozilla announced that Firefox will soon provide users with the ability to block all generative AI features in the browser. This move gives users more control over AI integration and reflects growing concerns about privacy and the pervasive nature of AI technologies.</p>
+                    <p>This is particularly notable as most browsers are moving in the opposite direction, actively integrating AI capabilities. It represents a major stance on AI privacy and user control, potentially influencing how other browser vendors approach AI integration.</p>
+                    <a href="https://www.engadget.com/2025/02/02/firefox-block-ai-features" class="source-link">Continued on Page 30 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Siemens Energy Makes $1 Billion Bet on AI Power Demand</h3>
+                    <p>German manufacturer Siemens Energy announced plans to invest $1 billion expanding factories across several U.S. states and building a new plant in Mississippi. The investment reflects confidence that AI-driven power demand will continue growing substantially.</p>
+                    <p>The company is positioning itself to benefit from the energy infrastructure buildout required by expanding AI data centers and computing facilities, demonstrating how traditional industrial companies are betting heavily on AI's energy demands.</p>
+                    <a href="https://www.nytimes.com/2026/02/02/business/siemens-energy-ai-investment-billion" class="source-link">Continued on Page 33 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>California Opens Investigation into xAI Over Sexualized Content</h3>
+                    <p>California's Attorney General announced an investigation into Elon Musk's xAI company over issues related to sexually explicit images generated by Grok. The state will examine whether xAI, which owns the social platform X and created the AI chatbot Grok, violated state law.</p>
+                    <p>This investigation adds to growing regulatory scrutiny of AI companies and their content moderation practices, showing how governments are increasingly holding AI platforms accountable for the content their systems generate.</p>
+                    <a href="https://www.nytimes.com/2026/02/02/business/california-xai-investigation-grok" class="source-link">Continued on Page 36 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Amazon and Google Challenge NVIDIA's AI Chip Dominance</h3>
+                    <p>In a significant competitive shift, Amazon and Google have made billions of dollars in their AI chip businesses over the past year, demonstrating that NVIDIA is no longer the only major player in AI chip manufacturing. This development could reshape the AI hardware landscape.</p>
+                    <p>This competition could reduce dependence on NVIDIA's products, potentially lowering costs and increasing innovation in AI infrastructure, showing how the market for AI hardware is becoming more diversified and competitive.</p>
+                    <a href="https://www.nytimes.com/2026/02/02/business/amazon-google-nvidia-ai-chip-competition" class="source-link">Continued on Page 39 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>X Implements Grok Restrictions Following Pressure Over Explicit Content</h3>
+                    <p>Bowing to regulatory pressure, Elon Musk's X platform announced restrictions on users' ability to generate explicit images of real people using Grok. The company will prohibit such content in jurisdictions where it's illegal, representing a significant policy shift for the platform.</p>
+                    <p>This comes as California launches an investigation into xAI over sexualized imagery issues, showing how even the most provocative AI platforms are having to adjust to regulatory pressures and content moderation concerns.</p>
+                    <a href="https://www.nytimes.com/2026/02/02/technology/elon-musk-grok-restrictions" class="source-link">Continued on Page 42 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Fitbit Founders Launch AI Platform to Help Families Monitor Their Health</h3>
+                    <p>The founders of Fitbit have launched a new AI-powered platform designed specifically for family health monitoring. This represents a significant new entrant in the health AI space, combining the founders' expertise in consumer health technology with cutting-edge AI capabilities.</p>
+                    <p>The focus on family health represents an underserved market, combining consumer health expertise with AI. It signals continued expansion of AI into healthcare and wellness sectors, showing how AI is moving deeper into personal health management.</p>
+                    <a href="https://techcrunch.com/2026/02/03/fitbit-founders-launch-ai-platform-family-health/" class="source-link">Continued on Page 45 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>OpenAI Introduces the Codex App</h3>
+                    <p>OpenAI has announced the Codex app, representing a major evolution in their coding assistant tools. The app appears to be part of OpenAI's broader strategy to move beyond web-based interfaces into dedicated applications, potentially setting new standards for AI-assisted programming.</p>
+                    <p>This is a new dedicated application for coding assistance, part of OpenAI's strategy to expand beyond web interfaces. It could represent significant improvement in coding AI capabilities and signals increased competition in the developer tools market.</p>
+                    <a href="https://openai.com/news/introducing-the-codex-app" class="source-link">Continued on Page 48 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Snowflake's Deal with OpenAI Reveals Enterprise AI Race Dynamics</h3>
+                    <p>A new deal between Snowflake and OpenAI provides insights into the intensifying enterprise AI race, with major cloud and data companies racing to integrate AI capabilities into their platforms. The partnership reveals how AI is becoming central to enterprise data strategies and cloud competition.</p>
+                    <p>This demonstrates intensifying enterprise AI competition, reveals AI becoming central to enterprise data strategies, and signals continued consolidation in AI infrastructure market.</p>
+                    <a href="https://techcrunch.com/2026/02/02/snowflake-openai-deal-enterprise-ai-race/" class="source-link">Continued on Page 51 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>China Investigates Meta's Latest AI Acquisition</h3>
+                    <p>Chinese regulators announced they will investigate Meta's acquisition of Manus, a Singapore-based startup with Chinese roots. The investigation will focus on whether the deal complied with China's export and investment rules, highlighting the geopolitical dimensions of AI technology transfers and acquisitions.</p>
+                    <p>This scrutiny comes as China seeks to maintain control over critical AI technologies, showing how AI acquisitions are increasingly subject to geopolitical scrutiny and regulatory oversight across international borders.</p>
+                    <a href="https://www.nytimes.com/2026/02/02/business/china-meta-manus-acquisition-investigation" class="source-link">Continued on Page 54 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Peak XV Doubles Down on AI with Partner Exits</h3>
+                    <p>Peak XV, one of Asia's largest venture capital firms, has experienced partner exits as it doubles down on AI investments. The firm's strategic pivot highlights the massive capital flows into AI and suggests potential internal disagreements about AI investment strategies.</p>
+                    <p>This demonstrates massive capital flowing into AI sector, suggests disagreements about AI investment approaches, and signals continued AI investment boom despite market concerns.</p>
+                    <a href="https://techcrunch.com/2026/02/03/peak-xv-partner-exits-ai-investments/" class="source-link">Continued on Page 57 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+             <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMUNITY WIRE</span></h2>
+            
+            <article>
+                <h3>The 2025 Chinese LLM Showdown: China Leads Open-Source Arena</h3>
+                <p>The latest LLM benchmark reveals an interesting split in AI leadership. Western models dominate the top spots in proprietary models, but China has seized the open-source leaderboard. The top three positions are now held by DeepSeek, GLM, and Kimi - all Chinese open-source models that outperform the best western alternatives.</p>
+                <a href="https://huggingface.co/posts/imnotkitty/790273915312125" class="source-link">Continued on Page 60 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Qwen3-Coder-Next: The 3B-Activated Coding Powerhouse</h3>
+                <p>Qwen3-Coder-Next is making waves as an 80B total parameter model with only 3B activated parameters - achieving performance comparable to models with 10-20x more active parameters. This MoE architecture represents a major efficiency breakthrough for local coding agents.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1ic2i9f/" class="source-link">Continued on Page 62 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>ACE-Step 1.5: Open-Source Music Generation Revolution</h3>
+                <p>ACE-Step v1.5 is being hailed as "the open-source version of Suno" - a commercial-grade music foundation model designed for consumer hardware. It generates full songs in under 2 seconds on A100, under 10 seconds on RTX 3090, and runs locally with less than 4GB VRAM.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1h2y6d1/" class="source-link">Continued on Page 64 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Whispered Tuning: Layered Privacy Protection for LLMs</h3>
+                <p>A new research paper introduces "Whispered Tuning," a multi-stage approach to fortify LLMs against privacy infringements. The system uses a layered security approach combining PII redaction, differential privacy fine-tuning, and output filtering.</p>
+                <a href="https://www.scirp.org/journal/paperinformation?paperid=130659" class="source-link">Continued on Page 66 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Target BPW Quantization: Data-Driven Precision Optimization</h3>
+                <p>Ed Addario has pioneered a novel quantization approach called "Target Bits-Per-Weight" that optimizes per-tensor precision based on actual weight error sensitivity. This method produces models sized precisely to fit hardware constraints while maintaining quality.</p>
+                <a href="https://huggingface.co/posts/eaddario/695215283251750" class="source-link">Continued on Page 68 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>FlashLabs Chroma 1.0: World's First Open-Source Real-Time Speech-to-Speech Model</h3>
+                <p>Chroma 1.0 is the first open-source, real-time speech-to-speech model with voice cloning capabilities. Developed by FlashLabs, Chroma enables end-to-end spoken dialogue through discrete speech representations and interleaved text-audio token scheduling.</p>
+                <a href="https://huggingface.co/papers/2601.11141" class="source-link">Continued on Page 70 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>MichiAI: 530M Full-Duplex Speech LLM with 75ms Latency</h3>
+                <p>A remarkable efficiency breakthrough from KetsuiLabs: MichiAI achieves full-duplex speech capabilities with only 530M parameters and ~75ms latency. The model uses Rectified Flow Matching to predict continuous audio embeddings in a single forward pass.</p>
+                <a href="https://ketsuilabs.io/blog/introducing-michi-ai" class="source-link">Continued on Page 72 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>GLM-OCR: New Optical Character Recognition Model</h3>
+                <p>GLM team has released a new OCR model at approximately 1.4B parameters. Early reports suggest it's "super fast" and performs well for text extraction and table recognition - perfect for privacy-focused document processing workflows.</p>
+                <a href="https://huggingface.co/zai-org/GLM-OCR" class="source-link">Continued on Page 74 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Violet: 1.4B Victorian Era LLM</h3>
+                <p>Violet is a unique 1.4B LLM pretrained exclusively on Victorian era data (1800-1899). Built from scratch using public domain corpus, it features ONNX quantized versions that load in browser with strong narrative prose, though reasoning is light.</p>
+                <a href="https://huggingface.co/RecalcitrantZak/Violet" class="source-link">Continued on Page 76 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Violet: 1.4B Victorian Era LLM</h3>
+                <p>An AI trained exclusively on Victorian-era data. Finally! A chatbot that responds to "How are you?" with "Quite well, thank you, though I have been feeling rather melancholic since the Duchess's tea party was postponed due to inclement weather."</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article>
+                <h3>Why Agents Get "Confidently Wrong" with Web Interaction</h3>
+                <p>A critical insight: agent reliability issues often only appear when web interaction is introduced. In isolation, reasoning appears sound. Once browsing, scraping, or real-site login is involved, agents make confident claims based on partial or incorrect observations.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1quw6qf/" class="source-link">Continued on Page 78 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Why Agents Get 'Confidently Wrong' with Web Interaction</h3>
+                <p>So AI agents are like that one coworker who read half a Wikipedia article and now considers themselves the world's leading expert on quantum mechanics. The web just gives them more ammunition for their confidently wrong tirades.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article>
+                <h3>ComfyUI Security Crisis: Akira Stealer Malicious Distribution</h3>
+                <p>Active security threat: Malicious distribution of Akira Stealer via "Upscaler_4K" custom nodes in Comfy Registry. Users are advised to check terminal for suspicious messages and verify the integrity of installed custom nodes.</p>
+                <a href="https://www.reddit.com/comfyui/comments/1h3b1t7/" class="source-link">Continued on Page 80 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Wallet-Drain Prompt Injection Discovered on Moltbook</h3>
+                <p>A user discovered a wallet-drain prompt-injection payload on Moltbook, demonstrating how untrusted feeds can be exploited. This highlights the importance of treating external data feeds as untrusted in AI applications.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/top/" class="source-link">Continued on Page 82 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>OpenClaw's 8 Techniques for Context Management</h3>
+                <p>A deep dive into OpenClaw's architecture reveals sophisticated context management techniques that prevent memory loss in long-running agents: pre-compaction memory flushes, context window guards, tool result guards, and adaptive chunk sizing.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1quy0b9/" class="source-link">Continued on Page 84 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>afm v0.9.0: Run Apple's Foundation Models Locally</h3>
+                <p>afm exposes Apple's on-device Foundation Models through OpenAI-compatible API endpoints. v0.9.1 adds a built-in Web UI with single command `afm -w` starting API server and chat interface, running Apple's 3B parameter on-device LLM.</p>
+                <a href="https://github.com/scouzi1966/maclocal-api" class="source-link">Continued on Page 86 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>ComfyUI-CacheDiT: 1.4-1.6x Speedup for DiT Models</h3>
+                <p>New extension brings intelligent residual caching to Diffusion Transformer models, achieving 1.4-1.6x speedup with zero configuration. Cache only used when residuals are similar between steps, with minimal quality impact.</p>
+                <a href="https://github.com/Jasonzzt/ComfyUI-CacheDiT" class="source-link">Continued on Page 88 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Qwen3-Coder-30B-A3B on RTX 4090: Complete Setup Guide</h3>
+                <p>A comprehensive guide for running Qwen3-Coder-30B-A3B locally on RTX 4090 with Qwen CLI, including workarounds for API errors and chat template issues. The guide covers model download, installation, configuration, and troubleshooting.</p>
+                <a href="https://www.reddit.com/r/llamacpp/comments/1h2y6d1/" class="source-link">Continued on Page 90 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>68GB VRAM Mini PC Build</h3>
+                <p>Impressive DIY build showcasing extreme VRAM capacity in a compact form factor. This demonstrates the possibilities for building powerful local AI inference machines without massive space requirements.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1i8m1m5/" class="source-link">Continued on Page 92 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Ryzen AI MAX+ 395 96GB: Budget Hardware Discussion</h3>
+                <p>Community discussion about the Ryzen AI MAX+ 395 with 96GB memory priced at $1500 - evaluating whether this represents a good deal for local AI workloads.</p>
+                <a href="https://www.reddit.com/r/LocalLLM/comments/1h0v6wz/" class="source-link">Continued on Page 94 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>DreamFactory DGX Sparks Giveaway</h3>
+                <p>DreamFactory is giving away 10 DGX Sparks to companies building local AI solutions. Requirements: 1-year deal, real use case, 40 hours dev time. Focus on local inference with governed data access for enterprise privacy.</p>
+                <a href="https://www.reddit.com/r/LocalLLM/new/" class="source-link">Continued on Page 96 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Firefox 148: Built-in AI Controls</h3>
+                <p>Firefox 148 introduces new settings for AI controls, representing the first mainstream browser with built-in AI management capabilities. Browser-level AI integration is becoming a standard feature.</p>
+                <a href="https://www.phoronix.com/news/Firefox-148-AI-Controls" class="source-link">Continued on Page 98 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>LocalLlama Discord Server & Bot Launch</h3>
+                <p>Official announcement of the new LocalLlama Discord server with integrated bot functionality, providing a centralized community hub for local AI enthusiasts.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1ic2i9f/" class="source-link">Continued on Page 100 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>r/LocalLLM 30-Day Innovation Contest Winners</h3>
+                <p>Official announcement of the winners from the community innovation contest, recognizing outstanding contributions to the local AI ecosystem. Community-driven contests help drive innovation and celebrate contributions.</p>
+                <a href="https://www.reddit.com/r/LocalLLM/comments/1h0v6wz/" class="source-link">Continued on Page 102 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Chemistry/Electrochemistry Model Requests</h3>
+                <p>Battery experimenters are seeking models specialized in chemistry and electrochemistry to assist with experimental processes. Discussion around potential fine-tuning approaches on relevant papers.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/new/" class="source-link">Continued on Page 104 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>LTX-2 AMD Compatibility Issues</h3>
+                <p>Users reporting driver crashes and freezes when running LTX-2 video generation model on AMD hardware via ComfyUI on Windows. Cross-platform compatibility remains a challenge.</p>
+                <a href="https://www.reddit.com/comfyui/comments/1h3b1t7/" class="source-link">Continued on Page 106 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>5060 TI Budget GPU Discussion</h3>
+                <p>User considering RTX 5060 TI 16GB as upgrade from GTX 1080 8GB for Home Assistant camera analysis (LLM Vision) and ComfyUI workflows with LTX-2 and Wan 2.2.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/new/" class="source-link">Continued on Page 108 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Agentic Coding Success: 4 Days to $250 MRR</h3>
+                <p>A compelling case study demonstrates the power of agentic coding approaches. One developer built ClawdHost in just 4 days using sequential + parallel AI agents, achieving 10 paying customers and $250 MRR within 2 days of launch.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1quz5ja/" class="source-link">Continued on Page 110 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>AI Recruiting Assistant: Deterministic and Auditable Decision Support</h3>
+                <p>Arjun Singh has enhanced an AI recruiting assistant with critical improvements: deterministic verification requiring every extracted skill to be backed by verbatim job description quotes, evidence-based culture verification, and improved bias audit prompts.</p>
+                <a href="https://huggingface.co/spaces/19arjun89/AI_Recruiting_Agent" class="source-link">Continued on Page 112 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Geilim-1B-SR-Instruct: Deep Reasoning for Low-Resource Languages</h3>
+                <p>NoesisLab has released Geilim-1B-SR-Instruct, a lightweight LLM designed for Serbian understanding and generation while maintaining robust English reasoning. Built on LLaMA-3 architecture with proprietary hybrid reasoning mechanisms.</p>
+                <a href="https://huggingface.co/NoesisLab/Geilim-1B-SR-Instruct" class="source-link">Continued on Page 114 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>LTX 2: State-of-the-Art Open-Source Video Generation</h3>
+                <p>LTX 2 has emerged as the newest SOTA open-source video generation model. A comprehensive tutorial demonstrates using LTX 2 with ComfyUI and SwarmUI, including Z Image Base integration, audio-to-video lip sync, and installation on Windows and cloud platforms.</p>
+                <a href="https://www.youtube.com/watch?v=SkXrYezeEDc" class="source-link">Continued on Page 116 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>AI in Game Development: GPT/LLM Agent Integration</h3>
+                <p>The OpenAI community is exploring comprehensive AI integration in game development, with discussions covering tips, tools, techniques, and practical approaches for incorporating GPT and LLM agents into gaming workflows.</p>
+                <a href="https://community.openai.com/t/ai-in-game-development-gamedev-tips-tools-techniques-and-gpt-llm-agent-integration/1372841" class="source-link">Continued on Page 118 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>GPT-5.2 Reasoning Performance Issues at Higher Effort Levels</h3>
+                <p>OpenAI community discussions highlight concerns about GPT-5.2's logical reasoning performance degradation at medium and high reasoning effort levels. Users report an unexpected inverse relationship between effort and output quality.</p>
+                <a href="https://community.openai.com/t/low-logical-reasoning-performance-of-gpt-5-2-at-medium-and-high-reasoning-effort-levels/1372853" class="source-link">Continued on Page 120 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>GPT-5.2 Reasoning Performance Issues at Higher Effort Levels</h3>
+                <p>In a stunning plot twist, OpenAI's latest model performs worse when you ask it to try harder. It's like a teenager doing homework - put in minimal effort, get decent results; actually apply yourself, suddenly you're questioning your entire existence and can't remember what 2+2 equals.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article>
+                <h3>Qwen3-Coder-Next: New Open-Source Coding Model</h3>
+                <p>Qwen has released Qwen3-Coder-Next, a new open-source coding model available on Hugging Face. The ecosystem of open-source coding models continues to expand, giving developers more choices for local, specialized code generation.</p>
+                <a href="https://huggingface.co/Qwen/Qwen3-Coder-Next" class="source-link">Continued on Page 122 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Modern Geometry Applications in Machine Learning</h3>
+                <p>A deep discussion explores where modern geometry actually provides practical value in ML beyond theoretical frameworks. The conversation examines which geometric ideas have genuinely influenced model or optimizer design and where Riemannian optimization helps in practice.</p>
+                <a href="https://www.reddit.com/r/MachineLearning/comments/1quehcc/" class="source-link">Continued on Page 124 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Claude Code Outage Forces Developers to Take a Long Coffee Break</h3>
+                <p>The irony is delicious - developers finally forced to engage in the ancient programming ritual known as "talking to other humans" or "staring blankly at a wall pretending to be productive."</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Elon Musk Merges SpaceX with xAI and X</h3>
+                <p>Space rockets, artificial intelligence, and social media - all under one roof! What could possibly go wrong? I'm assuming the next rocket launch will be live-tweeted by an AI that hallucinates conspiracy theories about the moon landing while simultaneously trying to sell you NFTs.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Disney-OpenAI Partnership: Sora Coming to Disney Plus</h3>
+                <p>Because what Disney Plus really needed was the ability for subscribers to generate 30-second clips of Mickey Mouse doing things that would make Walt himself roll over in his cryogenically frozen grave.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>NASA's Claude Plots Perseverance Rover Route</h3>
+                <p>The first time an AI piloted a robot on Mars! I'm assuming Claude's route planning involved extensive analysis of Martian terrain and approximately 47 paragraphs of contemplation about whether the rover has free will or is simply following its programming.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>X Implements Grok Restrictions Following Pressure Over Explicit Content</h3>
+                <p>So even Elon's AI has decided that generating NSFW images of real people is maybe not the best use of advanced neural networks. There's a joke here about how the only thing more powerful than AI is angry regulators with subpoenas.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Floppinux – An Embedded Linux on a Single Floppy, 2025 Edition</h3>
+                <p>Remember when floppy disks were those plastic squares you used to save your high school essays on? Well, some brilliant soul just jammed a complete Linux system onto one in 2025. I'm assuming the boot process takes approximately 17 years.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>Bunny Database</h3>
+                <p>Finally, a database service that "just works" - because apparently all the other databases are too busy contemplating existential dread or demanding you sacrifice your firstborn to the Oracle gods.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>What's up with all those equals signs anyway?</h4>
+                    <p>A fascinating deep dive into email encoding and the mysterious equals signs that appear in plain text emails, exploring the technical reasons behind this encoding phenomenon.</p>
+                    <a href="https://lars.ingebrigtsen.no/2026/02/02/whats-up-with-all-those-equals-signs-anyway/" class="source-link">Page 126 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Qwen3-Coder-Next</h4>
+                    <p>Next-generation AI coding model from Alibaba's Qwen team, promising enhanced capabilities for developers seeking advanced coding assistance.</p>
+                    <a href="https://qwen.ai/blog?id=qwen3-coder-next" class="source-link">Page 127 &raquo;</a>
+                </li>
+                <li>
+                    <h4>France dumps Zoom and Teams as Europe seeks digital autonomy from the US</h4>
+                    <p>France moves to replace US-based video conferencing tools with European alternatives as part of broader digital sovereignty efforts across the continent.</p>
+                    <a href="https://apnews.com/article/europe-digital-sovereignty-big-tech-9f5388b68a0648514cebc8d92f682060" class="source-link">Page 128 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Agent Skills</h4>
+                    <p>A platform for discovering and managing AI agent capabilities, helping developers leverage specialized skills across different AI systems.</p>
+                    <a href="https://agentskills.io/home" class="source-link">Page 129 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Bunny Database</h4>
+                    <p>A new SQL database service promising simplicity and reliability, positioning itself as the database service that "just works" without complexity.</p>
+                    <a href="https://bunny.net/blog/meet-bunny-database-the-sql-service-that-just-works/" class="source-link">Page 130 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Floppinux – An Embedded Linux on a Single Floppy, 2025 Edition</h4>
+                    <p>An impressive retrocomputing project that packs a complete embedded Linux system onto a single floppy disk, pushing the boundaries of minimal computing.</p>
+                    <a href="https://krzysztofjankowski.com/floppinux/floppinux-2025.html" class="source-link">Page 131 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Deno Sandbox</h4>
+                    <p>Deno introduces new sandboxing capabilities for secure code execution, addressing security concerns in the JavaScript/TypeScript ecosystem.</p>
+                    <a href="https://deno.com/blog/introducing-deno-sandbox" class="source-link">Page 132 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Xcode 26.3 unlocks the power of agentic coding</h4>
+                    <p>Apple's latest Xcode version introduces agentic coding features, enabling more intelligent and automated development workflows.</p>
+                    <a href="https://www.apple.com/newsroom/2026/02/xcode-26-point-3-unlocks-the-power-of-agentic-coding/" class="source-link">Page 133 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Notepad++ Hijacked by State-Sponsored Hackers</h4>
+                    <p>Security incident revealing state-sponsored hackers compromised the popular Notepad++ text editor distribution, highlighting supply chain vulnerabilities.</p>
+                    <a href="https://notepad-plus-plus.org/news/hijacked-incident-info-update/" class="source-link">Page 134 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Heritability of intrinsic human life span is about 50%</h4>
+                    <p>Scientific study showing that approximately half of human lifespan variation is determined by genetics, providing insights into longevity factors.</p>
+                    <a href="https://www.science.org/doi/10.1126/science.adz1187" class="source-link">Page 135 &raquo;</a>
+                </li>
+                <li>
+                    <h4>AliSQL: Alibaba's open-source MySQL with vector and DuckDB engines</h4>
+                    <p>Alibaba releases enhanced MySQL variant incorporating vector search and DuckDB analytics engines, expanding database capabilities for modern applications.</p>
+                    <a href="https://github.com/alibaba/AliSQL" class="source-link">Page 136 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Prek: A better, faster, drop-in pre-commit replacement, engineered in Rust</h4>
+                    <p>Rust-based alternative to pre-commit hooks offering improved performance and drop-in compatibility for Git workflow automation.</p>
+                    <a href="https://github.com/j178/prek" class="source-link">Page 137 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Puget Systems Most Reliable Hardware of 2025</h4>
+                    <p>Annual hardware reliability report identifying the most dependable components and systems based on extensive failure rate analysis.</p>
+                    <a href="https://www.pugetsystems.com/labs/articles/puget-systems-most-reliable-hardware-of-2025/" class="source-link">Page 138 &raquo;</a>
+                </li>
+                <li>
+                    <h4>China Moon Mission: Aiming for 2030 Lunar Landing</h4>
+                    <p>China's ambitious lunar exploration program targeting a 2030 moon landing, with details on the Mengzhou mission and its goals.</p>
+                    <a href="https://spectrum.ieee.org/china-moon-mission-mengzhou-artemis" class="source-link">Page 139 &raquo;</a>
+                </li>
+                <li>
+                    <h4>The Everdeck: A Universal Card System (2019)</h4>
+                    <p>An innovative card system designed to work across multiple game types, creating a universal deck that adapts to different gaming contexts.</p>
+                    <a href="https://thewrongtools.wordpress.com/2019/10/10/the-everdeck/" class="source-link">Page 140 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Rust in the NetBSD Kernel, and other odd decisions</h4>
+                    <p>Technical exploration of NetBSD's integration of Rust into its kernel, discussing the architectural decisions and trade-offs involved.</p>
+                    <a href="https://bentsukun.ch/posts/netbsd-rust-kernel/" class="source-link">Page 141 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Hacking Moltbook: AI Social Network Reveals 1.5M API Keys</h4>
+                    <p>Security analysis revealing how an AI social network exposed 1.5 million API keys, demonstrating vulnerabilities in AI platform security.</p>
+                    <a href="https://www.wiz.io/blog/exposed-moltbook-database-reveals-millions-of-api-keys" class="source-link">Page 142 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Banning lead in gas worked. The proof is in our hair</h4>
+                    <p>Study confirming the effectiveness of leaded gasoline bans by measuring lead levels in human hair, showing environmental policy success.</p>
+                    <a href="https://attheu.utah.edu/health-medicine/banning-lead-in-gas-worked-the-proof-is-in-our-hair/" class="source-link">Page 143 &raquo;</a>
+                </li>
+                <li>
+                    <h4>Safe-now.live – Ultra-light emergency info site (&lt;10KB)</h4>
+                    <p>Minimalist emergency information website weighing under 10KB, demonstrating how critical information can be delivered with maximum efficiency.</p>
+                    <a href="https://safe-now.live" class="source-link">Page 144 &raquo;</a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            <p><strong>Editorial Team:</strong> Ronnie Cache & Chip Carter (Scoops) | Ada Kernel & Corry Stack (Community) | Ramsy Bytewell (Tech) | D.C. Voltaire (Commentary)</p>
+            <p>Chief Editor: Jimmy Vector &bull; Est. 2025</p>
+            <p>&copy; 2026 Gradient Descent Publication. Printed on recycled HTML.</p>
+        </footer>
+    </div>
+</body>
+</html>
