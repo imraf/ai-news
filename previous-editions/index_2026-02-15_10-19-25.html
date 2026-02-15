@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; 
+            font-size: 0.95rem;
+            hyphens: auto; 
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); 
+        }
+
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        
+        h2 span { 
+            background: #fcfbf2; 
+            padding: 0 10px; 
+        }
+
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; 
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); 
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important; 
+        }
+
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } 
+
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        
+        .tech-boards-section h2 { margin-bottom: 15px; }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+        }
+
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .masthead { font-size: 3.2rem; }
+
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .scoop-item:first-child {
+                column-count: 1; 
+            }
+
+            .mixed-feed {
+                column-count: 1; 
+            }
+            
+            .mixed-feed article {
+                display: block; 
+            }
+
+            .tech-list {
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; 
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">New Editions Sun. & Wed.</div>
+            <div class="subhead">
+                <span>Vol. I, No. 30</span>
+                <span>Wednesday, Feb 11 2026</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>HEADLINES</span></h2>
+            <div class="scoop-grid">
+                
+                <article class="scoop-item">
+                    <h3>Kennesaw State University Launches First-in-Nation Bachelor of Science in AI</h3>
+                    <p>Kennesaw State University in Georgia has announced the launch of a dedicated Bachelor of Science in Artificial Intelligence program, set to begin in Fall 2026. This marks one of the first dedicated AI undergraduate degrees in the United States, reflecting the accelerating demand for AI workforce talent.</p>
+                    <p>The program includes machine learning, deep learning, natural language processing, and AI ethics. Partnerships with major tech companies will provide internships and job placement.</p>
+                    <a href="https://www.kennesaw.edu" class="source-link">Continued on Page 2 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Google Research: Beyond One-on-One AI Conversations</h3>
+                    <p>Google Research unveiled new advances in multi-party AI conversation systems, moving beyond traditional one-on-one human-AI interactions to simulate and analyze complex group dynamics.</p>
+                    <p>The new framework enables authoring and testing of dynamic human-AI group conversations with applications in collaborative work, education, and team training. The system addresses challenges of managing multiple simultaneous dialogue streams.</p>
+                    <a href="https://ai.googleblog.com" class="source-link">Continued on Page 2 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Amazon Plans Marketplace for Media Content to AI Companies</h3>
+                    <p>Amazon is planning to launch a marketplace where media sites can sell their content directly to AI companies—a move that could reshape the economics of digital journalism and content creation.</p>
+                    <p>The platform represents the first major tech platform creating a direct licensing channel for AI training data, allowing media outlets to earn revenue from content previously scraped without compensation.</p>
+                    <a href="https://techcrunch.com/2026/02/10/amazon-may-launch-a-marketplace-where-media-sites-can-sell-their-content-to-ai-companies/" class="source-link">Continued on Page 3 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>Intel's Deep Blue at 30: The Chess Match That Changed Everything</h3>
+                    <p>IBM's Deep Blue defeated world chess champion Garry Kasparov 30 years ago this week—paving the way for modern AI. The historic match on February 10, 1996, marked the first time a computer beat a reigning world champion under tournament conditions.</p>
+                    <p>Deep Blue's victory demonstrated machine intelligence could surpass human experts, establishing a direct lineage to today's LLMs and agentic AI systems.</p>
+                    <a href="https://www.npr.org/2026/02/09/nx-s1-5684150/deep-blue-ibm-garry-kasparov-1996-ai-machine-learning" class="source-link">Continued on Page 3 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>NVIDIA's AI Stock Surge Continues</h3>
+                    <p>NVIDIA's stock hit new all-time highs as the company dominates the AI infrastructure market—its chips power an estimated 95% of AI training workloads globally.</p>
+                    <p>NVIDIA is now worth more than many national economies, with AI chip demand showing no signs of slowing. The company is building a full stack from chips to software, with analysts projecting a $1T valuation within 12 months.</p>
+                    <a href="https://www.ft.com" class="source-link">Continued on Page 3 >></a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>AI in Healthcare: Multiple Breakthroughs</h3>
+                    <p>New AI tool diagnoses masked hypertension with 94% accuracy, potentially catching a condition that affects millions undiagnosed. Personalized ovarian cancer treatment AI tool developed that recommends treatment from day one based on individual tumor characteristics.</p>
+                    <p>Radiology perspective: AI is becoming a "case study for why AI won't replace human workers" — enhancing rather than replacing radiologists.</p>
+                    <a href="https://medicalxpress.com" class="source-link">Continued on Page 2 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+             <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMUNITY WIRE</span></h2>
+
+            <article>
+                <h3>No NVIDIA? No Problem. My 2018 "Potato" 8th Gen i3 hits 10 TPS on 16B MoE</h3>
+                <p>User RelativeOperation483 demonstrates that even budget hardware can shine with modern MoE architectures. An 8th-gen i3 "potato" achieves a respectable 10 tokens-per-second on a 16B MoE model through smart quantization and inference optimizations.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qxcm5g/no_nvidia_no_problem_my_2018_potato_8th_gen_i3/" class="source-link">Continued on Page 12 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>Train MoE models 12x faster with 30% less memory! (&lt;15GB VRAM)</h3>
+                <p>danielhanchen shares groundbreaking training optimizations for Mixture-of-Experts models that slash both time and memory requirements. With &lt;15GB VRAM, users can now train MoE models at 12x the speed while using 30% less memory.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1r14h9u/train_moe_models_12x_faster_with_30_less_memory/" class="source-link">Continued on Page 12 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>MCP support in llama.cpp is ready for testing</h3>
+                <p>The llama.cpp project adds Model Context Protocol (MCP) support, enabling better integration with agentic workflows and tools. This development bridges the gap between inference engines and orchestration frameworks.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1r1czgk/mcp_support_in_llamacpp_is_ready_for_testing/" class="source-link">Continued on Page 12 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>The most complete CLI for agentic engineering</h3>
+                <p>kilo.ai introduces a comprehensive CLI tool designed specifically for agentic engineering workflows. With built-in support for local LLMs, tool calling, state management, and pipeline orchestration.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/" class="source-link">Continued on Page 12 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>Hugging Face Is Teasing Something Anthropic Related</h3>
+                <p>Rumors swirl as Hugging Face hints at a new collaboration or integration involving Anthropic. Speculation ranges from Claude model quantizations to API integrations that could enhance local deployments.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1r0zn8o/hugging_face_is_teasing_something_anthropic/" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Claude Code Agent Swarm Runs 100,499 Tokens/Second on 5-Year-Old Hardware</h3>
+                <p>Mitko Vasilev pushed Claude Code Agent Swarm with 20 coding agents on a desktop GPU workstation: 100k+ tokens/second read, 811 tok/sec generation. Hardware: 4× A6K (Gen 1). Qwen3 Coder Next AWQ scored 82.1% on C# codebase vs Opus 4.5 at 57.5%.</p>
+                <a href="https://huggingface.co/posts/mitkox/464155376106577" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>LoongFlow: AI Agents Predicting GPU Failures in Production</h3>
+                <p>Baidu's LoongFlow puts AI agents to work on GPU failure prediction—not as a demo, but as a production system. ML agent designs full pipelines; Math agent performs evolutionary optimization. Results: +30% accuracy on IT21HMDB01-B2, +25% on H800.</p>
+                <a href="https://huggingface.co/posts/FreshmanD/759883646504275" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>AI4Privacy: Open Dataset Powers PII Anonymization Guide</h3>
+                <p>Google's new fine-tuning API + Ai4Privacy's pii-masking-200k dataset = privacy-preserving AI for everyone. The guide shows how to turn Gemini into a PII anonymization tool.</p>
+                <a href="https://www.analyticsvidhya.com/blog/2024/03/guide-to-fine-tuning-gemini-for-masking-pii-data/" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Unsloth's New Triton Kernels: Train MoE Models 12× Faster</h3>
+                <p>Train MoE models 12× faster with 35% less VRAM—no accuracy loss. Train gpt-oss locally on just 12.8GB VRAM. Free notebooks available.</p>
+                <a href="https://huggingface.co/posts/danielhanchen/156941968722021" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>GPT-5.3-Codex: The Most Powerful Codex Yet</h3>
+                <p>OpenAI's latest Codex release is generating buzz. With developers excited about the interactive and productivity improvements.</p>
+                <a href="https://community.openai.com/t/introducing-gpt-5-3-codex-the-most-powerful-interactive-and-productive-codex-yet/1373453" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Agent Teams Feature: 3 AI Agents Talking to Each Other</h3>
+                <p>Reddit user Deep_Ladder_4679 enabled "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS" and watched Claude spawn three teammate agents working in parallel—backend, frontend, code reviewer. They messaged each other, challenged approaches, coordinated independently.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1qydazj/claude_code_just_spawned_3_ai_agents_that_talked/" class="source-link">Continued on Page 14 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Voiden Blocks: API Development Like LEGO</h3>
+                <p>Voiden brings developer best practices to API development: modular "Blocks" (endpoints, headers, params, JSON bodies, file attachments) you can snap together like LEGO. Reusable Blocks let you create once and import everywhere.</p>
+                <a href="https://github.com/VoidenHQ/voiden" class="source-link">Continued on Page 14 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>No NVIDIA? No Problem: i3 Hits 10 TPS on 16B MoE</h3>
+                <p>A 2018 8th Gen i3 "potato" CPU hits 10 tokens/second on a 16B MoE model. Proof that you don't need the latest GPU to experiment with state-of-the-art models. Tutorial with workflow included.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1qxcm5g/no_nvidia_no_problem_my_2018_potato_8th_gen_i3/" class="source-link">Continued on Page 14 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Ref2Font: Generate Full Font Atlases from Two Letters</h3>
+                <p>FLUX.2 Klein 9B LoRA generates complete font atlases from just two letters. Resource update posted with workflow included.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1qw83f5/ref2font_generate_full_font_atlases_from_just_two/" class="source-link">Continued on Page 14 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>Stop Writing Prompts, Start Building Context</h3>
+                <p>Critical-Elephant630's viral post argues prompts are only ~5% of output quality—the rest is context architecture. Layers: Identity, Scope control, Process architecture, Self-verification.</p>
+                <a href="https://www.reddit.com/r/aiengineering/comments/1qycoep/stop_writing_prompts_start_building_context_heres/" class="source-link">Continued on Page 14 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+        </section>
+
+        <section class="mixed-feed">
+            <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMENTARY</span></h2>
+
+            <article class="flair-box">
+                <h3>ON KENNESAW STATE'S "BS IN AI" PROGRAM</h3>
+                <p>Finally, a degree that answers the pressing question: "What if we took machine learning and made it personally supervised?" At $42,000 per year (estimated), this program promises to produce graduates who can fine-tune LLMs, argue about whether RAG is "real AI," and still manage to misconfigure their own cloud billing alerts.</p>
+                <p>Kennesaw State's curriculum includes "AI Ethics"—a wonderful addition, right between "Prompt Engineering 101" and "How to Explain Transformers Without Actually Explaining Them." I predict 94% of graduates will be hired as "AI Strategists" who spend 80% of their time translating "neural network weights" into corporate buzzwords like "synergistic paradigms."</p>
+                <a href="https://www.kennesaw.edu" class="source-link">Continued on Page 6 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>ON THE "DEEP BLUE AT 30" ANNIVERSARY</h3>
+                <p>Thirty years ago this week, IBM's Deep Blue defeated Kasparov, inaugurating the Age of Machine Supremacy—or as it was known in 1996, "That One Time a Computer Beat at Chess (And Everyone Pretended It Wasn't a Big Deal)." Back then, people said, "But it's just brute force!" Now, every LLM claims to be "thinking," though I've yet to see one actually think.</p>
+                <p>Deep Blue had 30 days and 128 processors. Today's models have 80 billion parameters, 100,000 GPUs, and the attention span of a squirrel on espresso. Progress? Absolutely. Understanding? Debatable.</p>
+                <a href="https://www.npr.org/2026/02/09/nx-s1-5684150/deep-blue-ibm-garry-kasparov-1996-ai-machine-learning" class="source-link">Continued on Page 6 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>ON THE "TELLNET DIED" ARTICLE</h3>
+                <p>A poignant obituary for the once-ubiquitous telnet protocol. Remember telnet? You'd type `telnet somewhere.com 23`, hit enter, and—poof—a blinking cursor appeared out of nowhere, promising connection, community, and possibly a virus. Telnet was to secure communication what duct tape is to structural engineering: "It holds things together, just don't ask how or for how long."</p>
+                <p>Its demise marks the end of an era—when "authentication" meant shouting your password across the office and hoping no one was packet-sniffing. Good times. Good times.</p>
+                <a href="https://www.labs.greynoise.io/grimoire/2026-02-10-telnet-falls-silent/" class="source-link">Continued on Page 6 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>ON THE "VIBE CODING" CONTROVERSY</h3>
+                <p>Lobsters' Proposal: Add "-0.25 Hotness" to Vibe Coding. A brilliant meta-commentary on our times: we've reached peak productivity, and the algorithm has decided that code quality is best measured by how "vibey" the commit messages are.</p>
+                <p>"Added feature" becomes "Added feature (✨✨✨✨✨)." "Fixed bug" becomes "Fixed bug (but like, chill)." I can already see the job postings: "Seeking Senior Vibe Coder with 5+ years of experience in 'feeling the code' and 'intuitive debugging.' Must be fluent in React and vibes."</p>
+                <a href="/s/rqsjod/proposal_add_hotness_25_vibe_coding" class="source-link">Continued on Page 7 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>ON RAMSY BYTEWELL'S HN TOPIC: "THE SINGULARITY WILL OCCUR ON A TUESDAY"</h3>
+                <p>Ah, Campedersen's deep philosophical treatise on when the singularity will occur—specifically, a Tuesday. This aligns perfectly with my own research (conducted via polling my coffee machine), which concludes that all major technological inflection points occur either on Tuesdays or during the 3:47pm to 3:49pm window.</p>
+                <p>Why Tuesdays? Because Monday's debugged, Friday's cancelled, and Wednesday is "Midweek Strategy Sync (No Action Items)." Tuesday is the only day when enough people are awake and enough people have given up.</p>
+                <a href="https://campedersen.com/singularity" class="source-link">Continued on Page 7 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+        </section>
+
+        <section class="mixed-feed">
+            <h2 style="column-span: all; margin-bottom: 15px;"><span>TECH BOARDS</span></h2>
+
+            <article>
+                <h3>The Singularity will occur on a Tuesday</h3>
+                <p>A philosophical take on when the technological singularity might happen, with a humorous Tuesday twist. 737 points on Hacker News.</p>
+                <a href="https://campedersen.com/singularity" class="source-link">Continued on Page 8 >></a>
+            </article>
+
+            <article>
+                <h3>Google handed ICE student journalist's bank and credit card numbers</h3>
+                <p>Shocking revelation about Google complying with an ICE subpoena and handing over sensitive personal data. 560 points on Hacker News.</p>
+                <a href="https://theintercept.com/2026/02/10/google-ice-subpoena-student-journalist/" class="source-link">Continued on Page 8 >></a>
+            </article>
+
+            <article>
+                <h3>Europe's $24T Breakup with Visa and Mastercard Has Begun</h3>
+                <p>Europe is making moves to break free from the Visa-Mastercard duopoly in a major economic shift. 602 points on Hacker News.</p>
+                <a href="https://europeanbusinessmagazine.com/business/europes-24-trillion-breakup-with-visa-and-mastercard-has-begun/" class="source-link">Continued on Page 8 >></a>
+            </article>
+
+            <article>
+                <h3>Clean-room implementation of Half-Life 2 on the Quake 1 engine</h3>
+                <p>An impressive technical achievement: running HL2 on Quake 1's engine through clean-room reimplementation. 313 points on Hacker News.</p>
+                <a href="https://code.idtech.space/fn/hl2" class="source-link">Continued on Page 8 >></a>
+            </article>
+
+            <article>
+                <h3>Oxide raises $200M Series C</h3>
+                <p>Oxide Computer secures massive funding, continuing their mission in infrastructure computing. 490 points on Hacker News.</p>
+                <a href="https://oxide.computer/blog/our-200m-series-c" class="source-link">Continued on Page 8 >></a>
+            </article>
+
+            <article>
+                <h3>Qwen-Image-2.0: Professional infographics, exquisite photorealism</h3>
+                <p>The latest image generation model from Alibaba's Qwen team with impressive photorealistic capabilities. 366 points on Hacker News.</p>
+                <a href="https://qwen.ai/blog?id=qwen-image-2.0" class="source-link">Continued on Page 8 >></a>
+            </article>
+
+            <article>
+                <h3>Mathematicians disagree on the essential structure of the complex numbers (2024)</h3>
+                <p>Deep mathematical debate about foundational aspects of complex number theory. 134 points on Hacker News.</p>
+                <a href="https://www.infinitelymore.xyz/p/complex-numbers-essential-structure" class="source-link">Continued on Page 9 >></a>
+            </article>
+
+            <article>
+                <h3>My eighth year as a bootstrapped founder</h3>
+                <p>An experienced founder reflects on eight years of bootstrapping and sustainable business growth. 94 points on Hacker News.</p>
+                <a href="https://mtlynch.io/bootstrapped-founder-year-8/" class="source-link">Continued on Page 9 >></a>
+            </article>
+
+            <article>
+                <h3>How did Windows 95 get permission to put the Weezer video Buddy Holly on the CD?</h3>
+                <p>A fascinating deep dive into the bizarre story of Weezer's music video being bundled with Windows 95. 77 points on Hacker News.</p>
+                <a href="https://devblogs.microsoft.com/oldnewthing/20260210-00/?p=112052" class="source-link">Continued on Page 9 >></a>
+            </article>
+
+            <article>
+                <h3>Show HN: Rowboat – AI coworker that turns your work into a knowledge graph (OSS)</h3>
+                <p>An open-source tool that automatically organizes your work into interconnected knowledge networks. 96 points on Hacker News.</p>
+                <a href="https://github.com/rowboatlabs/rowboat" class="source-link">Continued on Page 9 >></a>
+            </article>
+
+            <article>
+                <h3>Tambo 1.0: Open-source toolkit for agents that render React components</h3>
+                <p>New open-source framework for building AI agents that can generate React UI components. 20 points on Hacker News.</p>
+                <a href="https://github.com/tambo-ai/tambo" class="source-link">Continued on Page 9 >></a>
+            </article>
+
+            <article>
+                <h3>The Little Learner: A Straight Line to Deep Learning</h3>
+                <p>MIT Press releases a new accessible introduction to deep learning concepts. 49 points on Hacker News.</p>
+                <a href="https://mitpress.mit.edu/9780262546379/the-little-learner/" class="source-link">Continued on Page 9 >></a>
+            </article>
+
+            <article>
+                <h3>Simplifying Vulkan one subsystem at a time</h3>
+                <p>Khronos Group outlines their strategy for making Vulkan more accessible to developers. 196 points on Hacker News.</p>
+                <a href="https://www.khronos.org/blog/simplifying-vulkan-one-subsystem-at-a-time" class="source-link">Continued on Page 9 >></a>
+            </article>
+
+            <article>
+                <h3>Markdown CLI viewer with VI keybindings</h3>
+                <p>A lightweight CLI markdown reader that respects your muscle memory with vi keys. 51 points on Hacker News.</p>
+                <a href="https://github.com/taf2/mdvi" class="source-link">Continued on Page 9 >></a>
+            </article>
+
+            <article>
+                <h3>The Feynman Lectures on Physics (1961-1964)</h3>
+                <p>A reminder about the availability of Feynman's legendary physics lectures online. 19 points on Hacker News.</p>
+                <a href="https://www.feynmanlectures.caltech.edu/" class="source-link">Continued on Page 9 >></a>
+            </article>
+
+            <article>
+                <h3>Competition is not market validation</h3>
+                <p>A contrarian take on startup metrics: having competitors doesn't prove market demand. 47 points on Hacker News.</p>
+                <a href="https://www.ablg.io/blog/competition-is-not-validation" class="source-link">Continued on Page 9 >></a>
+            </article>
+
+            <article>
+                <h3>The Falkirk Wheel</h3>
+                <p>An engineering marvel connecting two Scottish canals via a rotating boat lift. 28 points on Hacker News.</p>
+                <a href="https://www.scottishcanals.co.uk/visit/canals/visit-the-forth-clyde-canal/attractions/the-falkirk-wheel" class="source-link">Continued on Page 9 >></a>
+            </article>
+
+            <article>
+                <h3>Ex-GitHub CEO launches a new developer platform for AI agents</h3>
+                <p>GitHub's former CEO is back with Entire, a platform specifically designed for AI agent development. 258 points on Hacker News.</p>
+                <a href="https://entire.io/blog/hello-entire-world/" class="source-link">Continued on Page 9 >></a>
+            </article>
+
+            <article>
+                <h3>Show HN: Stripe-no-webhooks – Sync your Stripe data to your Postgres DB</h3>
+                <p>An alternative approach to Stripe integration using direct database synchronization instead of webhooks. 39 points on Hacker News.</p>
+                <a href="https://github.com/pretzelai/stripe-no-webhooks" class="source-link">Continued on Page 9 >></a>
+            </article>
+
+            <article>
+                <h3>Proposal: Add Hotness -0.25 to Vibe Coding</h3>
+                <p>Meta-discussion about Lobsters' algorithm and the dominance of "vibecoding" content on the front page. 105 votes on Lobsters.</p>
+                <a href="/s/rqsjod/proposal_add_hotness_25_vibe_coding" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>Maple Mono: Open source monospace font</h3>
+                <p>A beautiful new open-source monospace font designed specifically for coding. 40 votes on Lobsters.</p>
+                <a href="https://font.subf.dev/en/" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>Don't Get Distracted (2017)</h3>
+                <p>A timeless essay about focus and avoiding distractions in an increasingly fragmented digital world. 16 votes on Lobsters.</p>
+                <a href="https://calebhearth.com/dont-get-distracted" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>GitHub Actions Is Slowly Killing Your Engineering Team</h3>
+                <p>A critical perspective on how CI/CD complexity and GitHub Actions overhead is impacting engineering productivity. 82 votes on Lobsters.</p>
+                <a href="https://iankduncan.com/engineering/2026-02-05-github-actions-killing-your-team/" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>Competence as Tragedy</h3>
+                <p>Philosophical exploration of how competence can become a burden in software development. 51 votes on Lobsters.</p>
+                <a href="https://crowprose.com/blog/competence-as-tragedy" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>Recreating Epstein PDFs from raw encoded attachments</h3>
+                <p>Forensic technical analysis of PDF reconstruction from encrypted email attachments. 18 votes on Lobsters.</p>
+                <a href="https://neosmart.net/blog/recreating-epstein-pdfs-from-raw-encoded-attachments/" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>My AI Adoption Journey</h3>
+                <p>Personal account of integrating AI tools into a software engineering workflow over time. 18 votes on Lobsters.</p>
+                <a href="https://mitchellh.com/writing/my-ai-adoption-journey" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>Stories From 25 Years of Software Development</h3>
+                <p>A veteran developer reflects on a quarter-century of technological change. 20 votes on Lobsters.</p>
+                <a href="https://susam.net/twenty-five-years-of-computing.html" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>Algorithmically Finding the Longest Line of Sight on Earth</h3>
+                <p>Computational geometry problem solved with Rust and SIMD: finding the furthest visible points on Earth's surface. 14 votes on Lobsters.</p>
+                <a href="/s/8959u3/algorithmically_finding_longest_line" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>Offpunk 3.0</h3>
+                <p>New version of the offline-first Gemini protocol browser with improved features. 9 votes on Lobsters.</p>
+                <a href="https://ploum.net/2026-02-09-offpunk3.html" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>How I Cut My Google Search Dependence in Half</h3>
+                <p>Practical strategies for reducing reliance on Google while maintaining productivity. 28 votes on Lobsters.</p>
+                <a href="https://hister.org/posts/how-i-cut-my-google-search-dependence-in-half" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>Running Your Own AS: BGP on FreeBSD with FRR, GRE Tunnels, and Policy Routing</h3>
+                <p>Technical deep dive into operating your own autonomous system on the internet. 6 votes on Lobsters.</p>
+                <a href="https://blog.hofstede.it/running-your-own-as-bgp-on-freebsd-with-frr-gre-tunnels-and-policy-routing/" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>jujutsu v0.38.0 released</h3>
+                <p>New release of the modern version control system that aims to improve on Git. 14 votes on Lobsters.</p>
+                <a href="https://github.com/jj-vcs/jj/releases/tag/v0.38.0" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>six thoughts on generating C</h3>
+                <p>Compiler engineer shares insights on code generation from high-level languages. 9 votes on Lobsters.</p>
+                <a href="https://wingolog.org/archives/2026/02/09/six-thoughts-on-generating-c" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>Mobile carriers can get your GPS location</h3>
+                <p>Privacy analysis showing how mobile networks can track your precise location without GPS. 28 votes on Lobsters.</p>
+                <a href="https://an.dywa.ng/carrier-gnss.html" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>Owning a $5M data center</h3>
+                <p>Comma.ai shares the reality of operating a multi-million dollar compute infrastructure. 5 votes on Lobsters.</p>
+                <a href="https://blog.comma.ai/datacenter/" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>Code injections through Git commit messages</h3>
+                <p>Security researchers demonstrate a novel attack vector through malicious commit message payloads. 14 votes on Lobsters.</p>
+                <a href="https://mas.to/@zekjur/116022397626943871" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>vouch: a contributor trust management system based on explicit vouches</h3>
+                <p>New system for managing community trust and contribution rights in open-source projects. 28 votes on Lobsters.</p>
+                <a href="https://github.com/mitchellh/vouch" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+            <article>
+                <h3>How a Bus Route Falls Apart (2025)</h3>
+                <p>Software engineering metaphors applied to public transportation systems. 5 votes on Lobsters.</p>
+                <a href="https://homesignalblog.wordpress.com/2025/06/29/how-a-bus-route-falls-apart/" class="source-link">Continued on Page 10 >></a>
+            </article>
+
+        </section>
+
+        <footer>
+            Reporters: Ronnie Cache, Chip Carter, ADA KERNEL, Corry Stack, RAMSY BYTEWELL, D.C. Voltaire<br>
+            Editor: Jimmy Vector<br>
+            GRADIENT DESCENT Publication
+        </footer>
+    </div>
+</body>
+</html>
