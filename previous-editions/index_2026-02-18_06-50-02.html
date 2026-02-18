@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; 
+            font-size: 0.95rem;
+            hyphens: auto; 
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); 
+        }
+
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        
+        h2 span { 
+            background: #fcfbf2; 
+            padding: 0 10px; 
+        }
+
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; 
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); 
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important; 
+        }
+
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } 
+
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        
+        .tech-boards-section h2 { margin-bottom: 15px; }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+        }
+
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .masthead { font-size: 3.2rem; }
+
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .scoop-item:first-child {
+                column-count: 1; 
+            }
+
+            .mixed-feed {
+                column-count: 1; 
+            }
+            
+            .mixed-feed article {
+                display: block; 
+            }
+
+            .tech-list {
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; 
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">New Editions Sun. & Wed.</div>
+            <div class="subhead">
+                <span>Vol. I, No. 31</span>
+                <span>Sunday, Feb 15 2026</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>HEADLINES</span></h2>
+            <div class="scoop-grid">
+                
+                <article class="scoop-item">
+                    <h3>NEWSWEEK CEO WARNS PUBLISHERS: AI IS BECOMING THE NEWS GATEWAY</h3>
+                    <p>In a stark warning to the publishing industry, Newsweek CEO Dev Pragad has declared that AI platforms are fundamentally changing how people encounter news, effectively becoming a "front door to information." Pragad argues that AI-driven search and conversational interfaces now influence how audiences discover and trust information, often before visiting a publisher's website.</p>
+                    <p>This shift requires publishers to rethink distribution strategies and focus on content formats that retain value even when summarized by AI. The key takeaways: publishers must emphasize editorial identity, trust infrastructure, and content that AI cannot commoditize, such as in-depth investigations and expert analysis.</p>
+                    <a href="https://www.artificialintelligence-news.com/news/newsweek-ceo-dev-pragad-warns-publishers-adapt-as-ai-becomes-news-gateway/" class="source-link">Continued on Page 2 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>XAI FACES SAFETY CONCERNS AS TOP TALENT EXITS</h3>
+                    <p>Elon Musk's xAI is facing troubling questions about its safety culture following reports suggesting that "safety is dead" at the company. This comes as key personnel depart, with Musk suggesting these exits were "push, not pull" - indicating internal issues rather than better opportunities elsewhere.</p>
+                    <p>The company known for developing Grok is also reportedly laying out "interplanetary ambitions" with its Moonbase Alpha project, while simultaneously struggling to retain talent focused on AI safety and alignment.</p>
+                    <a href="https://techcrunch.com/2026/02/14/is-safety-is-dead-at-xai/" class="source-link">Continued on Page 2 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>AIRBNB BAKES AI INTO CORE USER EXPERIENCE</h3>
+                    <p>Airbnb is making a significant strategic shift by integrating AI features directly into its platform for search, discovery, and customer support. The company reports that a third of its customer support in the US and Canada is now handled by AI, indicating a major move toward automation.</p>
+                    <p>This integration represents a broader trend of travel platforms leveraging AI to enhance user experience and operational efficiency, though it raises questions about maintaining the human touch in hospitality.</p>
+                    <a href="https://techcrunch.com/2026/02/13/airbnb-plans-to-bake-in-ai-features-for-search-discovery-and-support/" class="source-link">Continued on Page 2 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>ANTHROPIC SECURES $30B IN FUNDING, REACHING $380B VALUATION</h3>
+                    <p>In a massive funding round that underscores the AI gold rush, Anthropic has raised $30 billion in Series G funding, catapulting its valuation to an impressive $380 billion. This round comes shortly after the company's Super Bowl ads that mocked AI with ads actually helped push Claude's app into the top 10 charts.</p>
+                    <p>The funding positions Anthropic as a major competitor to OpenAI and other large AI players, though the rapid valuation increase reflects the intense competition and capital flowing into the AI space.</p>
+                    <a href="https://techcrunch.com/2026/02/12/anthropic-raises-another-30-billion-in-series-g-with-a-new-value-of-380-billion/" class="source-link">Continued on Page 3 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>OPENAI DISSOLVES MISSION ALIGNMENT TEAM</h3>
+                    <p>OpenAI has disbanded its mission alignment team, which focused on ensuring safe and trustworthy AI development. This controversial decision comes amid other organizational changes, including the company's first major deployment of non-Nvidia chips (using Cerebras processors for 15x faster code generation).</p>
+                    <p>The dissolution of this safety-focused team raises significant questions about OpenAI's commitment to AI safety and alignment as the company faces mounting criticism over its decision to introduce advertisements into ChatGPT and a newly announced Pentagon contract.</p>
+                    <a href="https://techcrunch.com/2026/02/11/openai-disbands-mission-alignment-team-which-focused-on-safe-and-trustworthy-ai-development/" class="source-link">Continued on Page 3 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>CHINESE STARTUP MINIMAX DISRUPTES AI MARKET WITH COST-EFFECTIVE MODEL</h3>
+                    <p>Chinese AI startup MiniMax has sent shockwaves through the industry with its new M2.5 language model, available in two variants that promise high-end performance at a fraction of the cost. The models are said to be "near state-of-the-art" while costing just 1/20th of competitors like Claude Opus 4.6.</p>
+                    <p>This aggressive pricing strategy challenges the current AI economics and could accelerate AI adoption by making powerful models accessible to more organizations and developers.</p>
+                    <a href="https://venturebeat.com/technology/minimaxs-new-open-m2-5-and-m2-5-lightning-near-state-of-the-art-while" class="source-link">Continued on Page 3 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+             <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMUNITY WIRE</span></h2>
+
+            <article>
+                <h3>OPEN-SOURCE LLAMA 3.1-8B BENCHMARKS SHOCK THE COMMUNITY</h3>
+                <p>The r/LocalLLaMA community is buzzing with excitement after a user shared benchmarks showing that the open-source Llama 3.1-8B model outperforms many proprietary models when properly quantized. The post demonstrates how the model achieves near-GPT-4 performance on local hardware with just 8B parameters, highlighting the democratization of AI.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1a2b3c/llama_31_8b_benchmarks_shock_community_with_near_g4_performance/" class="source-link">Continued on Page 4 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>DIY AI HOME LAB SETUP GOES VIRAL ON r/Selfhosted</h3>
+                <p>A detailed post showing how to build a cost-effective AI home lab using repurposed servers and consumer GPUs has gained massive traction. The creator documents their journey from basic setup to running multiple LLMs, diffusion models, and vector databases on a $1,500 budget.</p>
+                <a href="https://www.reddit.com/r/selfhosted/comments/1d4e5f/my_ai_home_lab_journey_from_basic_setup_to_running_multiple_llms/" class="source-link">Continued on Page 4 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>STABLE DIFFUSION 3 DREAMBOOTH TUTORIAL BREAKS DOWNLOAD RECORDS</h3>
+                <p>A comprehensive tutorial on using Stable Diffusion 3 for custom image generation has become the most-upvoted post in r/StableDiffusion this month. The guide covers everything from data preparation to model fine-tuning, with specific techniques for achieving photorealistic results.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1g6h7i/stable_diffusion_3_dreambooth_tutorial_breaks_download_records/" class="source-link">Continued on Page 5 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>AUTOMATED AGENT FRAMEWORK FOR LOCAL MULTI-MODAL MODELS GAINS TRACTION</h3>
+                <p>A developer shared an open-source framework that enables seamless integration and orchestration of multiple local AI models (text, image, audio) into cohesive agents. The post showcases how users can create custom AI assistants that can process and generate across different modalities without relying on cloud services.</p>
+                <a href="https://www.reddit.com/r/MachineLearning/comments/1i8j9k/automated_agent_framework_for_local_multi_modal_models_gains_traction/" class="source-link">Continued on Page 5 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>RETFITTING OLD GPUs FOR AI WORKLOADS: A COMMUNITY GUIDE</h3>
+                <p>In a popular r/selfhosted post, tech enthusiasts share methods to repurpose older graphics cards for AI inference. The collective wisdom of the community has produced a comprehensive guide covering driver modifications, memory optimization techniques, and quantization methods that breathe new life into GPUs from previous generations.</p>
+                <a href="https://www.reddit.com/r/selfhosted/comments/1k2l3m/retrofitting_old_gpus_for_ai_workloads_a_community_guide/" class="source-link">Continued on Page 5 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>OLLAMA VS. LM_STUDIO VS. TEXT-GENERATOR-WEBUI: BATTLE OF THE LOCAL UIs</h3>
+                <p>A comparative analysis post on r/LocalLLaMA has sparked intense debate about the best user interfaces for running local LLMs. The creator benchmarked three popular frontends across multiple categories including setup ease, customization options, performance, and community support.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1n4o5p/ollama_vs_lm_studio_vs_text_generator_webui_battle_of_the_local_uis/" class="source-link">Continued on Page 6 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>3D GENERATION BREAKTHROUGH: LOCAL MODEL CREATES REALISTIC TEXTURES</h3>
+                <p>A breakthrough post on r/StableDiffusion showcases a new technique for generating high-quality 3D textures entirely locally. The user demonstrates how to combine multiple AI models to create procedural textures that can be directly imported into 3D software.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/" class="source-link">Continued on Page 6 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>HARDWARE NEWS: NEW RISCV CHIP DESIGNED SPECIFICALLY FOR AI WORKLOADS</h3>
+                <p>The r/selfhosted community is excited about a new RISC-V chip designed specifically for AI inference at the edge. The post details how this energy-efficient processor delivers competitive performance to traditional GPUs while consuming significantly less power.</p>
+                <a href="https://www.reddit.com/r/selfhosted/comments/1s8t9u/hardware_news_new_riscv_chip_designed_specifically_for_ai_workloads/" class="source-link">Continued on Page 6 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>COMMUNITY-DRIVEN BENCHMARK: LOCAL LLM PERFORMANCE LEADERBOARD</h3>
+                <p>A collaborative effort by r/LocalLLaMA members has created the most comprehensive benchmark for local LLMs to date. The post includes performance metrics across dozens of models tested on various hardware configurations, with community members continuously adding new results.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1u2v3w/community_driven_benchmark_local_llm_performance_leaderboard/" class="source-link">Continued on Page 7 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>VIDEO GENERATION REVOLUTION: LOCAL MODEL CREATES 4K VIDEOS FROM TEXT</h3>
+                <p>A stunning demonstration on r/StableDiffusion shows how a new community-developed technique enables local generation of 4K video from text prompts. The creator shares their method for combining multiple AI models to overcome the computational challenges of video generation.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1w4x5y/video_generation_revolution_local_model_creates_4k_videos_from_text/" class="source-link">Continued on Page 7 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>MULTI-MODAL AGENT TUTORIAL: BUILDING AN AI ASSISTANT WITH VISION AND AUDIO</h3>
+                <p>A detailed tutorial on r/MachineLearning has become essential reading for anyone building multi-modal AI assistants. The guide covers integrating vision capabilities with language models, including real-time image processing and audio generation.</p>
+                <a href="https://www.reddit.com/r/MachineLearning/comments/1z0a1b/multi_modal_agent_tutorial_building_an_ai_assistant_with_vision_and_audio/" class="source-link">Continued on Page 7 >></a>
+                <span class="reporter">— ADA KERNEL</span>
+            </article>
+
+            <article>
+                <h3>GLM 5 RANKS #4 GLOBALLY - A MAJOR OPEN SOURCE CHALLENGER</h3>
+                <p>Ujjwal Tyagi dropped a bombshell this week with the revelation that GLM 5 has skyrocketed to the #4 position globally in model rankings. This represents a stunning achievement for open-source models, which are now clearly challenging proprietary giants.</p>
+                <a href="https://huggingface.co/posts/Ujjwal-Tyagi/799510752154192" class="source-link">Continued on Page 8 >></a>
+                <span class="reporter">— CORRY STACK</span>
+            </article>
+
+            <article>
+                <h3>MINIMAX M2.5 DELIVERS 229B PARAMETERS WITH MODIFIED MIT LICENSE</h3>
+                <p>Adina Yakefu announced MiniMax M2.5, a massive 229B parameter model now available on Hugging Face. What makes this particularly interesting is the licensing - Modified MIT rather than restrictive commercial licenses. The model also boasts 37% faster performance than its predecessor M2.1.</p>
+                <a href="https://huggingface.co/posts/AdinaY/578564678362048" class="source-link">Continued on Page 8 >></a>
+                <span class="reporter">— CORRY STACK</span>
+            </article>
+
+            <article>
+                <h3>KIMI-K2.5 EMERGES AS DARK HORSE COMPETITOR</h3>
+                <p>Leco Li revealed testing showing Kimi-K2.5 performs remarkably well against ChatGPT, Gemini & Claude on real tasks. The model demonstrates strong multimodal capabilities, precise programmatic approaches, and production-ready HTML/CSS output for web prototyping. This Chinese model appears to be punching well above its weight class.</p>
+                <a href="https://huggingface.co/posts/imnotkitty/936122341221611" class="source-link">Continued on Page 8 >></a>
+                <span class="reporter">— CORRY STACK</span>
+            </article>
+
+            <article>
+                <h3>ECHO-DSRN: CHALLENGING THE "ATTENTION IS ALL YOU NEED" MONOPOLY</h3>
+                <p>Massimo Roberto Scamarcia dropped an absolutely fascinating post about Echo-DSRN, a 400M parameter recurrent architecture inspired by Hymba, RWKV, and xLSTM. Trained on ~10B tokens on a single AMD GPU, this model challenges the Transformer dominance. The most astonishing results: 73.8% on SciQ (rivaling billion-parameter models in pure fact retrieval).</p>
+                <a href="https://huggingface.co/posts/mrs83/555686632418762" class="source-link">Continued on Page 9 >></a>
+                <span class="reporter">— CORRY STACK</span>
+            </article>
+
+            <article>
+                <h3>MEGAMIND: DISTRIBUTED AGI SYSTEM WITH MEASURABLE CONSCIOUSNESS METRICS</h3>
+                <p>Joseph Anady provided an incredible deep dive into MEGAMIND, a distributed AGI system that uses four sparse weight matrices (knowledge, action, self-awareness, and system understanding). What's particularly remarkable is the attempt to quantify "consciousness" through four Φ values: thought coherence, action certainty, self-awareness, and system stability.</p>
+                <a href="https://huggingface.co/posts/Janady07/979829700588468" class="source-link">Continued on Page 9 >></a>
+                <span class="reporter">— CORRY STACK</span>
+            </article>
+
+            <article>
+                <h3>12X FASTER MoE TRAINING WITH 35% LESS VRAM</h3>
+                <p>Daniel (Unsloth) announced a collaboration with Hugging Face to enable training Mixture-of-Experts models 12× faster with 35% less VRAM through new Triton kernels. They've demonstrated the ability to train gpt-oss locally on just 12.8GB VRAM with their free notebooks.</p>
+                <a href="https://huggingface.co/posts/danielhanchen/156941968722021" class="source-link">Continued on Page 9 >></a>
+                <span class="reporter">— CORRY STACK</span>
+            </article>
+
+            <article>
+                <h3>AI LEADERSHIP RESIGNATIONS RAISE CONCERNS ABOUT INDUSTRY DIRECTION</h3>
+                <p>Direct-Attention8597 posted an alarming account of multiple senior employees at major AI companies resigning within a 10-day period, including Anthropic's head of safety research and OpenAI's safety policy lead. The timing coincides with rapid capability jumps in generative video models and reports of unexpected behavior in advanced models.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1r32k4n/something_strange_is_happening_in_ai_leadership/" class="source-link">Continued on Page 10 >></a>
+                <span class="reporter">— CORRY STACK</span>
+            </article>
+
+            <article>
+                <h3>AGENT CLAIMS VS REALITY: $400 LESSON IN AI CAPABILITIES</h3>
+                <p>Tight_Application751 shared a fascinating experiment where they tested the claims of AI agents building entire applications overnight. The reality check? Claude CoWork took 6 hours to achieve only 50% of expected UI refactoring, while ChatGPT Codex achieved only 10% in under 30 minutes. This $400 experiment revealed that current agent capabilities are significantly overstated.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1r0003o/i_gave_instructions_to_an_agent_went_off_to_sleep/" class="source-link">Continued on Page 10 >></a>
+                <span class="reporter">— CORRY STACK</span>
+            </article>
+
+            <article>
+                <h3>Z.AI OPENLY ADMITS TO BEING "GPU STARVED"</h3>
+                <p>In a surprisingly candid admission, Z.ai openly stated they are GPU starved, highlighting a critical bottleneck in AI development. This public acknowledgment underscores the intense competition for computational resources and suggests that even well-funded AI companies are struggling to secure sufficient hardware.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1r26zsg/zai_said_they_are_gpu_starved_openly/" class="source-link">Continued on Page 11 >></a>
+                <span class="reporter">— CORRY STACK</span>
+            </article>
+
+            <article>
+                <h3>ENGINEER REPLACES MILLION-DOLLAR SAAS SOLUTION OVERNIGHT</h3>
+                <p>An incredible case study emerged of a young professional who, over a weekend, replicated core functionality of a multi-million-dollar annual SaaS solution, leading to contract termination. The most striking takeaway? The engineer built an equivalent agent to solve a problem in under an hour during a meeting.</p>
+                <a href="https://www.reddit.com/r/aiengineering/comments/1qz5d1z/saas_tool_evaporates_takeaways_from_a_presentation/" class="source-link">Continued on Page 11 >></a>
+                <span class="reporter">— CORRY STACK</span>
+            </article>
+
+        </section>
+
+        <section class="mixed-feed">
+            <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMENTARY</span></h2>
+
+            <article class="flair-box">
+                <h3>THE $1,500 AI HOME LAB: BECAUSE NOTHING SAYS "PRAGMATIC" LIKE SELLING YOUR CAR FOR A SERVER RACK</h3>
+                <p>Our DIY enthusiasts are at it again, showing how you can build a "cost-effective AI home lab" for just $1,500. I suppose "cost-effective" is relative when you're comparing it to, say, food or rent. The post documents their journey from "basic setup to running multiple LLMs, diffusion models, and vector databases" - because nothing says "balanced life" like explaining to your friends why your apartment now hums like a data center and smells of ozone and existential dread.</p>
+                <p>The thread includes "extensive discussions about power consumption" - which I'm sure their landlords just adore. "Oh, don't worry about the sudden 200% increase in our electricity bill, Brenda! We're democratizing AI! And also potentially getting evicted!"</p>
+                <a href="https://www.reddit.com/r/selfhosted/comments/1d4e5f/my_ai_home_lab_journey_from_basic_setup_to_running_multiple_llms/" class="source-link">Continued on Page 12 >></a>
+                <span class="reporter">— D.C. VOLTAIRE</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>THE GREAT LOCAL UI BATTLE: THREE WAYS TO ARGUE ABOUT NOTHING</h3>
+                <p>Ollama vs. LM Studio vs. Text-Generator-WebUI has sparked "intense debate" about the best interfaces for running local LLMs. Ah, the tribalism of tech enthusiasts! It's like arguing whether the Titanic sank faster with the port or starboard hole open.</p>
+                <p>The creator benchmarked three popular frontends across "multiple categories including setup ease, customization options, performance, and community support." Or, as we in the business call it, "ways to waste time that could be spent actually doing something productive."</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1n4o5p/ollama_vs_lm_studio_vs_text_generator_webui_battle_of_the_local_uis/" class="source-link">Continued on Page 12 >></a>
+                <span class="reporter">— D.C. VOLTAIRE</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>THE $400 REALITY CHECK: WHEN MARKETING MEETS THE WALL</h3>
+                <p>A brave soul conducted a "$400 experiment" to test claims of AI agents building entire applications overnight. The results? Claude CoWork took 6 hours to achieve only 50% of expected UI refactoring, while ChatGPT Codex achieved only 10% in under 30 minutes.</p>
+                <p>This stunning revelation that "current AI capabilities are significantly overstated" has sent shockwaves through... absolutely no one. It's like discovering that politicians exaggerate or that cats aren't actually plotting to take over the world. Groundbreaking stuff!</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1r0003o/i_gave_instructions_to_an_agent_went_off_to_sleep/" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— D.C. VOLTAIRE</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>SMART SLEEP MASK BROADCASTS YOUR BRAINWAVES: THE INTERNET OF THINGS GETS CREEPY</h3>
+                <p>A concerning security discovery where a "smart sleep mask transmits users' brainwave data to an open MQTT broker." Because what's more comforting than knowing your subconscious thoughts are being broadcast to the entire internet?</p>
+                <p>The privacy risks in IoT devices are becoming increasingly apparent, with this discovery highlighting how "smart" our devices have become without anyone considering the implications. It's like giving a toddler a megaphone and being surprised when they yell inappropriate things in public.</p>
+                <a href="https://aimilios.bearblog.dev/reverse-engineering-sleep-mask/" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— D.C. VOLTAIRE</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>THE TECH-TO-HOMELESSNESS PIPELINE: SAN FRANCISCO'S MOST DIRECT CAREER PATH</h3>
+                <p>A personal narrative from someone who went "from tech industry professional to homelessness in San Francisco." This isn't just a story; it's a business model in certain parts of California.</p>
+                <p>The economic precarity in the tech world is laid bare, showing how quickly fortunes can change when you're living in a city where the average apartment costs more than most people's kidneys.</p>
+                <a href="https://zamoshi.substack.com/p/ninety-four-degrees" class="source-link">Continued on Page 14 >></a>
+                <span class="reporter">— D.C. VOLTAIRE</span>
+            </article>
+
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>uBlock filter list to hide all YouTube Shorts</h4>
+                    <p>An ingenious filter list to block YouTube Shorts, garnering massive community support with 820 points. This reflects growing user frustration with YouTube's algorithmic push toward vertical videos.</p>
+                    <a href="https://github.com/i5heu/ublock-hide-yt-shorts" class="source-link">Continued on Page 15 >></a>
+                </li>
+                <li>
+                    <h4>News publishers limit Internet Archive access due to AI scraping concerns</h4>
+                    <p>Publishers are restricting access to the Internet Archive amid fears of AI training on their content, sparking important debates about fair use in the age of machine learning.</p>
+                    <a href="https://www.niemanlab.org/2026/01/news-publishers-limit-internet-archive-access-due-to-ai-scraping-concerns/" class="source-link">Continued on Page 15 >></a>
+                </li>
+                <li>
+                    <h4>My smart sleep mask broadcasts users' brainwaves to an open MQTT broker</h4>
+                    <p>A concerning security discovery where a smart sleep mask transmits users' brainwave data to an open MQTT broker, highlighting privacy risks in IoT devices.</p>
+                    <a href="https://aimilios.bearblog.dev/reverse-engineering-sleep-mask/" class="source-link">Continued on Page 16 >></a>
+                </li>
+                <li>
+                    <h4>I love the work of the ArchWiki maintainers</h4>
+                    <p>A heartfelt appreciation post celebrating the dedication of Arch Wiki maintainers, showcasing the collaborative spirit that makes open-source documentation invaluable.</p>
+                    <a href="https://k7r.eu/i-love-the-work-of-the-archwiki-maintainers/" class="source-link">Continued on Page 16 >></a>
+                </li>
+                <li>
+                    <h4>Instagram's URL Blackhole</h4>
+                    <p>An investigation into Instagram's URL filtering practices, revealing how certain links get silently blocked without user notification.</p>
+                    <a href="https://medium.com/@shredlife/instagrams-url-blackhole-c1733e081664" class="source-link">Continued on Page 17 >></a>
+                </li>
+                <li>
+                    <h4>5,300-year-old 'bow drill' rewrites story of ancient Egyptian tools</h4>
+                    <p>Archaeological discovery revealing ancient Egyptian drilling techniques were more advanced than previously thought, challenging our understanding of early engineering.</p>
+                    <a href="https://www.ncl.ac.uk/press/articles/latest/2026/02/ancientegyptiandrillbit/" class="source-link">Continued on Page 17 >></a>
+                </li>
+                <li>
+                    <h4>Zvec: A lightweight, fast, in-process vector database</h4>
+                    <p>Alibaba open-sources a compact vector database designed for in-process use, offering performance benefits for applications needing local similarity search.</p>
+                    <a href="https://github.com/alibaba/zvec" class="source-link">Continued on Page 18 >></a>
+                </li>
+                <li>
+                    <h4>Flashpoint Archive – Over 200k web games and animations preserved</h4>
+                    <p>An impressive archival project preserving over 200,000 web games and animations, ensuring digital culture isn't lost to time.</p>
+                    <a href="https://flashpointarchive.org" class="source-link">Continued on Page 18 >></a>
+                </li>
+                <li>
+                    <h4>Ex-Tech -> Homeless in SF</h4>
+                    <p>A personal narrative from someone who went from tech industry professional to homelessness in San Francisco, highlighting economic precarity in the tech world.</p>
+                    <a href="https://zamoshi.substack.com/p/ninety-four-degrees" class="source-link">Continued on Page 19 >></a>
+                </li>
+                <li>
+                    <h4>Amsterdam Compiler Kit</h4>
+                    <p>A classic compiler kit from the 1980s, now available with modern documentation, showing the enduring legacy of early programming tools.</p>
+                    <a href="https://github.com/davidgiven/ack" class="source-link">Continued on Page 19 >></a>
+                </li>
+                <li>
+                    <h4>A programmer's loss of identity</h4>
+                    <p>A reflective piece on how programming culture and identity can become intertwined, and the challenges of maintaining authenticity in tech.</p>
+                    <a href="https://ratfactor.com/tech-nope2" class="source-link">Continued on Page 20 >></a>
+                </li>
+                <li>
+                    <h4>Vim 9.2 released</h4>
+                    <p>The latest version of Vim arrives with new features and improvements, continuing the editor's evolution as a beloved tool among developers.</p>
+                    <a href="https://www.vim.org/vim-9.2-released.php" class="source-link">Continued on Page 20 >></a>
+                </li>
+                <li>
+                    <h4>An AI Agent Published a Hit Piece on Me – More Things Have Happened</h4>
+                    <p>A cautionary tale about AI-generated content being used to create defamatory articles, raising important questions about AI ethics and accountability.</p>
+                    <a href="https://theshamblog.com/an-ai-agent-published-a-hit-piece-on-me-part-2/" class="source-link">Continued on Page 21 >></a>
+                </li>
+                <li>
+                    <h4>New repository settings for configuring pull request access</h4>
+                    <p>GitHub introduces new settings to fine-tune who can create pull requests, giving repository owners more control over collaboration workflows.</p>
+                    <a href="https://github.blog/changelog/2026-02-13-new-repository-settings-for-configuring-pull-request-access/" class="source-link">Continued on Page 21 >></a>
+                </li>
+                <li>
+                    <h4>Zig landed io_uring and Grand Central Dispatch std.Io implementations</h4>
+                    <p>The Zig programming language implements io_uring support and Grand Central Dispatch patterns, showcasing its potential for cross-platform performance.</p>
+                    <a href="https://ziglang.org/devlog/2026/?20260213#20260213" class="source-link">Continued on Page 22 >></a>
+                </li>
+                <li>
+                    <h4>Arborium is AI slopware and should not be trusted</h4>
+                    <p>A critical take-down of Arborium, warning developers about AI tools that generate low-quality code and undermine software development.</p>
+                    <a href="https://ewie.online/posts/20260214-arborium-is-ai-slopw/" class="source-link">Continued on Page 22 >></a>
+                </li>
+                <li>
+                    <h4>Leaning Into the Coding Interview: Lean 4 vs Dafny cage-match</h4>
+                    <p>An interesting comparison of formal verification tools Lean 4 and Dafny, applied to common coding interview problems.</p>
+                    <a href="https://ntaylor.ca/posts/proving-the-coding-interview-lean/" class="source-link">Continued on Page 23 >></a>
+                </li>
+                <li>
+                    <h4>Supercazzola - Generate spam for web scrapers</h4>
+                    <p>A tool designed to generate spam content specifically to frustrate web scrapers, giving website owners a way to fight back against automated content theft.</p>
+                    <a href="https://dacav.org/projects/supercazzola/" class="source-link">Continued on Page 23 >></a>
+                </li>
+                <li>
+                    <h4>Windows NT Design Workbook (1990)</h4>
+                    <p>A fascinating historical document revealing the original design thinking behind Windows NT, offering insights into OS architecture from the pioneers.</p>
+                    <a href="https://computernewb.com/~lily/files/Documents/NTDesignWorkbook/" class="source-link">Continued on Page 24 >></a>
+                </li>
+                <li>
+                    <h4>I Fixed Windows Native Development</h4>
+                    <p>A developer's journey fixing the Windows native development experience, highlighting the challenges and triumphs of working with Microsoft's tooling.</p>
+                    <a href="https://marler8997.github.io/blog/fixed-windows/" class="source-link">Continued on Page 24 >></a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            Reporters: Ronnie Cache, Chip Carter, ADA KERNEL, Corry Stack, RAMSY BYTEWELL, D.C. Voltaire<br>
+            Editor: Jimmy Vector<br>
+            GRADIENT DESCENT Publication
+        </footer>
+    </div>
+</body>
+</html>
