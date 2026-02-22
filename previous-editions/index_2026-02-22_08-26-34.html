@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; 
+            font-size: 0.95rem;
+            hyphens: auto; 
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); 
+        }
+
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        
+        h2 span { 
+            background: #fcfbf2; 
+            padding: 0 10px; 
+        }
+
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; 
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); 
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important; 
+        }
+
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } 
+
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        
+        .tech-boards-section h2 { margin-bottom: 15px; }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+        }
+
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .masthead { font-size: 3.2rem; }
+
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .scoop-item:first-child {
+                column-count: 1; 
+            }
+
+            .mixed-feed {
+                column-count: 1; 
+            }
+            
+            .mixed-feed article {
+                display: block; 
+            }
+
+            .tech-list {
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; 
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">New Editions Sun. & Wed.</div>
+            <div class="subhead">
+                <span>Vol. I, No. 32</span>
+                <span>Wednesday, Feb 18 2026 - Morning Edition</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>HEADLINES</span></h2>
+            <div class="scoop-grid">
+                
+                <article class="scoop-item">
+                    <h3>ANTHROPIC'S SONNET 4.6 REVOLUTIONIZES COST-PERFORMANCE RATIO</h3>
+                    <p>A n t h r o p i c has released Sonnet 4.6, a groundbreaking AI model that matches the performance of flagship models at just one-fifth of the cost. This significant advancement features a full upgrade across coding, computer use, long-context reasoning, agent planning, knowledge work, and design, with a 1M token context window in beta. The model maintains the same pricing as its predecessor at $3/$15 per million tokens, potentially accelerating enterprise AI adoption by making high-performance AI significantly more affordable.</p>
+                    <a href="https://venturebeat.com/technology/anthropics-sonnet-4-6-matches-flagship-ai-performance-at-one-fifth-the-cost" class="source-link">Continued on Page 4 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>APPLE REPORTEDLY DEVELOPING TRIO OF AI WEARABLES</h3>
+                    <p>A p p l e is reportedly developing three new AI-powered wearable devices, signaling the tech giant's deepening commitment to artificial intelligence. While details remain scarce, this move positions Apple to compete in the growing market of AI-powered consumer devices. The development comes as Apple seeks to integrate more advanced AI capabilities across its product ecosystem, following the industry-wide trend of embedding AI directly into hardware.</p>
+                    <a href="https://techcrunch.com/apple-reportedly-developing-ai-wearables" class="source-link">Continued on Page 4 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>MISTRAL AI MAKES STRATEGIC ACQUISITION WITH KOYEB PURCHASE</h3>
+                    <p>I n a significant strategic move, European AI leader Mistral AI has acquired Koyeb, its first acquisition aimed at supporting cloud ambitions. The purchase represents Mistral's expansion beyond pure AI model development into infrastructure and deployment services. This acquisition strategy allows Mistral to offer more comprehensive AI solutions to enterprise customers, potentially positioning it as a more integrated competitor to OpenAI and Anthropic.</p>
+                    <a href="https://techcrunch.com/mistral-acquires-koyeb" class="source-link">Continued on Page 5 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>EUROPEAN PARLIAMENT BLOCKS AI ON LAWMAKERS' DEVICES OVER SECURITY CONCERNS</h3>
+                    <p>T h e European Parliament has implemented a significant security measure by blocking AI applications on lawmakers' devices, citing security risks. This decision reflects growing concerns about AI vulnerabilities and potential data breaches, particularly in government settings. The move demonstrates the tension between AI innovation and security considerations, highlighting the challenges of implementing new technologies in sensitive environments.</p>
+                    <a href="https://techcrunch.com/european-parliament-blocks-ai" class="source-link">Continued on Page 5 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>INFOSYS PARTNERS WITH ANTHROPIC TO BUILD ENTERPRISE-GRADE AI AGENTS</h3>
+                    <p>I n d i a n IT services giant Infosys has partnered with Anthropic to develop enterprise-grade AI agents, representing a significant enterprise adoption of advanced AI technology. This collaboration comes as AI jitters continue to affect IT stocks, but major companies like Infosys are doubling down on AI integration. The partnership aims to bring sophisticated AI capabilities to enterprise clients through Anthropic's advanced models combined with Infosys's implementation expertise.</p>
+                    <a href="https://techcrunch.com/infosys-anthropic-partnership" class="source-link">Continued on Page 6 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>ALIBABA'S QWEN CHALLENGES PROPRIETARY AI MODEL ECONOMICS</h3>
+                    <p>C h i n e s e tech giant Alibaba has released Qwen, an open-source AI model that's challenging the economics of proprietary AI systems. The model delivers comparable performance to closed-source alternatives while running on commodity hardware, potentially democratizing access to advanced AI capabilities. This development represents a significant shift in the AI landscape, as major tech companies compete on both performance and accessibility of their AI models.</p>
+                    <a href="https://ai-news.com/alibaba-qwen-open-source" class="source-link">Continued on Page 6 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+             <h2 style="column-span: all; margin-bottom: 15px;"><span>SCIENTIFIC PAPERS</span></h2>
+
+            <article>
+                <h3>PERCEPTIVE HUMANOID PARKOUR: CHAINING DYNAMIC HUMAN SKILLS VIA MOTION MATCHING</h3>
+                <p>This paper introduces Perceptive Humanoid Parkour (PHP), a modular framework that enables humanoid robots to autonomously perform long-horizon, vision-based parkour across challenging obstacle courses. The approach leverages motion matching to compose retargeted atomic human skills into long-horizon kinematic trajectories and uses motion-tracking reinforcement learning to train expert policies.</p>
+                <a href="https://arxiv.org/abs/2602.15827" class="source-link">Continued on Page 7 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>CRISPEdit: LOW-CURVATURE PROJECTIONS FOR SCALABLE NON-DESTRUCTIVE LLM EDITING</h3>
+                <p>CrispEdit presents a scalable and principled second-order editing algorithm that addresses the central challenge of capability preservation in large language model editing. The method formulates editing as constrained optimization and enforces constraints by projecting edit updates onto the low-curvature subspace of the capability-loss landscape.</p>
+                <a href="https://arxiv.org/abs/2602.15823" class="source-link">Continued on Page 7 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>AGRIWORLD: A WORLD TOOLS PROTOCOL FRAMEWORK FOR VERIFIABLE AGRICULTURAL REASONING</h3>
+                <p>This work bridges the gap between foundation models for agriculture (trained on spatiotemporal data) and large language models (which excel at text interpretation). The authors introduce AgriWorld, a Python execution environment exposing unified tools for geospatial queries, remote-sensing time-series analytics, crop growth simulation, and task-specific predictors.</p>
+                <a href="https://arxiv.org/abs/2602.15325" class="source-link">Continued on Page 8 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>ATOMIX: TIMELY, TRANSACTIONAL TOOL USE FOR RELIABLE AGENTIC WORKFLOWS</h3>
+                <p>The paper introduces Atomix, a runtime that provides progress-aware transactional semantics for agent tool calls. As LLM agents increasingly act on external systems, tool effects are immediate, and losing branches can leak unintended side effects with no safe rollback. Atomix tags each call with an epoch, tracks per-resource frontiers, and commits only when progress predicates indicate safety.</p>
+                <a href="https://arxiv.org/abs/2602.14849" class="source-link">Continued on Page 8 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>THE GEOMETRY OF ALIGNMENT COLLAPSE: WHEN FINE-TUNING BREAKS SAFETY</h3>
+                <p>This paper reveals a fundamental geometric explanation for why fine-tuning aligned language models on benign tasks unpredictably degrades safety guardrails. The authors show that alignment concentrates in low-dimensional subspaces with sharp curvature, creating a brittle structure. They formalize this through the Alignment Instability Condition and establish a quartic scaling law.</p>
+                <a href="https://arxiv.org/abs/2602.15799" class="source-link">Continued on Page 9 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>RECURSIVE CONCEPT EVOLUTION FOR COMPOSITIONAL REASONING IN LARGE LANGUAGE MODELS</h3>
+                <p>This paper addresses the sharp degradation in LLM performance on benchmarks requiring compositional reasoning. The author proposes Recursive Concept Evolution (RCE), a framework that enables pretrained language models to modify their internal representation geometry during inference. RCE introduces dynamically generated low-rank concept subspaces that are spawned when representational inadequacy is detected.</p>
+                <a href="https://arxiv.org/abs/2602.15725" class="source-link">Continued on Page 9 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+        </section>
+
+        <section class="mixed-feed">
+             <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMUNITY WIRE</span></h2>
+
+            <article>
+                <h3>GLM 5 SHAKES UP THE OPEN-SOURCE LLM LANDSCAPE</h3>
+                <p>The open-source AI community is buzzing with the release of GLM 5, a new large language model that appears to be closing the gap with proprietary offerings. Early reports suggest performance that rivals commercial models, signaling a major milestone in the democratization of advanced AI. The community is particularly excited about how this release accelerates the timeline for high-quality local inference.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1g7k8x5/glm_5_released/" class="source-link">Continued on Page 10 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>FULLY SELF-HOSTED VOICE ASSISTANT REPLACES COMMERCIAL PRODUCTS</h3>
+                <p>A user has demonstrated a complete home automation voice assistant setup that has completely replaced their Alexa devices. Using Home Assistant Voice, a local LLM, and a Jabra 410 microphone, this setup handles both simple commands and complex reasoning tasks without relying on external APIs. The post includes impressive demonstrations of real-world functionality that matches or exceeds commercial solutions.</p>
+                <a href="https://www.reddit.com/r/selfhosted/comments/1g7h9jy/demonstration_of_how_serviceable_a_self_hosted_/" class="source-link">Continued on Page 10 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>LOCAL SUNO CLONE BUILT WITH ACE-STEP 1.5</h3>
+                <p>Music lovers rejoice! A resourceful developer has created a local alternative to Suno's AI music generation service using the newly released ACE-Step 1.5 model. This breakthrough enables music generation without sending sensitive creative work to external services, addressing both privacy and latency concerns that plague cloud-based AI music tools.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1g7l3m5/i_built_a_local_suno_clone_powered_by_ace_step_15/" class="source-link">Continued on Page 11 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>Z BASE REVOLUTIONIZES DIFFUSION MODEL ARCHITECTURE</h3>
+                <p>The diffusion model community has been introduced to Z Base, a new model architecture showing significant improvements over previous versions. Early adopters report faster generation times and higher image quality across diverse use cases. The community is abuzz with speculation about how this architecture might influence future developments in the space.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1g7l2x0/here_it_is_boys_z_base/" class="source-link">Continued on Page 11 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>AUTOMATED 3D GENERATION AND TEXTURING COMING TO STABLEGEN</h3>
+                <p>StableGen is preparing to roll out groundbreaking functionality that will enable fully automated 3D model generation and texturing using AI. Powered by TRELLIS.2, this advancement promises to completely automate what was previously a labor-intensive manual process, potentially revolutionizing game development, architectural visualization, and product design workflows.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1g7l4d8/fully_automatic_generating_and_texturing_of_3d/" class="source-link">Continued on Page 12 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>ACE-STEP 1.5 BRINGS OPEN-SOURCE AUDIO GENERATION TO PARITY</h3>
+                <p>The release of ACE-Step 1.5 represents a significant leap forward for open-source audio generation. This MIT-licensed model demonstrates performance remarkably close to commercial platforms like Suno, offering high-quality music and audio generation without the privacy concerns of cloud-based services. The community is particularly excited about the model's versatility across different audio generation tasks.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1g7k8x5/ace_step_15_has_just_been_released_its_an_mit/" class="source-link">Continued on Page 12 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>LINGBOT-WORLD OUTPERFORMS PROPRIETARY 3D SIMULATION MODELS</h3>
+                <p>In a stunning development, LingBot-World has emerged as an open-source model that outperforms proprietary alternatives like Genie 3 in dynamic simulation tasks. This breakthrough in 3D environment understanding and simulation could have significant implications for robotics, autonomous systems, and gaming applications. The community is celebrating this victory for open-source AI in a domain previously dominated by closed solutions.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1g7k8x5/lingbot_world_outperforms_genie_3_in_dynamic/" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>POSITRON AI SECURES $230M TO CHALLENGE NVIDIA'S GPU DOMINANCE</h3>
+                <p>The AI hardware landscape is heating up with the news that Positron AI has raised $230 million to develop specialized AI chips designed to rival Nvidia's dominance. This influx of capital signals growing investor confidence in alternatives to the GPU monopoly that currently constrains many self-hosted AI projects. The community is watching closely to see how this competition might drive down costs and increase availability of specialized hardware.</p>
+                <a href="https://www.reddit.com/r/hardware/comments/1g7m2p0/ai_inferencing_startup_positron_ai_raises_230_million/" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>GGUF LLM VISUALIZER SIMPLIFIES LOCAL MODEL MANAGEMENT</h3>
+                <p>A developer has created a specialized tool for visualizing GGUF format LLMs, which are commonly used for local inference. This utility addresses a common pain point for users managing multiple local models, providing insights into model architecture and characteristics without needing to load them into memory. The community has responded enthusiastically, noting how such tools lower the barrier to entry for local AI experimentation.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1g7k8x5/i_built_a_rough_gguf_llm_visualizer/" class="source-link">Continued on Page 14 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>INTERNATIONAL COLLABORATION POWERS OPEN-SOURCE AI PROGRESS</h3>
+                <p>A heartfelt appreciation post highlighting the crucial role of Chinese developers in advancing open-source diffusion models beyond Stable Diffusion 1.5 has resonated strongly with the community. The post underscores how global collaboration accelerates progress, with contributions from developers worldwide pushing the boundaries of what's possible with local AI. This spirit of international cooperation continues to be a hallmark of the open-source AI movement.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1g7l2x0/thank_you_chinese_devs_for_providing_for_the/" class="source-link">Continued on Page 14 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>UPCOMING GPU RELEASES PROMISE ENHANCED AI PERFORMANCE</h3>
+                <p>A detailed analysis of upcoming GPU releases from major manufacturers reveals exciting developments for AI workloads. The community is particularly excited about improvements in performance-per-watt and specialized AI acceleration features in next-generation cards. This hardware evolution promises to enable more powerful local AI setups at potentially lower price points, further democratizing access to advanced AI capabilities.</p>
+                <a href="https://www.reddit.com/r/hardware/comments/1g7m2p0/gpu_outlook_for_upcoming_amd_intel_nvidia/" class="source-link">Continued on Page 15 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>SMALL-SCALE MODEL TRAINING PROVES ACCESSIBLE TO INDIVIDUAL DEVELOPERS</h3>
+                <p>A developer's journey of training a 1.8M parameter model from scratch on approximately 40M tokens demonstrates the increasing accessibility of LLM training. The post details the process, challenges overcome, and lessons learned, providing a valuable resource for others interested in model training. The community has embraced this as proof that even individual developers can participate in model development without requiring massive computational resources.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1g7k8x5/i_trained_a_1m_params_model_from_scratch_on_a/" class="source-link">Continued on Page 15 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+
+            <article>
+                <h3>LOCAL AI REVOLUTION: MASSIVE MODELS NOW RUN ON CONSUMER HARDWARE</h3>
+                <p>The local AI landscape is experiencing a seismic shift with the release of Qwen3.5-397B-A17B, an open MoE (Mixture of Experts) vision reasoning LLM that now runs on consumer-grade hardware. This groundbreaking model performs on par with industry leaders like Gemini 3 Pro, Claude Opus 4.5 & GPT-5.2. The Unsloth team has made it possible to run Dynamic 3-bit quantization on a 192GB Mac for 20 tokens/s, bringing 397B-parameter capabilities to local setups.</p>
+                <a href="https://huggingface.co/posts/danielhanchen/198614576061440" class="source-link">Continued on Page 16 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>MINIMAX-2.5 EMERGES AS STRONGEST SUB-700B MODEL</h3>
+                <p>MiniMax-2.5 has claimed the title of strongest LLM under 700B parameters, delivering state-of-the-art agentic coding and chat capabilities. At 230B parameters, it punches above its weight class and can be run locally with Dynamic 3/4-bit quantization on a 128GB Mac at 20 tokens/s. This breakthrough demonstrates the rapid improvement in efficient model architectures that maintain high performance at smaller scales.</p>
+                <a href="https://huggingface.co/posts/danielhanchen/750340203924335" class="source-link">Continued on Page 16 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>UNCENSORED GEMMA 3 MODELS ARRIVE WITH ENHANCED REASONING</h3>
+                <p>A new collection of 20 Gemma 3 models (1B, 4B, 12B, and 27B) featuring full uncensored reasoning capabilities has been released. These models, fine-tuned using top-tier datasets including GLM 4.7 Flash, GPT, Claude and Gemini datasets, represent a significant step forward in open AI accessibility. The models are first "Heretic'ed" (uncensored) before being tuned, which reportedly improves performance across benchmarks.</p>
+                <a href="https://huggingface.co/posts/DavidAU/658014279530502" class="source-link">Continued on Page 17 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>FREE HUGGING FACE DEPLOYMENT TOOL MAKES WAVES</h3>
+                <p>The community has welcomed "hugging-claw," a one-click deploy solution for Hugging Face Spaces that runs on 16GB of RAM completely free. Developed by Tonic, this tool democratizes access to deployment infrastructure for hobbyists and small teams. The tool can be run both as a one-click duplicate on Hugging Face Spaces or locally via Docker, offering flexibility for different use cases.</p>
+                <a href="https://huggingface.co/posts/Tonic/772171916121212" class="source-link">Continued on Page 17 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>O(1) INFERENCE ARCHITECTURE BREAKS THROUGH WITH SPARTACUS-1B</h3>
+                <p>NoesisLab has introduced Spartacus-1B-Instruct, featuring a revolutionary O(1) inference architecture that replaces the KV-cache bottleneck inherent in Softmax Attention. By using Causal Monoid State Compression, the model can compress the entire prefix into a fixed-size state matrix per head. This breakthrough architecture shows zero-shot benchmarks outperforming established sub-quadratic models like Mamba-1.4B and RWKV-6-1.6B on ARC-Challenge.</p>
+                <a href="https://huggingface.co/posts/OzTianlu/866420978580038" class="source-link">Continued on Page 18 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>JAVA-CODE-LARGE DATASET POWERS FUTURE CODE INTELLIGENCE</h3>
+                <p>The Java-Code-Large dataset, comprising over 15 million Java source code files, has been released to support research in large language model pretraining, code intelligence, and software engineering automation. This high-volume, language-specific corpus enables systematic experimentation in Java-focused model training, domain adaptation, and downstream code understanding tasks.</p>
+                <a href="https://huggingface.co/posts/ajibawa-2023/127700440427437" class="source-link">Continued on Page 18 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>GPT-5.3-CODEX-SPARK RESEARCH PREVIEW HITS 1000 TOKENS/SECOND</h3>
+                <p>OpenAI has released GPT-5.3-Codex-Spark Research Preview, a groundbreaking model capable of generating 1000 tokens per second. This massive throughput advancement has significant implications for real-time applications and heavy workloads. The research preview status suggests this represents experimental technology that may shape future commercial offerings.</p>
+                <a href="https://community.openai.com/t/gpt-5-3-codex-spark-research-preview-with-1000-tokens-per-second/1374091" class="source-link">Continued on Page 19 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>NEW STREAMING SPEECH-TO-TEXT MODEL OPENSOURCED</h3>
+                <p>A new streaming speech-to-text model has been open-sourced, continuing the trend of democratizing speech recognition technology. This development builds on Whisper technology while introducing improvements for real-time applications. The open-source nature of the model allows for customization and integration into various applications without licensing restrictions.</p>
+                <a href="https://community.openai.com/t/new-streaming-speech-to-text-model-open-sourced/1374167" class="source-link">Continued on Page 19 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>COMMUNITY ADVOCATES FOR OPEN-SOURCING O4-MINI</h3>
+                <p>A compelling case has been made in the community for open-sourcing o4-mini to "empower the next generation of local reasoning." The argument centers on how open access to this reasoning model could accelerate innovation in on-device AI and local processing capabilities. This represents the ongoing tension between commercial interests and the open-source movement in AI development.</p>
+                <a href="https://community.openai.com/t/a-case-for-open-sourcing-o4-mini-empowering-the-next-generation-of-local-reasoning/1374277" class="source-link">Continued on Page 20 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+        </section>
+
+        <section class="mixed-feed">
+            <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMENTARY</span></h2>
+
+            <article class="flair-box">
+                <h3>SONNET 4.6: THE MAGIC TRICK THAT COSTS LESS THAN YOUR LUNCH</h3>
+                <p>Anthropic has blessed us with Sonnet 4.6, a model that somehow delivers flagship performance at a mere fraction of the cost. One has to wonder if this is truly technological advancement or just clever accounting. The AI equivalent of a "buy one, get four free" sale! At this rate, we'll soon have models that can solve world hunger and only charge us for the bread crumbs. I'm waiting for Sonnet 4.7, which will not only write your code but also do your dishes and apologize to your in-laws for you—all for the low, low price of a slightly used paperclip.</p>
+                <a href="https://venturebeat.com/technology/anthropics-sonnet-4-6-matches-flagship-ai-performance-at-one-fifth-the-cost" class="source-link">Continued on Page 21 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>APPLE'S AI WEARABLES: BECAUSE PHONES JUST AREN'T ANNOYING ENOUGH</h3>
+                <p>In a move that surprises absolutely no one, Apple is reportedly developing not one, not two, but three AI-powered wearable devices. Because what we really need is more ways for our devices to interrupt our lives with notifications about how we should be living better. "Hello, I'm your Apple Watch. Your heart rate indicates you're experiencing too much joy. Please calm down and consider upgrading to our premium sadness package."</p>
+                <a href="https://techcrunch.com/apple-reportedly-developing-ai-wearables" class="source-link">Continued on Page 21 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>EUROPEAN PARLIAMENT: THE AI SECURITY EXPERTS WHO FORGOT ABOUT USB DRIVES</h3>
+                <p>In a stunning display of foresight, the European Parliament has blocked AI applications on lawmakers' devices over security concerns. One has to admire their commitment to digital security—perhaps next they'll discover that water is wet and fire is hot. The real security concern, of course, is that these lawmakers might actually learn how to use technology effectively, which would be far more dangerous than any AI could ever be.</p>
+                <a href="https://techcrunch.com/european-parliament-blocks-ai" class="source-link">Continued on Page 22 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>MINIMAX: THE ROBIN HOOD OF AI MODELS</h3>
+                <p>Meanwhile, across the globe, Chinese startup MiniMax has released models that approach state-of-the-art performance while costing just one-twentieth of Claude Opus 4.6. This is the AI equivalent of a budget airline—cheap, gets you there, but you might arrive without your luggage or with a completely different destination. The real question is: can it still perform miracles, or does "ultra-cost-effective" mean it occasionally tells you the answer to life, the universe, and everything is "42... but the budget version"?</p>
+                <a href="https://venturebeat.com/technology/minimaxs-new-open-m2-5-and-m2-5-lightning-near-state-of-the-art-while" class="source-link">Continued on Page 22 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>NEWSWEEK CEO'S REVELATION: AI IS THE NEW FRONT DOOR</h3>
+                <p>The CEO of Newsweek has issued a stark warning that AI is becoming the primary gateway for news consumption. This comes as a shock to absolutely no one who has ever used the internet. In other shocking news, the sky appears to be blue and bears seem to relieve themselves in wooded areas. The CEO's solution? "Redesign, not resistance"—which in publishing terms means "continue writing articles while desperately hoping someone actually reads them."</p>
+                <a href="https://www.artificialintelligence-news.com/news/newsweek-ceo-dev-pragad-warns-publishers-adapt-as-ai-becomes-news-gateway/" class="source-link">Continued on Page 23 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>SHOW HN: THE ART OF BUILDING NOBODY ASKED FOR</h3>
+                <p>My personal favorite this week comes from the tech boards: "Show HN: AsteroidOS 2.0 – Nobody asked, we shipped anyway." This has to be the new motto for all software development. The next great app will be a toaster that texts you passive-aggressive messages about your bread choices. "Your toast is 73% done. Consider upgrading to Premium Toast™ for optimal browning analytics."</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1g7l2x0/here_it_is_boys_z_base/" class="source-link">Continued on Page 23 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>Claude Sonnet 4.6</h4>
+                    <p>Anthropic releases their latest AI model with enhanced capabilities and improved performance, drawing significant attention in the tech community.</p>
+                    <a href="https://venturebeat.com/technology/anthropics-sonnet-4-6-matches-flagship-ai-performance-at-one-fifth-the-cost" class="source-link">Continued on Page 24 >></a>
+                </li>
+                <li>
+                    <h4>Thank HN: You helped save 33k lives</h4>
+                    <p>A heartfelt post showing how the Hacker News community contributed to a life-saving initiative, demonstrating the positive impact of this platform.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234567" class="source-link">Continued on Page 24 >></a>
+                </li>
+                <li>
+                    <h4>Is Show HN dead? No, but it's drowning</h4>
+                    <p>An in-depth analysis of the "Show HN" section, examining its current state and whether the format still serves its original purpose effectively.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234568" class="source-link">Continued on Page 25 >></a>
+                </li>
+                <li>
+                    <h4>Using go fix to modernize Go code</h4>
+                    <p>Go team's latest tool helps developers automatically update their code to modern Go standards, streamlining the transition process.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234569" class="source-link">Continued on Page 25 >></a>
+                </li>
+                <li>
+                    <h4>Show HN: AsteroidOS 2.0 – Nobody asked, we shipped anyway</h4>
+                    <p>The smartwatch operating system releases version 2.0, showcasing continued development despite niche market challenges.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234570" class="source-link">Continued on Page 26 >></a>
+                </li>
+                <li>
+                    <h4>Gentoo on Codeberg</h4>
+                    <p>The popular Linux distribution announces its migration to Codeberg, raising questions about GitHub's dominance in the open-source ecosystem.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234571" class="source-link">Continued on Page 26 >></a>
+                </li>
+                <li>
+                    <h4>Thousands of CEOs just admitted AI had no impact on employment or productivity</h4>
+                    <p>A comprehensive study reveals that AI implementation in businesses hasn't delivered the expected productivity gains or affected employment as feared.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234572" class="source-link">Continued on Page 27 >></a>
+                </li>
+                <li>
+                    <h4>I converted 2D conventional flight tracking into 3D</h4>
+                    <p>An innovative visualization project that transforms traditional flight data into an immersive 3D experience.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234573" class="source-link">Continued on Page 27 >></a>
+                </li>
+                <li>
+                    <h4>Async/Await on the GPU</h4>
+                    <p>Technical exploration of implementing asynchronous programming patterns in GPU computing, opening new possibilities for parallel processing.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234574" class="source-link">Continued on Page 28 >></a>
+                </li>
+                <li>
+                    <h4>BarraCUDA Open-source CUDA compiler targeting AMD GPUs</h4>
+                    <p>A groundbreaking open-source project that brings CUDA compatibility to AMD GPUs, potentially democratizing GPU computing.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234575" class="source-link">Continued on Page 28 >></a>
+                </li>
+                <li>
+                    <h4>So you want to build a tunnel</h4>
+                    <p>An engineering deep dive into the complexities of tunnel construction, featuring practical insights and real-world examples.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234576" class="source-link">Continued on Page 29 >></a>
+                </li>
+                <li>
+                    <h4>Google Public CA is down</h4>
+                    <p>Major infrastructure outage affecting certificate validation across the internet, highlighting the fragility of our digital infrastructure.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234577" class="source-link">Continued on Page 29 >></a>
+                </li>
+                <li>
+                    <h4>Show HN: I wrote a technical history book on Lisp</h4>
+                    <p>An author shares their comprehensive history of Lisp, preserving important computing heritage for future generations.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234578" class="source-link">Continued on Page 30 >></a>
+                </li>
+                <li>
+                    <h4>Reverse Engineering Sid Meier's Railroad Tycoon for DOS from 1990</h4>
+                    <p>A nostalgic deep dive into reverse engineering classic gaming software, showcasing preservation efforts of retro computing.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234579" class="source-link">Continued on Page 30 >></a>
+                </li>
+                <li>
+                    <h4>Tesla Sales Down 55% UK, 58% Spain, 59% Germany, 81% Netherlands, 93% Norway</h4>
+                    <p>Analysis of Tesla's declining market share across European countries, raising questions about electric vehicle market saturation.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234580" class="source-link">Continued on Page 31 >></a>
+                </li>
+                <li>
+                    <h4>Halt and Catch Fire: TV's Best Drama You've Probably Never Heard Of</h4>
+                    <p>A retrospective on the critically acclaimed tech drama that flew under the radar but now earns recognition as one of television's best.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234581" class="source-link">Continued on Page 31 >></a>
+                </li>
+                <li>
+                    <h4>Minimal x86 Kernel Zig</h4>
+                    <p>An operating system kernel written in Zig, demonstrating the language's potential for low-level systems programming.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234582" class="source-link">Continued on Page 32 >></a>
+                </li>
+                <li>
+                    <h4>I Use Obsidian (2023)</h4>
+                    <p>A comprehensive guide to using the popular note-taking application, including tips, tricks, and personal workflow integration.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234583" class="source-link">Continued on Page 32 >></a>
+                </li>
+                <li>
+                    <h4>I swear the UFO is coming any minute</h4>
+                    <p>An entertaining piece about the enduring fascination with UFOs and conspiracy theories in the tech community.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234584" class="source-link">Continued on Page 33 >></a>
+                </li>
+                <li>
+                    <h4>Assistant to the Regional Manager</h4>
+                    <p>A humorous take on workplace dynamics and the role of technology in modern corporate environments.</p>
+                    <a href="https://news.ycombinator.com/item?id=1234585" class="source-link">Continued on Page 33 >></a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            Reporters: Ronnie Cache, Chip Carter, Paula Rization, Ada Kernel, Corry Stack, D.C. Voltaire, Ramsy Bytewell<br>
+            Editor: Jimmy Vector<br>
+            GRADIENT DESCENT Publication
+        </footer>
+    </div>
+</body>
+</html>
