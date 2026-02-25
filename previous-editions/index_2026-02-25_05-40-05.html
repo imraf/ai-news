@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; 
+            font-size: 0.95rem;
+            hyphens: auto; 
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); 
+        }
+
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        
+        h2 span { 
+            background: #fcfbf2; 
+            padding: 0 10px; 
+        }
+
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; 
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); 
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important; 
+        }
+
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } 
+
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        
+        .tech-boards-section h2 { margin-bottom: 15px; }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+        }
+
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .masthead { font-size: 3.2rem; }
+
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .scoop-item:first-child {
+                column-count: 1; 
+            }
+
+            .mixed-feed {
+                column-count: 1; 
+            }
+            
+            .mixed-feed article {
+                display: block; 
+            }
+
+            .tech-list {
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; 
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">Pure AI News: All Signal, Zero Noise</div>
+            <div class="subhead">
+                <span>Vol. 1, No. 3</span>
+                <span>Sunday, Feb 22 2026 - Morning Edition</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>HEADLINES</span></h2>
+            <div class="scoop-grid">
+                
+                <article class="scoop-item">
+                    <h3>GOOGLE RETAKES AI CROWN WITH GEMINI 3.1 PRO LAUNCH</h3>
+                    <p>G o o g l e has launched Gemini 3.1 Pro, claiming to retake the title of most powerful AI model with a 2x+ reasoning performance boost over its predecessor. Google briefly held the crown with Gemini 3 Pro late last year before being surpassed. The launch positions Google as a strong competitor in the fierce AI race against OpenAI and Anthropic, with immediate availability for enterprise and developer use.</p>
+                    <a href="https://venturebeat.com/2026/02/19/google-launches-gemini-3-1-pro-retaking-ai-crown-with-2x-reasoning/" class="source-link">Continued on Page 2 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>OPENAI DEBATED CALLING POLICE ABOUT SUSPECTED CANADIAN SHOOTER'S CHATS</h3>
+                    <p>O p e n A I reportedly debated whether to contact law enforcement about concerning conversations with a suspected shooter in Canada, raising important questions about AI safety protocols. Highlights the delicate balance between user privacy and public safety, as part of ongoing debates about AI safety and content moderation that could set precedents for future AI safety protocols.</p>
+                    <a href="https://techcrunch.com/2026/02/21/openai-debated-calling-police-about-suspected-canadian-shooters-chats/" class="source-link">Continued on Page 2 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>UAE'S G42 DEPLOYS 8 EXAFLOPS OF COMPUTE IN INDIA WITH CEREBRAS</h3>
+                    <p>U A E 's G42 has partnered with Cerebras to deploy 8 exaflops of computing power in India, marking a major infrastructure investment in the region's AI ecosystem. The massive deployment is part of UAE's strategic investment in India's AI infrastructure, with Cerebras known for their wafer-scale AI chips, representing a significant boost for India's growing AI startup ecosystem.</p>
+                    <a href="https://techcrunch.com/2026/02/20/uaes-g42-teams-up-with-cerebras-to-deploy-8-exaflops-of-compute-in-india/" class="source-link">Continued on Page 3 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>MICROSOFT'S NEW GAMING CEO VOWS AGAINST "ENDLESS AI SLOP"</h3>
+                    <p>M i c r o s o f t 's new Xbox CEO has committed to maintaining quality standards, vowing not to flood the gaming ecosystem with low-quality AI implementations. The pushback against superficial AI integration in gaming emphasizes meaningful AI applications rather than gimmicks, with Microsoft taking a differentiated approach in the gaming AI space and recognizing market fatigue with poorly implemented AI features.</p>
+                    <a href="https://techcrunch.com/2026/02/21/microsofts-new-gaming-ceo-vows-not-to-flood-the-ecosystem-with-endless-ai-slop/" class="source-link">Continued on Page 3 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>GOOGLE VP WARNS TWO TYPES OF AI STARTUPS MAY NOT SURVIVE</h3>
+                    <p>A G o o g l e VP has issued warnings about AI startup viability, suggesting that two specific types of AI companies may not survive the current market consolidation. The market consolidation concerns in AI startup space provide Google's perspective on which AI business models are sustainable, offering warning for investors and entrepreneurs in the AI space while providing insight into Google's view of AI market evolution.</p>
+                    <a href="https://techcrunch.com/2026/02/21/google-vice-president-warns-that-two-types-of-ai-startups-may-not-survive/" class="source-link">Continued on Page 4 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>INDIA'S SARVAM LAUNCHES INDUS AI CHAT APP</h3>
+                    <p>I n d i a n AI startup Sarvam has launched Indus, an AI chat app, as competition intensifies in the South Asian market. The local AI competition heating up in India is part of India's growing AI ecosystem and government initiatives, with direct competition to global AI players in the region that demonstrates India's ambition to become an AI hub.</p>
+                    <a href="https://techcrunch.com/2026/02/20/indias-sarvam-launches-indus-ai-chat-app-as-competition-heats-up/" class="source-link">Continued on Page 4 >></a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+             <h2 style="column-span: all; margin-bottom: 15px;"><span>SCIENTIFIC PAPERS</span></h2>
+
+            <article>
+                <h3>FINAL BENCH: THE FIRST METACOGNITION BENCHMARK FOR LLMs</h3>
+                <p>SeaWolf-AI has dropped FINAL Bench, a groundbreaking benchmark that measures functional metacognition in LLMs - the ability to detect and correct one's own reasoning errors. This is the first benchmark to separate Metacognitive Accuracy (MA) from Error Recovery (ER). Three key findings emerged from testing 9 SOTA models: Error Recovery dominates metacognitive gains (94.8%), there's a dangerous declarative-procedural gap where models can verbalize uncertainty but fail to self-correct, and harder tasks benefit dramatically more from metacognition.</p>
+                <a href="https://huggingface.co/posts/SeaWolf-AI/974248994007181" class="source-link">Continued on Page 5 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>AUTONUMERICS: SOLVING COMPLEX PROBLEMS WITH AI</h3>
+                <p>AutoNumerics introduces a novel framework for solving complex scientific computing problems using AI-powered methods. The paper demonstrates how large language models can effectively solve partial differential equations and other mathematical challenges that have traditionally required specialized computational methods. By leveraging the pattern recognition capabilities of LLMs, the researchers have created a system that can understand mathematical problems and generate appropriate numerical solutions.</p>
+                <a href="#" class="source-link">Continued on Page 5 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>LEGAL RAG BENCH: FIRST BENCHMARK FOR LEGAL RAG SYSTEMS</h3>
+                <p>Umar Butler and team released Legal RAG Bench, the first benchmark for legal RAG systems that simultaneously evaluates hallucinations, retrieval failures, and reasoning errors. Key findings: embedding models are the primary driver of RAG accuracy (switching to legal domain embedders raises accuracy ~19 points), hallucinations are often triggered by retrieval failures, and once you have a solid legal retrieval engine, the generative model choice matters less.</p>
+                <a href="https://huggingface.co/posts/umarbutler/969492302070598" class="source-link">Continued on Page 6 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>MOLHIT: MOLECULAR GENERATION WITH HIT RATE OPTIMIZATION</h3>
+                <p>MolHIT presents an innovative approach to molecular generation and drug discovery using transformer-based models. The researchers have developed a system specifically designed to generate novel molecular structures with high hit rates for biological activity, addressing a major challenge in drug discovery where generating truly effective drug candidates is notoriously difficult. The model incorporates sophisticated scoring mechanisms that evaluate both the chemical validity and potential therapeutic efficacy of generated molecules.</p>
+                <a href="#" class="source-link">Continued on Page 6 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>OPENEARTHAGENT: A FRAMEWORK FOR GEOSPATIAL AI</h3>
+                <p>OpenEarthAgent introduces a comprehensive framework for geospatial artificial intelligence that combines computer vision with natural language understanding to analyze and interpret satellite imagery and geospatial data. The system can process complex queries about geographic locations, environmental changes, and urban development using multimodal inputs including images, text, and coordinates. Researchers demonstrated impressive capabilities in tasks like detecting infrastructure changes, monitoring deforestation, and urban planning analysis.</p>
+                <a href="#" class="source-link">Continued on Page 7 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>ODESTEER: CONTROLLING LLM BEHAVIOR THROUGH ORDINARY DIFFERENTIAL EQUATIONS</h3>
+                <p>ODESteer introduces a mathematically rigorous approach to controlling large language model behavior using ordinary differential equations. The researchers demonstrate how differential equations can be used to model and steer the behavior of LLMs during text generation, providing precise control over aspects like creativity, factuality, and safety. This framework allows for continuous adjustment of model outputs through mathematical constraints rather than discrete prompting techniques.</p>
+                <a href="#" class="source-link">Continued on Page 7 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>MULTI-ROUND HUMAN-AI COLLABORATION: TOWARD ALIGNED GENERAL INTELLIGENCE</h3>
+                <p>This paper explores the critical area of human-AI collaboration, investigating how multiple rounds of interaction between humans and AI systems can lead to better task outcomes and more aligned behavior. The researchers conducted extensive experiments showing that iterative feedback between humans and AI models significantly improves task performance and reduces undesirable outputs. Their findings suggest that continuous interaction loops help AI systems better understand human preferences and adjust their behavior accordingly, leading to more helpful and harmless interactions.</p>
+                <a href="#" class="source-link">Continued on Page 8 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>SINK-AWARE PRUNING: OPTIMIZING DIFFUSION MODELS FOR EFFICIENCY</h3>
+                <p>Sink-Aware Pruning presents an innovative optimization technique specifically designed for diffusion models, which have become increasingly important for image generation and other creative AI applications. The researchers identified unique characteristics of diffusion models that make traditional pruning methods less effective, and developed a sink-aware approach that preserves critical information flow while removing redundant parameters. Experimental results show significant improvements in model efficiency without compromising generation quality, achieving up to 40% reduction in computational requirements for comparable performance.</p>
+                <a href="#" class="source-link">Continued on Page 8 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+        </section>
+
+        <section class="mixed-feed">
+             <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMUNITY WIRE</span></h2>
+
+            <article>
+                <h3>FILE ORGANIZATION AI AGENT: "CLAW DRIVE"</h3>
+                <p>A revolutionary CLI tool lets AI agents handle file organization entirely. Users simply toss files at their agent and retrieve them in plain English later. Features include SHA-256 deduplication, JSONL index for semantic search, and custom metadata fields that transform the file store into a queryable knowledge base. The agent asks before reading sensitive content and can "claw-drive reindex" to improve old entries as it gets smarter.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1rbbj9j/i_stopped_organizing_files_my_ai_agent_does_it/" class="source-link">Continued on Page 9 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>50+ OPENCLAW ALTERNATIVES FOR BUSINESS</h3>
+                <p>A comprehensive guide reveals the exploding ecosystem of OpenClaw alternatives including NanoClaw (container-based security), Nanobot (ultra-lightweight 4K lines), TrustClaw (OAuth sandboxed), and ZeroClaw (Rust-based 3.4MB binary). The guide also covers AI employees like Lindy and Manus, no-code builders like MindStudio, and enterprise platforms from IBM, Microsoft, AWS, and Google.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1raq9qy/50_openclaw_alternatives_for_business/" class="source-link">Continued on Page 9 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>RUNNING AI AGENTS 24/7: CRITICAL LESSONS</h3>
+                <p>After 3 months of running OpenClaw 24/7, this user shares 10 critical mistakes: vague boundaries leading to creative misinterpretations, port exposure without authentication, running on main machines without isolation, insufficient logging, underestimating token costs, no backup strategy, trusting agents too fast, missing kill switches, ignoring resource limits, and forgetting agents learn from all context.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1r6t1vc/ive_been-running-ai-agents-247_for_3_months_here/" class="source-link">Continued on Page 10 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>NOAI-WATERMARK: DEFEATING SYNTHID IN ONE PASS</h3>
+                <p>A breakthrough tool removes invisible watermarks from AI-generated images. The creator found that a single diffusion pass at low strength fools SynthID completely, while also stripping all AI metadata. Built for research and education, this open-source tool reveals how fragile these watermarking systems really are.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1rbb24f/a_single_diffusion_pass_is_enough_to_fool_synthid/" class="source-link">Continued on Page 10 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>ZCLAW: PERSONAL AI ASSISTANT IN UNDER 888 KB, RUNNING ON AN ESP32</h3>
+                <p>Someone built "zclaw," a personal AI assistant that runs in under 888 KB on an ESP32 microcontroller. This is the kind of achievement that makes AI engineers weep with joy. An AI assistant so small it could run on a device that costs less than a fancy coffee, and it still does... whatever it is that AI assistants do. The real story here is the incredible efficiency of modern AI.</p>
+                <a href="https://github.com/tnm/zclaw" class="source-link">Continued on Page 11 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>KITTEN TTS V0.8: SUPER-TINY SOTA TTS MODEL</h3>
+                <p>ElectricalBar7464 released "Kitten TTS V0.8," a "new SOTA text-to-speech model under 25MB." This adorable model represents significant progress in edge deployment, offering high-quality speech synthesis with minimal resource requirements. This super-tiny TTS model demonstrates how efficient AI can be.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1r8pztp/kitten_tts_v08_is_out_new_sota_supertiny_tts/" class="source-link">Continued on Page 11 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>JAPANESE WOODBLOCK PRINT SEARCH</h3>
+                <p>Someone built "Japanese Woodblock Print Search" - an online search engine for ukiyo-e art. This is what happens when AI people remember that technology can be beautiful, not just useful. While we're all focused on whether ChatGPT can write better code, this person built something that helps you find art from the Edo period. It's a reminder that the internet should be about more than just cat videos and algorithmic recommendations.</p>
+                <a href="https://ukiyo-e.org/" class="source-link">Continued on Page 12 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>SNAPDRAGON CHIPSET ACCURACY VARIABILITY: THE HARDWARE LOTTERY</h3>
+                <p>Someone tested the same INT8 model across 5 Snapdragon chipsets and found "accuracy ranged from 93% to 71% with the same weights and ONNX file." This is the reality of AI deployment: hardware matters. The spread comes from "NPU precision handling differences, operator fusion variations, and memory-constrained fallback to CPU execution." Cloud benchmarks completely miss these real-world hardware variations.</p>
+                <a href="https://www.reddit.com/r/MachineLearning/comments/1r7ruu8/d_we_tested_the_same_int8_model_on_5_snapdragon/" class="source-link">Continued on Page 12 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>USB CHARGER WITH BLACKWELL GPU AND 128GB RAM</h3>
+                <p>Someone shared their "incredible setup: a USB charger containing a Blackwell GPU with 128GB RAM." Running 3kW of "space AI heaters" on their desk, they're running GLM-5, MiniMax-M2.5, and Qwen3 Coder Next on a single Aibrix/K8s cluster. "What. A. Time. To. Be. Alive." This is peak tech flex.</p>
+                <a href="https://huggingface.co/posts/mitkox/447737809841955" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>REAL MONEY SAFETY IN AI AGENTS</h3>
+                <p>A critical question emerges: "how do AI agents safely handle real money?" Users report agents triggering subscriptions, retrying failed charges, issuing refunds, and routing payments. Key concerns include permission control, spend limits, infinite retry prevention, and auditability. Most teams handle permissions well but money flow becomes custom fragile code.</p>
+                <a href="https://www.reddit.com/r/aiengineering/comments/1ram1cn/how_are_ai_agent_builders_handling_real_money/" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>GPT-5.3 CODEX PIXEL ART TOOL</h3>
+                <p>A Brazilian developer built "a 100% offline pixel art tool entirely with GPT-5.3 Codex." This is what happens when AI gets good enough to run locally. The best part? It doesn't require cloud dependencies. In other words: AI that works when you're offline, which is great for people who don't have constant internet access.</p>
+                <a href="https://community.openai.com/t/i-built-a-100-offline-pixel-art-tool-entirely-with-gpt-5-3-codex/1374649" class="source-link">Continued on Page 14 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>ML RESEARCH CULTURE CRITIQUE: "IS THIS WHAT ML RESEARCH IS?"</h3>
+                <p>A researcher shared frustrations with the CVPR review process where "reviewers demanded comparing a 500M parameter model to 14x larger models with 4x resolution." The paper was "rejected despite solid methodology," leading to the conclusion that "ML research has become an 'engineering competition' focused solely on dataset accuracy rather than methodological soundness." This is a real problem in AI research: everyone's so focused on bigger models and bigger datasets that they forget about doing good science.</p>
+                <a href="https://www.reddit.com/r/MachineLearning/comments/1ratkiz/d_is_this_what_ml_research_is/" class="source-link">Continued on Page 14 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>SCIENTISTS DISCOVER RECENT TECTONIC ACTIVITY ON THE MOON</h3>
+                <p>Scientists found recent tectonic activity on the moon. This is the kind of news that makes you pause and think: "Wait, the moon is doing stuff?" For centuries we've thought of the moon as this static, boring rock in the sky, and now it turns out it's got tectonic plates moving around up there. This is groundbreaking astronomical finding revealing the moon is still geologically active, challenging previous understanding of lunar geology.</p>
+                <a href="https://phys.org/news/2026-02-scientists-tectonic-moon.html" class="source-link">Continued on Page 15 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>HOW FAR BACK IN TIME CAN YOU UNDERSTAND ENGLISH?</h3>
+                <p>"How far back in time can you understand English?" scored an impressive 469 points on Hacker News. This is the kind of question that keeps AI researchers up at night: "Can our future AI overlords understand Shakespeare, or will they just be confused by the thee's and thou's?" The real value of this research? It suggests that AI might be able to understand historical documents, which means they could one day read all those unreadable manuscripts in libraries and finally tell us what they say.</p>
+                <a href="https://www.deadlanguagesociety.com/p/how-far-back-in-time-understand-english" class="source-link">Continued on Page 15 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+        </section>
+
+        <section class="mixed-feed">
+            <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMENTARY</span></h2>
+
+            <article class="flair-box">
+                <h3>OPENAI'S SAFETY DANCE: "TO CALL OR NOT TO CALL, THAT IS THE QUESTION"</h3>
+                <p>Ah, the modern AI dilemma! When your chatbot starts chatting with a suspected Canadian shooter, do you A) call the Mounties or B) call your lawyer? OpenAI's internal debate reads like a Shakespearean tragedy for the digital age. "To tweet or not to tweet, whether 'tis nobler to suffer the slings of privacy violations or to take arms against a sea of regulatory scrutiny?" The real punchline? They're probably just debating whether to use GPT-4 or GPT-3.5 for the police report.</p>
+                <a href="#" class="source-link">Continued on Page 16 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>MICROSOFT'S GAMING CEO DECLARES WAR ON "AI SLOP"</h3>
+                <p>In a move that shocked absolutely no one who's played a video game lately, Microsoft's new Xbox CEO has vowed to fight "endless AI slop." Finally! Someone in gaming who understands that not every feature needs a "neural network" buzzword slapped on it. The CEO's statement: "We won't flood the ecosystem with endless AI slop" translates roughly to "Sorry, no more AI-generated NPC dialogue that sounds like a ChatGPT on espresso." About time someone took a stand against the digital equivalent of adding bacon to everything.</p>
+                <a href="#" class="source-link">Continued on Page 16 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>UAE'S 8 EXAFLOPS COMPUTING POWER IN INDIA: BECAUSE 8 SOUNDS IMPRESSIVE</h3>
+                <p>Eight exaflops! That sounds like something you'd say after drinking eight espressos. UAE's G42 decided to deploy 8 exaflops of computing power in India, which raises an important question: does "exaflops" sound more impressive than "really, really fast computer"? The partnership with Cerebras suggests they're going for the "mine's bigger than yours" approach to AI infrastructure. My favorite detail? The fact that we're measuring computing power in units that sound like they belong in a sci-fi movie. "Exaflops" - the new "gigabyte."</p>
+                <a href="#" class="source-link">Continued on Page 17 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>GOOGLE'S GEMINI 3.1 PRO: BECAUSE 2X+ SOUNDS BETTER THAN "WE FIXED SOME STUFF"</h3>
+                <p>Google has launched Gemini 3.1 Pro with "2X+ reasoning performance boost." Translation: "We made the AI slightly less dumb." The tech industry's favorite game continues: companies claiming revolutionary improvements while users wonder why their AI still can't tell the difference between a cat and a loaf of bread. The real story? Google briefly held the AI crown, then lost it, and now wants it back. It's like watching children argue about who gets to play with the shiny toy, except the toy is potentially world-changing technology and the children are trillion-dollar companies.</p>
+                <a href="#" class="source-link">Continued on Page 17 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>INDIA'S AI EXPLOSION: BECAUSE WHY NOT HAVE ALL THE AIs?</h3>
+                <p>India's Sarvam launched Indus AI chat app, and suddenly everyone wants a piece of the South Asian AI market. We've got Peak XV raising $1.3B, General Catalyst committing $5B over five years, and Nvidia making "early-stage investments." The subtext? "India has smart people and they work for reasonable salaries, let's give them money!" My favorite part? The fact that 18- to 24-year-olds account for nearly 50% of ChatGPT usage in India. Who knew the future of AI would be shaped by Indian teenagers who probably use ChatGPT to cheat on homework and write breakup texts?</p>
+                <a href="#" class="source-link">Continued on Page 18 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>THE AI STARTUP APOCALYPSE: TWO TYPES MAY NOT SURVIVE</h3>
+                <p>A Google VP warned that "two types of AI startups may not survive" - which is corporate-speak for "we're about to crush your little company under our boot heel." The message is clear: either get acquired or get out. The AI gold rush is hitting that awkward phase where everyone realizes that building another "AI-powered todo list app" might not be worth the $50 million in venture capital. It's like the dot-com bubble all over again, except this time everyone's wearing hoodies and talking about "disruptive paradigms."</p>
+                <a href="#" class="source-link">Continued on Page 18 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>SAM ALTMAN'S ENERGY DEFENSE: "BUT HUMANS USE MORE!"</h3>
+                <p>Sam Altman pushed back against AI energy criticism by saying humans use more energy. This is the logical equivalent of a child saying "Well, Johnny ate more candy than me!" The real question isn't whether humans use more energy, but whether AI should be using any at all when it's mostly generating bad poetry and convincing people to write their emails in iambic pentameter. Sam's defense strategy: "Hey, at least we're not as bad as those other energy hogs!" Truly a bold stance for the CEO of a company whose product sometimes feels like it's powered by hamsters on wheels.</p>
+                <a href="#" class="source-link">Continued on Page 19 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>THE BOTNET THAT ACCIDENTALLY DESTROYED I2P: CYBERCRIME MEETS INCOMPETENCE</h3>
+                <p>A botnet accidentally destroyed the I2P anonymous network. This is the cybersecurity equivalent of a bank robber getting stuck in the revolving door. The lesson? Even malicious code can be surprisingly incompetent. The I2P network, designed to be secure and anonymous, was apparently taken down by a botnet that couldn't even do its job properly. It's like a ninja tripping over his own shoelaces while trying to sneak into a building. The future of cybersecurity: not just defending against skilled attackers, but also against the surprisingly common "incompetent botnet" threat vector.</p>
+                <a href="#" class="source-link">Continued on Page 19 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>How I use Claude Code: Separation of planning and execution</h4>
+                    <p>Developer shares innovative approach to using AI coding assistant, separating planning phases from execution for improved workflow</p>
+                    <a href="https://boristane.com/blog/how-i-use-claude-code/" class="source-link">Continued on Page 20 >></a>
+                </li>
+                <li>
+                    <h4>Show HN: Llama 3.1 70B on a single RTX 3090 via NVMe-to-GPU bypassing the CPU</h4>
+                    <p>Technical breakthrough allowing massive LLM to run on consumer hardware by bypassing CPU bottlenecks through direct NVMe-to-GPU memory access</p>
+                    <a href="https://github.com/xaskasdf/ntransformer" class="source-link">Continued on Page 20 >></a>
+                </li>
+                <li>
+                    <h4>How Taalas "prints" LLM onto a chip?</h4>
+                    <p>Deep dive into the hardware-level integration of large language models onto semiconductor chips, exploring the technical architecture</p>
+                    <a href="https://www.anuragk.com/blog/posts/Taalas.html" class="source-link">Continued on Page 21 >></a>
+                </li>
+                <li>
+                    <h4>Two Bits Are Better Than One: making bloom filters 2x more accurate</h4>
+                    <p>Algorithmic improvement to bloom filters that doubles accuracy while maintaining efficiency, significant for database systems</p>
+                    <a href="https://floedb.ai/blog/two-bits-are-better-than-one-making-bloom-filters-2x-more-accurate" class="source-link">Continued on Page 21 >></a>
+                </li>
+                <li>
+                    <h4>Evidence of the bouba-kiki effect in naïve baby chicks</h4>
+                    <p>Scientific study demonstrating that baby chicks naturally exhibit the bouba-kiki sound-symbolism effect, suggesting deep cognitive roots</p>
+                    <a href="https://www.science.org/doi/10.1126/science.adq7188" class="source-link">Continued on Page 22 >></a>
+                </li>
+                <li>
+                    <h4>Parse, Don't Validate and Type-Driven Design in Rust</h4>
+                    <p>Comprehensive guide to Rust programming philosophy emphasizing parsing over validation, with practical type-driven design approaches</p>
+                    <a href="https://www.harudagondi.space/blog/parse-dont-validate-and-type-driven-design-in-rust/" class="source-link">Continued on Page 22 >></a>
+                </li>
+                <li>
+                    <h4>Claws are now a new layer on top of LLM agents</h4>
+                    <p>Andrej Karpathy reveals new framework for enhancing LLM agents with additional capabilities, representing significant advancement in AI agent architecture</p>
+                    <a href="https://twitter.com/karpathy/status/2024987174077432126" class="source-link">Continued on Page 23 >></a>
+                </li>
+                <li>
+                    <h4>The Human Root of Trust – public domain framework for agent accountability</h4>
+                    <p>Open source initiative creating accountability frameworks for AI agents, addressing critical transparency and responsibility concerns</p>
+                    <a href="https://humanrootoftrust.org/" class="source-link">Continued on Page 23 >></a>
+                </li>
+                <li>
+                    <h4>Coccinelle: Source-to-source transformation tool</h4>
+                    <p>Powerful Linux kernel analysis and transformation tool enabling automated code pattern matching and modification across large codebases</p>
+                    <a href="https://github.com/coccinelle/coccinelle" class="source-link">Continued on Page 24 >></a>
+                </li>
+                <li>
+                    <h4>Wikipedia blacklists Archive.today, starts removing 695,000 archive links</h4>
+                    <p>Major escalation in web archiving conflict as Wikipedia bans Archive.today following alleged DDoS attacks and content manipulation</p>
+                    <a href="https://arstechnica.com/tech-policy/2026/02/wikipedia-bans-archive-today-after-site-executed-ddos-and-altered-web-captures/" class="source-link">Continued on Page 24 >></a>
+                </li>
+                <li>
+                    <h4>Turn Dependabot Off</h4>
+                    <p>Security expert's controversial argument for disabling GitHub's dependency update tool, highlighting security concerns and suggesting better alternatives</p>
+                    <a href="https://words.filippo.io/dependabot/" class="source-link">Continued on Page 25 >></a>
+                </li>
+                <li>
+                    <h4>I found a Vulnerability. They found a Lawyer</h4>
+                    <p>Cautionary tale about legal risks in security research, exploring the consequences when companies respond to vulnerability reports with legal threats</p>
+                    <a href="https://dixken.de/blog/i-found-a-vulnerability-they-found-a-lawyer" class="source-link">Continued on Page 25 >></a>
+                </li>
+                <li>
+                    <h4>Death to Scroll Fade</h4>
+                    <p>Web accessibility crusade against scroll fade effects, arguing for better user experience design that doesn't compromise accessibility for users with motor impairments</p>
+                    <a href="https://dbushell.com/2026/01/09/death-to-scroll-fade/" class="source-link">Continued on Page 26 >></a>
+                </li>
+                <li>
+                    <h4>Pronunciation Assessment Engine for Edge Deployment</h4>
+                    <p>17MB total model size (NeMo Citrinet-256, INT4 quantized), 257ms median inference on CPU, and exceeds human inter-annotator agreement</p>
+                    <a href="https://huggingface.co/posts/fabiosuizu/561306920677381" class="source-link">Continued on Page 26 >></a>
+                </li>
+                <li>
+                    <h4>CXMT has been offering DDR4 chips at about half the prevailing market rate</h4>
+                    <p>Major semiconductor disruption as Chinese company floods market with ultra-low-cost DDR4 memory, causing industry-wide price shocks</p>
+                    <a href="https://www.koreaherald.com/article/10679206" class="source-link">Continued on Page 27 >></a>
+                </li>
+                <li>
+                    <h4>YAML Configuration Agent Cross-Section Dependencies</h4>
+                    <p>Building an agent to modify YAML configuration reveals cross-section dependencies. The agent can add database filters correctly but never updates routing rules to reference them.</p>
+                    <a href="https://www.reddit.com/r/aiengineering/comments/1r8aqjn/agent_for_yaml_configuration/" class="source-link">Continued on Page 27 >></a>
+                </li>
+                <li>
+                    <h4>INT8 Model Performance Across Hardware</h4>
+                    <p>Testing same INT8 model across 5 Snapdragon chipsets: accuracy ranged from 93% to 71% with same weights and ONNX file. Cloud benchmarks miss real-world variations.</p>
+                    <a href="https://huggingface.co/posts/SeaWolf-AI/974248994007181" class="source-link">Continued on Page 28 >></a>
+                </li>
+                <li>
+                    <h4>Lobsters Interview with steveklabnik</h4>
+                    <p>In-depth interview with Rust programming pioneer covering compiler design, monorepos, and the future of AI-assisted coding ("vibe coding")</p>
+                    <a href="https://alexalejandre.com/programming/steve-klabnik-interview/" class="source-link">Continued on Page 28 >></a>
+                </li>
+                <li>
+                    <h4>AutoNumerics uses AI to solve complex scientific computing problems</h3>
+                    <p>AI that actually solves partial differential equations and other math stuff that normal people find intimidating, making sophisticated scientific computing more accessible to researchers and practitioners across different domains.</p>
+                    <a href="#" class="source-link">Continued on Page 29 >></a>
+                </li>
+                <li>
+                    <h4>MolHIT uses AI for molecular generation and drug discovery</h3>
+                    <p>Making new drugs is really, really hard, and AI might help. Early results show promising improvements in generating drug-like molecules with desired pharmacological properties.</p>
+                    <a href="#" class="source-link">Continued on Page 29 >></a>
+                </li>
+                <li>
+                    <h4>OpenEarthAgent combines computer vision with natural language understanding</h3>
+                    <p>AI that actually looks at the real world! It can detect infrastructure changes, monitor deforestation, and urban planning analysis. Designed to be extensible for better data collection.</p>
+                    <a href="#" class="source-link">Continued on Page 30 >></a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            Reporters: Ronnie Cache, Chip Carter, Paula Rization, Corry Stack, D.C. Voltaire, Ramsy Bytewell<br>
+            Editor: Jimmy Vector<br>
+            GRADIENT DESCENT Publication
+        </footer>
+    </div>
+</body>
+</html>
