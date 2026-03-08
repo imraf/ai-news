@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; 
+            font-size: 0.95rem;
+            hyphens: auto; 
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); 
+        }
+
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        
+        h2 span { 
+            background: #fcfbf2; 
+            padding: 0 10px; 
+        }
+
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; 
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); 
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important; 
+        }
+
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } 
+
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        
+        .tech-boards-section h2 { margin-bottom: 15px; }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+        }
+
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .masthead { font-size: 3.2rem; }
+
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .scoop-item:first-child {
+                column-count: 1; 
+            }
+
+            .mixed-feed {
+                column-count: 1; 
+            }
+            
+            .mixed-feed article {
+                display: block; 
+            }
+
+            .tech-list {
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; 
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">Pure AI News: All Signal, Zero Noise</div>
+            <div class="subhead">
+                <span>Vol. 1, No. 5</span>
+                <span>Sunday, Mar 1 2026 - Morning Edition</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>HEADLINES</span></h2>
+            <div class="scoop-grid">
+                
+                <article class="scoop-item">
+                    <h3>PENTAGON VS ANTHROPIC: THE AI BATTLE THAT COULD REDEFINE GOVERNMENT-AI RELATIONS</h3>
+                    <p>W e l l, well, well! It seems the Pentagon has decided to play kingmaker in the AI sandbox, designating Anthropic as a "supply chain risk" while simultaneously giving OpenAI a big wet kiss with that Pentagon deal. It's like watching two kids fighting over the same toy, except one kid has a nuclear arsenal and the other has really good PR. The funniest part? Anthropic's Claude shot up to No. 2 in the App Store faster than you can say "hypocrisy."</p>
+                    <a href="https://techcrunch.com/2026/02/24/anthropic-wont-budge-as-pentagon-escalates-ai-dispute/" class="source-link">Continued on Page 2 >></a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>OPENAI'S RECORD-BREAKING $110B FUNDING ROUND: THE NEW REALITY OF AI INVESTMENT</h3>
+                    <p>$110 billion! That's not funding, that's ransom money for Skynet's college tuition. At this rate, Sam Altman could probably buy the entire state of Delaware and rename it "OpenAI-landia." What's next? Will they start issuing OpenAI-branded currency? The funniest part is they're calling this new architecture "stateful" like they're describing a fancy hotel room.</p>
+                    <a href="https://techcrunch.com/2026/02/24/openai-coo-says-we-have-not-yet-really-seen-ai-penetrate-enterprise-business-processes/" class="source-link">Continued on Page 3 >></a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>AI JOB DISRUPTION: BLOCK'S 40% WORKFORCE CUTS SIGNAL THE BEGINNING OF AI-EFFICIENCY REVOLUTION</h3>
+                    <p>J a c k Dorsey's Block just fired 4,000 employees and has the audacity to call it "AI-driven efficiency." That's like saying a hurricane is just "weather optimization." The funniest part? Dorsey is literally walking around like the grim reaper of employment, telling other CEOs, "Don't worry, it's just the beginning!" At this rate, the only people with jobs will be the ones training the AI to replace everyone else.</p>
+                    <a href="https://techcrunch.com/2026/02/24/india-ai-boom-pushes-firms-to-trade-near-term-revenue-for-users/" class="source-link">Continued on Page 4 >></a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>PERPLEXITY'S 'COMPUTER' AI: ORCHESTRATING 19 MODELS AT $200/MONTH</h3>
+                    <p>$200 a month for an AI that coordinates 19 different models? That's not AI, that's extortion. It's like paying someone to organize your sock drawer, except your socks can now write poetry and argue about quantum physics. The funniest part is how they're marketing this as if they're doing you a favor: "Oh, poor little developer, you can't possibly figure out which AI to use for which task.</p>
+                    <a href="https://techcrunch.com/2026/02/24/nvidia-challenger-ai-chip-startup-matx-raised-500m/" class="source-link">Continued on Page 4 >></a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+
+                <article class="scoop-item">
+                    <h3>ANTHROPIC'S HYBRID REASONING AI: A NEW PARADIGM IN MODEL ARCHITECTURE</h3>
+                    <p>H ybrid reasoning! That's what they're calling it when the AI can't decide whether to use logic or magic to solve your problem. It's like watching a politician flip-flop on an issue, except with better hair and no accountability. The funniest part is how they act like this is some groundbreaking achievement when most of us would settle for an AI that can just spell "accommodation" correctly without asking us to verify it three times.</p>
+                    <a href="https://techcrunch.com/2026/02/24/uber-engineers-built-ai-version-of-boss-dara-khosrowshahi/" class="source-link">Continued on Page 5 >></a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+             <h2 style="column-span: all; margin-bottom: 15px;"><span>SCIENTIFIC PAPERS</span></h2>
+
+            <article>
+                <h3>TOWARD EXPERT INVESTMENT TEAMS: A MULTI-AGENT LLM SYSTEM WITH FINE-GRAINED TRADING TASKS</h3>
+                <p>This paper introduces a sophisticated multi-agent LLM framework for financial trading that explicitly decomposes investment analysis into fine-grained tasks rather than relying on abstract instructions. The framework is evaluated using Japanese stock data including prices, financial statements, news, and macro information under controlled backtesting settings.</p>
+                <a href="https://arxiv.org/abs/2602.23330" class="source-link">Continued on Page 6 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>LLM NOVICE UPLIFT ON DUAL-USE, IN SILICO BIOLOGY TASKS</h3>
+                <p>A groundbreaking human uplift study comparing novices with LLM access versus internet-only access across eight biosecurity-relevant task sets. Participants worked on complex biological problems with extensive time allocation (up to 13 hours for the most involved tasks). This research has profound implications for both scientific acceleration and dual-use risk assessment.</p>
+                <a href="https://arxiv.org/abs/2602.23329" class="source-link">Continued on Page 6 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>MEDIX-R1: OPEN ENDED MEDICAL REINFORCEMENT LEARNING</h3>
+                <p>MediX-R1 introduces an open-ended Reinforcement Learning framework for medical multimodal large language models that enables clinically grounded, free-form answers beyond multiple-choice formats. The framework uses Group Based RL with a composite reward system including LLM-based accuracy rewards, medical embedding-based semantic rewards, and lightweight format/modality rewards.</p>
+                <a href="https://arxiv.org/abs/2602.23363" class="source-link">Continued on Page 7 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>MODEL AGREEMENT VIA ANCHORING</h3>
+                <p>This paper develops a general technique for proving bounds on independent model disagreement based on "anchoring" to the average of two models. The approach is applied to prove disagreement bounds for four commonly used machine learning algorithms: stacked aggregation, gradient boosting, neural network training with architecture search, and regression tree training.</p>
+                <a href="https://arxiv.org/abs/2602.23360" class="source-link">Continued on Page 7 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>A DATASET IS WORTH 1 MB</h3>
+                <p>Introduces Pseudo-Labels as Data (PLADA), a method that completely eliminates pixel transmission for dataset serving. Instead of transmitting large datasets, the method assumes agents are preloaded with generic reference datasets and communicates tasks by transmitting only class labels for specific images. This breakthrough addresses massive communication costs of dataset distribution.</p>
+                <a href="https://arxiv.org/abs/2602.23358" class="source-link">Continued on Page 8 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+            <article>
+                <h3>VGG-T³: OFFLINE FEED-FORWARD 3D RECONSTRUCTION AT SCALE</h3>
+                <p>Presents a scalable 3D reconstruction model that addresses the quadratic computational/memory growth of offline feed-forward methods with respect to the number of input images. The approach distills the varying-length Key-Value space representation into a fixed-size MLP via test-time training. This represents a major advancement in 3D reconstruction efficiency.</p>
+                <a href="https://arxiv.org/abs/2602.23361" class="source-link">Continued on Page 8 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+
+        </section>
+
+        <section class="mixed-feed">
+             <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMUNITY WIRE</span></h2>
+
+            <article>
+                <h3>TINY TRANSFORMER CRACKS 10-DIGIT ADDITION WITH JUST 36 PARAMETERS</h3>
+                <p>The AI community has achieved a remarkable breakthrough in model efficiency. A transformer model with just **36 parameters** can now accurately add two 10-digit numbers with 100% accuracy. This represents a stunning achievement in minimal computing requirements. Community-driven challenge has pushed the boundaries from 6,080 parameters down to just 36.</p>
+                <a href="https://github.com/anadim/AdderBoard" class="source-link">Continued on Page 9 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>AUDIO ENHANCEMENT REVOLUTION: LAVASR V2 DELIVERS 5000X SPEEDUP</h3>
+                <p>YatharthS has released LavaSR v2, a speech enhancement model that delivers extraordinary speed improvements while surpassing quality of massive 6GB diffusion models. **5000x real-time processing** on GPUs, 50x on CPUs. **500MB VRAM usage** vs 6GB for comparable diffusion models. Perfect for enhancing TTS models, real-time audio calls, and dataset restoration.</p>
+                <a href="https://github.com/ysharma3501/LavaSR" class="source-link">Continued on Page 9 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>AI TRAINING DATA PRIVACY CRISIS: INVISIBLE WATERMARKS EMERGE AS SOLUTION</h3>
+                <p>A critical issue in AI training data privacy has led to the development of sophisticated invisible watermarking technology to combat unauthorized data scraping. **Pre-embed detection** catches plagiarism without watermarks using text/image/video similarity analysis. **34-attack defense system** includes Unicode normalization, homoglyph substitution, and AI rewriting.</p>
+                <a href="https://huggingface.co/posts/SeaWolf-AI" class="source-link">Continued on Page 10 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>CHINESE ROBOTICS DATASET LAUNCHED FOR RESEARCH COMMUNITY</h3>
+                <p>Bibby AI has launched a comprehensive Chinese egocentric dataset specifically designed for robotics research, addressing the need for culturally diverse training data. First major Chinese egocentric dataset focused on robotics applications. Supports AI LaTeX editor for research writing workflows. Opens new avenues for culturally aware AI systems in robotics.</p>
+                <a href="https://huggingface.co/BibbyResearch/China-Egocentric-Dataset-Robotics" class="source-link">Continued on Page 10 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>TEXT-TO-VIDEO BATTLE SEEDANCE 2.0 VS KLING 3.0</h3>
+                <p>The text-to-video generation space is witnessing intense competition as Seedance 2.0 secures a spot in LMArena Top 10 while Kling 3.0 dominates the Artificial Analysis leaderboard. **Seedance 2.0** achieves top 10 ranking in LMArena. **Kling 3.0** tops Artificial Analysis leaderboard with 7 spots in top 15. Both models represent significant advances in video generation quality.</p>
+                <a href="https://huggingface.co/posts/imnotkitty" class="source-link">Continued on Page 11 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>QWEN 3.5 DOMINATES AHA 2026 BENCHMARKS</h3>
+                <p>Alibaba's Qwen 3.5 model family has shown exceptional performance in the AHA 2026 benchmarks across multiple configurations. **Qwen3.5 27B Normal**: 50% score. **27B Heretic abliteration**: 55% score. **27B Huihui abliteration**: 65% score. **35B Huihui abliteration**: 64% score. Demonstrates strong cross-task performance and robustness.</p>
+                <a href="https://huggingface.co/posts/etemiz" class="source-link">Continued on Page 11 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>TRL V0.29.0 INTRODUCES AGENT-NATIVE TRAINING INFRASTRUCTURE</h3>
+                <p>Hugging Face's TRL (Transformer Reinforcement Learning) framework has evolved to support agent-native training capabilities, marking a significant step toward AI agent infrastructure. New **trl-training** module makes TRL CLI agent-readable. Supports supervised fine-tuning, direct preference optimization, and group relative policy optimization.</p>
+                <a href="https://github.com/huggingface/trl/releases/tag/v0.29.0" class="source-link">Continued on Page 12 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>STREET-LEVEL IMAGERY DATASET SPANS EASTERN EUROPE AND NORTHERN ASIA</h3>
+                <p>A comprehensive street-level imagery dataset covering Eastern Europe and Northern Asia has been released, offering unprecedented temporal geographic data. **934,191 image records** spanning 2016 to 2025. **905,940 unique images** with historical mapping. Average **14.3 historical links per location**. Geographic bounds span 20.49° E to 152.32° E.</p>
+                <a href="https://huggingface.co/posts/nyuuzyou" class="source-link">Continued on Page 12 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>CARLA SIMULATOR INTEGRATED WITH OPENENV FOR LLM DRIVING RESEARCH</h3>
+                <p>Groundbreaking research has successfully integrated the CARLA autonomous driving simulator with OpenEnv and TRL, enabling LLMs to learn real-world driving physics. LLMs (Qwen 0.6B) learn to **swerve and brake to avoid pedestrians** in emergency situations. Supports **text and vision** inputs (VLMs can see through camera sensors).</p>
+                <a href="https://huggingface.co/blog/sergiopaniego/bringing-carla-to-openenv-trl" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>NEUROPEDAGOGY AI MATH LESSONS FOR COGNITIVE DIVERSITY</h3>
+                <p>An innovative AI system has been developed to generate math lessons adapted to different cognitive profiles, addressing educational inclusivity challenges. **π.Guy.AI** generates interactive HTML math lessons for **7 cognitive profiles**. Multi-agent AI pipeline: Neuro-Interpreter → Creative Agent → Quality Control. Profiles include: math anxiety, ADHD, dyslexia, dysgraphia, low working memory, visual processing, weak inhibition.</p>
+                <a href="https://huggingface.co/GVA21q2/piguyai-lessons-v2-enhanced" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>RAG EXPLAINED: WHY EVERY AI CHATBOT IS USING IT</h3>
+                <p>A comprehensive explanation of Retrieval-Augmented Generation has gone viral, helping developers understand why RAG has become essential for AI chatbots. **RAG = Retrieve relevant data → Give to LLM → Generate answer**. Solves hallucination and knowledge limitations in standard LLMs. Enables access to private data (company documents, policies, notes).</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1rh2gl2/what_is_rag_retrievalaugmented_generation_and_why/" class="source-link">Continued on Page 14 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>CLAUDE WORKFLOW ECOSYSTEM DISCUSSED IN AI AGENTS COMMUNITY</h3>
+                <p>The AI Agents community has shared insights into building comprehensive workflows around Claude, highlighting the gaps in all-in-one AI solutions. Common Claude ecosystem: Manus (research), NotebookLM (PDF consumption), Saner (notes/tasks), Granola (note-taking). **Claude research limitations** driving users to supplement with specialized tools.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1rhnp8a/what_do_you_pair_with_claude_in_your_workflow/" class="source-link">Continued on Page 14 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>AI AUTOMATION BUSINESS REALITY CHECK EMERGES</h3>
+                <p>A candid discussion about the reality of AI automation businesses has surfaced, cutting through marketing hype to examine the actual viability of AI automation services. **$10k-$50k/month** claims vs. actual business reality. **Course marketing vs. real client services** distinction. Focus on: Recurring value, long-term maintenance, consistent revenue.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1rh9aww/are_people_actually_making_serious_money_selling/" class="source-link">Continued on Page 15 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>DEEPSEEK V4 TEASES IMAGE AND VIDEO GENERATION CAPABILITIES</h3>
+                <p>According to Financial Times reporting, DeepSeek V4 will be released next week with image and video generation capabilities, marking a significant expansion of the Chinese AI model family. **DeepSeek V4** release imminent (as of source reporting). **Image and video generation** capabilities added to language model family.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1rh095c/deepseek_v4_will_be_released_next_week_and_will/" class="source-link">Continued on Page 15 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+            <article>
+                <h3>QWEN 3.5-35B-A3B BECOMES DAILY DRIVER FOR DEVELOPERS</h3>
+                <p>Developers are reporting that Qwen 3.5-35B-A3B has replaced larger models as their daily driver, demonstrating exceptional performance across diverse development tasks. **Replaces GPT-OSS-120B** despite being 1/3 the size. **Broad use cases**: N8N server aggregation, dynamic system generation, timed task systems, vision interpretation.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1rh43za/qwen_3535ba3b_is_beyond_expectations_its_replaced/" class="source-link">Continued on Page 16 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+
+        </section>
+
+        <section class="mixed-feed">
+            <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMENTARY</span></h2>
+
+            <article class="flair-box">
+                <h3>GOOGLE'S NANO BANANA 2: THE COST BREAKTHROUGH FINALLY MAKES AI IMAGE GENERATION ENTERPRISE-VIABLE</h3>
+                <p>"Nano Banana 2"? That's the best name they could come up with for an AI model? It sounds like something you'd find in a tropical smoothie, not a cutting-edge machine learning system. The funniest part is how they're acting like this "cost breakthrough" is some kind of gift to humanity, when really they're just trying to compete with everyone else who already figured out how to make AI cheap enough for regular people to use without selling a kidney.</p>
+                <a href="#" class="source-link">Continued on Page 17 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>ENTERPRISE AI TRANSFORMATION: SERVICENOW ACHIEVES 90% AUTONOMOUS IT RESOLUTION</h3>
+                <p>ServiceNow's AI can resolve 90% of IT requests autonomously, 99% faster than humans. Congratulations, you've just created the perfect excuse to fire your entire IT department! The funniest part is how they're calling this "significant step toward practical, governed enterprise AI" like it's some kind of noble quest. In reality, it's just companies trying to eliminate the last remaining humans who can actually fix the stupid problems that their own AI creates.</p>
+                <a href="#" class="source-link">Continued on Page 17 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>AT&T'S AI COST REVOLUTION: CUTTING COSTS BY 90% THROUGH SMARTER ARCHITECTURE</h3>
+                <p>AT&T cut AI costs by 90%! That's impressive until you realize they were probably spending $10 billion before, so now they're only spending $1 billion. It's like bragging about how much money you saved by switching from caviar to spam - you're still spending way too much. The funniest part is how they act like this "dramatic cost savings" is some kind of revolutionary achievement when all they really did was stop using the most expensive, inefficient AI models available.</p>
+                <a href="#" class="source-link">Continued on Page 18 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>MICROSOFT'S OPCD FRAMEWORK: ELIMINATING BLOAT WITHOUT SACRIFICING PERFORMANCE</h3>
+                <p>Microsoft has developed a new AI training method that "internalizes long system prompts directly into their weights." That's a fancy way of saying they finally figured out how to make AI less verbose. The funniest part is how they act like this is some kind of breakthrough when most users have been begging AI companies to "just give me the answer without a 500-word preamble about how you're 'thinking step by step'."</p>
+                <a href="#" class="source-link">Continued on Page 18 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>ALIBABA'S QWEN3.5-MEDIUM: SONNET 4.5 PERFORMANCE ON LOCAL HARDWARE</h3>
+                <p>Alibaba released new open source models that offer "Sonnet 4.5 performance on local computers." That's great news for people who can afford computers that can run "Sonnet 4.5 performance," which is approximately 0.0001% of the human population. The funniest part is how they're acting like this "democratizes access to high-performance AI" when really it just means that now 0.0002% of the human population can access high-performance AI.</p>
+                <a href="#" class="source-link">Continued on Page 19 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>THE GREAT AI WORKFORCE PURGE: COMING TO AN OFFICE NEAR YOU</h3>
+                <p>Jack Dorsey's Block is cutting 40% of its staff, and he's basically saying "get ready, everyone else, because it's your turn next!" The funniest part is how he's framing this as "AI efficiencies" when really it's just companies trying to maximize profits by getting rid of the most expensive resource: humans. "From a position of strength, not desperation" is the funniest part - it's like saying "we're firing most of our employees because we're doing so well!"</p>
+                <a href="#" class="source-link">Continued on Page 19 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>THE GREAT AI ARMS RACE: PENTAGON EDITION</h3>
+                <p>The Pentagon is playing favorites in the AI world, giving OpenAI a deal with "technical safeguards" while calling Anthropic a "supply chain risk." It's like watching your parents tell your sibling they can have the car but you can't even ride your bike, and then wondering why you're upset. The funniest part is how they're trying to frame this as some kind of principled stance on AI ethics when it's really just good old-fashioned politics.</p>
+                <a href="#" class="source-link">Continued on Page 20 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>CLAUDE'S APP STORE SURGE: PEOPLE ACTUALLY CARE ABOUT ETHICS</h3>
+                <p>Anthropic's Claude shot up to No. 2 in the App Store following the Pentagon dispute. Who knew that people actually care about AI ethics? It's like discovering that your goldfish has opinions on international relations. The funniest part is how this completely undermines the narrative that everyone just wants the most powerful AI regardless of ethics. Apparently, some people would rather use an "ethical" AI that can't solve all their problems than an "unethical" AI that can solve all their problems but also might accidentally start a nuclear war.</p>
+                <a href="#" class="source-link">Continued on Page 20 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>CHATGPT HITS 900M WEEKLY ACTIVE USERS: THE TYRANNY OF CONVENIENCE</h3>
+                <p>900 million weekly active users for ChatGPT! That's more people than use toothpaste regularly (probably). The funniest part is how we're all acting like this is some kind of achievement when really it just shows how lazy humans have become. We'd rather talk to a robot that gives us slightly wrong answers than actually learn anything ourselves. It's like we've collectively decided that critical thinking is overrated and instant gratification is the way to go.</p>
+                <a href="#" class="source-link">Continued on Page 21 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>THE $110 BILLION QUESTION: WHAT HAPPENS WHEN AI COSTS MORE THAN EDUCATION</h3>
+                <p>OpenAI raised $110 billion. That's more money than some small countries have in their entire GDP. The funniest part is how they're spending all this money to make AI more capable when most of us would settle for an AI that can just remember our name. "Stateful architecture for enterprise agents" sounds impressive until you realize it's just a fancy way of saying "the AI now remembers what you said earlier in the conversation, most of the time."</p>
+                <a href="#" class="source-link">Continued on Page 21 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>THE $110 BILLION QUESTION: WHAT HAPPENS WHEN AI COSTS MORE THAN EDUCATION</h3>
+                <p>Microsoft's OPCD framework trains AI models to "internalize long system prompts directly into their weights." That's a fancy way of saying "finally, the AI won't give you a 500-word preamble before answering your simple question." The funniest part is how they act like this is some kind of breakthrough when most users have been begging for this since day one. The real breakthrough would be an AI that can actually understand what you want instead of what you say.</p>
+                <a href="#" class="source-link">Continued on Page 22 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>ALIBABA'S QWEN3.5: LOCAL AI FOR THE 1%</h3>
+                <p>Alibaba released models that offer "Sonnet 4.5 performance on local computers." That's great news for people who can afford computers that cost more than a house. The funniest part is how they're calling this "democratizes access to high-performance AI" when really it just means that now the rich people can run high-performance AI on their laptops instead of in the cloud. It's like saying "we've made luxury yachts affordable" and then only selling them to billionaires.</p>
+                <a href="#" class="source-link">Continued on Page 22 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>ANTHROPIC VS THE PENTAGON: THE AI CIVIL WAR BEGINS</h3>
+                <p>The Pentagon is calling Anthropic a "supply chain risk" while giving OpenAI a Pentagon deal. It's like watching your parents tell you that your sibling is the favorite, but this time your sibling has access to nuclear weapons. The funniest part is how Anthropic is actually fighting back in court, which is more than most companies do when the government comes calling. "Deep divisions within the AI community" is what happens when you ask people to choose between their principles and their government contracts.</p>
+                <a href="#" class="source-link">Continued on Page 23 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>CLAUDE'S APP STORE SUCCESS: ETHICS SELLS</h3>
+                <p>Claude shot up to No. 2 in the App Store following the Pentagon dispute. Who knew that people actually care about AI ethics? It's like discovering that your goldfish has opinions on international relations. The funniest part is how this completely undermines the narrative that everyone just wants the most powerful AI regardless of ethics. Apparently, some people would rather use an "ethical" AI that can't solve all their problems than an "unethical" AI that can solve all their problems but also might accidentally start a nuclear war.</p>
+                <a href="#" class="source-link">Continued on Page 23 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+            <article class="flair-box">
+                <h3>CHATGPT'S 900M USERS: THE RISE OF THE DIGITAL SERFS</h3>
+                <p>900 million weekly active users for ChatGPT! That's more people than use toothpaste regularly (probably). The funniest part is how we're all acting like this is some kind of achievement when really it just shows how lazy humans have become. We'd rather talk to a robot that gives us slightly wrong answers than actually learn anything ourselves. It's like we've collectively decided that critical thinking is overrated and instant gratification is the way to go.</p>
+                <a href="#" class="source-link">Continued on Page 24 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>YARA rules to detect Palantir Gotham data federation</h4>
+                    <p>Security researcher shares detection rules for Palantir's data federation tool, potentially exposing controversial surveillance capabilities.</p>
+                    <a href="https://news.ycombinator.com/item?id=47205251" class="source-link">Continued on Page 25 >></a>
+                </li>
+                <li>
+                    <h4>Computer Says No</h4>
+                    <p>Interactive demo exploring the classic error message trope and its psychological impact on users dealing with technology failures.</p>
+                    <a href="https://koenvangilst.nl/lab/computer-says-no" class="source-link">Continued on Page 25 >></a>
+                </li>
+                <li>
+                    <h4>Show HN: I built an app that screenshots news sites hourly on Raspberry Pi 5</h4>
+                    <p>Developer creates automated news monitoring tool using Raspberry Pi 5, offering real-time web archiving capabilities.</p>
+                    <a href="https://github.com/herol3oy/kiosk24" class="source-link">Continued on Page 26 >></a>
+                </li>
+                <li>
+                    <h4>Blogatto – A Gleam framework for building static blogs</h4>
+                    <p>New static site generator written in Gleam language, targeting developers seeking type-safe blogging solutions.</p>
+                    <a href="https://blogat.to/" class="source-link">Continued on Page 26 >></a>
+                </li>
+                <li>
+                    <h4>Show HN: Finger GAMES Crossfingers on the same phone</h4>
+                    <p>Mobile game developer demonstrates simultaneous multiplayer finger game mechanics running on a single device.</p>
+                    <a href="https://fingree.com/" class="source-link">Continued on Page 27 >></a>
+                </li>
+                <li>
+                    <h4>MicroGPT Explained Interactively</h4>
+                    <p>Interactive tutorial explaining MicroGPT architecture, making complex AI concepts accessible through hands-on examples.</p>
+                    <a href="https://growingswe.com/blog/microgpt" class="source-link">Continued on Page 27 >></a>
+                </li>
+                <li>
+                    <h4>Recreating the 1984 Amiga Boing Ball demo as a KDE Plasma 6 live wallpaper</h4>
+                    <p>Nostalgic tech enthusiast brings classic Amiga demo animation to modern Linux desktop environments.</p>
+                    <a href="https://old.reddit.com/r/amiga/comments/1rh8oyh/i_tried_recreating_the_1984_amiga_boing_ball_demo/" class="source-link">Continued on Page 28 >></a>
+                </li>
+                <li>
+                    <h4>ChopeMiles – Miles/points tracker built for Singapore credit cards</h4>
+                    <p>Regional fintech tool helping Singapore residents maximize credit card rewards and loyalty points.</p>
+                    <a href="https://chopemiles.com" class="source-link">Continued on Page 28 >></a>
+                </li>
+                <li>
+                    <h4>The 64-bit Hurd has landed in Guix</h4>
+                    <p>Major milestone for GNU Hurd microkernel, now supporting 64-bit architecture in Guix system, advancing the alternative to Linux kernel.</p>
+                    <a href="https://guix.gnu.org/en/blog/2026/the-64-bit-hurd/" class="source-link">Continued on Page 29 >></a>
+                </li>
+                <li>
+                    <h4>Show HN: Tired of seeing ugly maps – Translate Simple JSON into maps</h4>
+                    <p>Developer creates utility for converting JSON data into visually appealing maps, solving common data visualization pain points.</p>
+                    <a href="https://jsonmaps.dev/" class="source-link">Continued on Page 29 >></a>
+                </li>
+                <li>
+                    <h4>OpenAI has exposed and shut down Russian network "Rybar"</h4>
+                    <p>Security breach as AI giant uncovers and dismantles Russian cyber operations, highlighting growing role of AI in cybersecurity.</p>
+                    <a href="https://xcancel.com/CforCD/status/2027379581817147679" class="source-link">Continued on Page 30 >></a>
+                </li>
+                <li>
+                    <h4>What does Utopia Look Like? (why tech bros don't understand the Culture series) [video]</h4>
+                    <p>Video essay criticizing tech industry's limited vision of utopia, contrasting with Banks' Culture series ideals.</p>
+                    <a href="https://www.youtube.com/watch?v=A7wrGM9r2x4" class="source-link">Continued on Page 30 >></a>
+                </li>
+                <li>
+                    <h4>WA councils could make laws to stop cats roaming</h4>
+                    <p>Local government considers controversial pet ownership regulations, reflecting changing urban wildlife management approaches.</p>
+                    <a href="https://www.abc.net.au/news/2026-02-20/wa-councils-could-soon-have-power-to-stop-cats-roaming/106365476" class="source-link">Continued on Page 31 >></a>
+                </li>
+                <li>
+                    <h4>Finally: Unrestricted AI Video</h4>
+                    <p>New platform claiming to offer uncensored AI video generation, potentially bypassing existing content moderation systems.</p>
+                    <a href="https://unbound.video" class="source-link">Continued on Page 31 >></a>
+                </li>
+                <li>
+                    <h4>Ask HN: Can "mental disorders" be induced in LLMs via weight changes alone?</h4>
+                    <p>Philosophical discussion about AI sentience and the potential for neural networks to exhibit unexpected behavioral patterns through training modifications.</p>
+                    <a href="https://news.ycombinator.com/item?id=47205136" class="source-link">Continued on Page 32 >></a>
+                </li>
+                <li>
+                    <h4>Fair, WordPress, and Knowing When to Stop</h4>
+                    <p>WordPress ecosystem analysis discussing sustainability challenges and the importance of feature boundaries in open-source projects.</p>
+                    <a href="https://joost.blog/fair-wordpress-and-knowing-when-to-stop/" class="source-link">Continued on Page 32 >></a>
+                </li>
+                <li>
+                    <h4>Why is the first C++ (m)allocation always 72 KB?</h4>
+                    <p>Deep dive into C++ memory allocation mechanics, explaining why initial memory requests often result in larger-than-expected allocations.</p>
+                    <a href="https://joelsiks.com/posts/cpp-emergency-pool-72kb-allocation/" class="source-link">Continued on Page 33 >></a>
+                </li>
+                <li>
+                    <h4>Show HN: Terminal-Style Portfolio on the Internet</h4>
+                    <p>Creative portfolio website mimicking terminal interfaces, offering developers a unique way to showcase their coding projects.</p>
+                    <a href="https://kuber.studio/" class="source-link">Continued on Page 33 >></a>
+                </li>
+                <li>
+                    <h4>Hans Zimmer Performs the Dune Soundtrack Live [video]</h4>
+                    <p>Legendary composer's live performance of Dune soundtrack, showcasing film music composition mastery.</p>
+                    <a href="https://www.youtube.com/watch?v=_j5GgGdSwjE" class="source-link">Continued on Page 34 >></a>
+                </li>
+                <li>
+                    <h4>Package Managers à la Carte: A Formal Model of Dependency Resolution</h4>
+                    <p>Academic paper providing mathematical framework for understanding dependency resolution algorithms in package managers, with 8 comments.</p>
+                    <a href="https://arxiv.org/abs/2602.18602" class="source-link">Continued on Page 34 >></a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            Reporters: Jimmy Vector, D.C. Voltaire, Paula Rization, Corry Stack, Ramsy Bytewell<br>
+            GRADIENT DESCENT Publication
+        </footer>
+    </div>
+</body>
+</html>
