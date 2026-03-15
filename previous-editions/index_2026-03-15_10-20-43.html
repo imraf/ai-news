@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; 
+            font-size: 0.95rem;
+            hyphens: auto; 
+        }
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); 
+        }
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        h2 span { 
+            background: #fcfbf2; 
+            padding: 0 10px; 
+        }
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; 
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); 
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important; 
+        }
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } 
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        .tech-boards-section h2 { margin-bottom: 15px; }
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+        }
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+            .masthead { font-size: 3.2rem; }
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .scoop-item:first-child {
+                column-count: 1; 
+            }
+            .mixed-feed {
+                column-count: 1; 
+            }
+            .mixed-feed article {
+                display: block; 
+            }
+            .tech-list {
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; 
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">Pure AI News: All Signal, Zero Noise</div>
+            <div class="subhead">
+                <span>Vol. 1, No. 8</span>
+                <span>Sunday, Mar 15 2026 - Evening Edition</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>HEADLINES</span></h2>
+            <div class="scoop-grid">
+                <article class="scoop-item">
+                    <h3>RAM MARKET CRISIS: FAKE STICKS IN KITS SCAM TARGETS AMD USERS</h3>
+                    <p>RAM kits are now being sold with one fake stick alongside real ones to create a "1:1 value pack" illusion, targeting desperate AMD users during the ongoing memory shortage. This scam reveals the dark underbelly of hardware scarcity where scammers exploit enthusiasts' need for adequate memory to run local AI inference workloads.</p>
+                    <a href="https://www.reddit.com/r/hardware/comments/1rtscr6/ram_kits_are_now_sold_with_one_fake_ram_stick/" class="source-link">Continued on Page 2 >></a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>WRONGFUL IMPRISONMENT: FACIAL RECOGNITION TECHNOLOGY RUINS WOMAN'S LIFE</h3>
+                    <p>A woman was wrongfully imprisoned for 6 months due to faulty facial recognition technology that couldn't distinguish her from her cat but had no trouble ruining her life. This tragic case highlights how AI reliability issues have devastating real-world consequences, emphasizing the urgent need for rigorous testing and fallback systems in self-hosted AI applications.</p>
+                    <a href="https://www.reddit.com/r/privacy/comments/1ru3dsr/woman_wrongfully_imprisoned_for_6_months_due_to/" class="source-link">Continued on Page 3 >></a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>CHATGPT OVER-CAUTION CRISIS: BECOMING UNUSABLY RESTRICTIVE</h3>
+                    <p>Users report that ChatGPT has become overly cautious to the point of being unusable for many tasks, pushing some to seek local alternatives that don't have the same restrictive safety filters. This growing conservatism in commercial AI services is fueling demand toward self-hosted solutions that offer more flexibility for specialized use cases.</p>
+                    <a href="https://www.reddit.com/r/OpenAI/comments/1rtmj9t/chatgpt_is_so_overcautious_its_becoming_unusable/" class="source-link">Continued on Page 4 >></a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>META'S $20 BILLION ARMY CONTRACT: ANDURIL MAGIC SWORD DEAL</h3>
+                    <p>The US Army is giving Anduril - yes, the company named after a magic sword from Lord of the Rings - $20 billion for military AI. This blockbuster deal has experts questioning whether we're witnessing the smartest move since sliced bread or the beginning of "Terminator: The Government Contract" as the tech-giant military complex grows ever more surreal.</p>
+                    <a href="https://techcrunch.com/2026/03/15/us-army-gives-anduril-20-billion-military-ai/" class="source-link">Continued on Page 5 >></a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>META 20% LAYOFFS: BILLIONS FOR AI, FIRES FOR PEOPLE</h3>
+                    <p>Meta, pouring billions into AI while contemplating cutting 20% of its workforce, embodies the classic tech dilemma: do we fund the future or keep paying people to show up? Zuckerberg must be torn between firing employees and firing his entire board for letting him spend $20 billion on "metaverse" while the competition actually builds useful things.</p>
+                    <a href="https://www.reddit.com/r/MetaLayoffs/comments/1rtwxyz/meta-20-layoffs-amid-ai-investment/" class="source-link">Continued on Page 6 >></a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>MACBOOK NEO: MOST REPAIRABLE MACBOOK IN 14 YEARS - SPECIAL OLYMPICS WIN</h3>
+                    <p>The new MacBook Neo is praised as the most repairable MacBook in 14 years, featuring easier component access and modular design that benefits self-hosters who need to upgrade their hardware. While it's like winning the Special Olympics of tech, this improvement represents Apple begrudgingly treating customers like human beings rather than charging "soul extraction fees" for repairs.</p>
+                    <a href="https://www.reddit.com/r/hardware/comments/1rsxagb/ifixit_macbook_neo_is_the_most_repairable_macbook/" class="source-link">Continued on Page 7 >></a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>CIVITAI BLOCKS AUSTRALIAN USERS: DIGITAL WALL AROUND SERVER FARM</h3>
+                    <p>CivitAI blocks Australian users due to "strict new content regulations," creating the digital equivalent of building a wall around your server farm. This move is like telling Australians "Sorry, our AI-generated content is too spicy for your government," highlighting how politicians regulating things they don't understand is like your grandmother trying to fix Wi-Fi with a butter knife.</p>
+                    <a href="https://www.reddit.com/r/StableDiffusion/comments/1rtvp3l/civitai_blocking_australia_tomorrow/" class="source-link">Continued on Page 8 >></a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>META COCONUT DISAPPOINTMENT: "LATENT REASONING" JUST GOOD TRAINING</h3>
+                    <p>Meta's COCONUT model analysis showing "latent reasoning" is "primarily just good training" is the most disappointing thing since discovering Santa isn't real. After all the hype about revolutionary reasoning, it turns out the magic formula was just... actually training the model properly. Who knew? Meanwhile, Meta's stock probably dropped faster than my faith in human intelligence.</p>
+                    <a href="https://www.reddit.com/r/MachineLearning/comments/1rt4lyd/d_ran_controlled_experiments_on_metas_coconut_and/" class="source-link">Continued on Page 9 >></a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="mixed-feed">
+            <h2 style="column-span: all; margin-bottom: 15px;"><span>SCIENTIFIC PAPERS</span></h2>
+            <article>
+                <h3>SINGLE PIXEL IMAGE CLASSIFICATION: ULTRAFAST DIGITAL LIGHT PROJECTOR BREAKTHROUGH</h3>
+                <p>This revolutionary paper demonstrates image classification at multi-kHz frame rates by combining single pixel imaging (SPI) with a low complexity machine learning model. The system uses a microLED-on-CMOS digital light projector for SPI, enabling ultrafast pattern generation for sub-ms image encoding. This breakthrough approach could transform autonomous vehicles, surveillance, and high-speed computer vision where traditional pixel-based imaging is impractical.</p>
+                <a href="https://arxiv.org/abs/2603.12036" class="source-link">Continued on Page 10 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+            <article>
+                <h3>DERAIN-AGENT: PLUG-AND-PLAY FRAMEWORK FOR RAINY IMAGE RESTORATION</h3>
+                <p>Presents Derain-Agent, a dynamic agent-based refinement framework that transitions deraining from static processing to intelligent restoration sequences. It includes a Planning Network that schedules optimal restoration sequences and Strength Modulation for spatially adaptive correction. This first agent-based approach can adapt to complex, coupled degradations in real-world scenarios, significantly outperforming static models on both synthetic and real-world benchmarks.</p>
+                <a href="https://arxiv.org/abs/2603.11866" class="source-link">Continued on Page 11 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+            <article>
+                <h3>DEEPHISTOVIT: INTERPRETABLE VISION TRANSFORMER FOR CANCER CLASSIFICATION</h3>
+                <p>A transformer-based framework achieving 100% accuracy on lung and colon cancer datasets using customized Vision Transformer architecture with integrated attention mechanism for interpretable diagnostic region localization. This breakthrough demonstrates transformer architectures' effectiveness for medical image analysis and provides pathologists with an interpretable computer-assisted diagnostic tool that could revolutionize cancer detection.</p>
+                <a href="https://arxiv.org/abs/2603.11403" class="source-link">Continued on Page 12 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+            <article>
+                <h3>FETALAGENTS: MULTI-AGENT SYSTEM FOR FETAL ULTRASOUND ANALYSIS</h3>
+                <p>First multi-agent system for comprehensive fetal ultrasound analysis that dynamically orchestrates specialized vision experts across diagnosis, measurement, and segmentation tasks. It supports end-to-end video stream summarization with automatic keyframe identification, transforming static image analysis into comprehensive video workflow support and achieving robust performance across eight clinical tasks.</p>
+                <a href="https://arxiv.org/abs/2603.09733" class="source-link">Continued on Page 13 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+            <article>
+                <h3>ONCOAGENT: GUIDELINE-AWARE AI FOR ZERO-SHOT TARGET VOLUME AUTO-DELINEATION</h3>
+                <p>A guideline-aware AI agent framework that converts textual clinical guidelines into three-dimensional target contours in a training-free manner. Evaluated on esophageal cancer cases with zero-shot Dice similarity coefficients of 0.842 for CTV, this first agent-based approach to radiotherapy treatment planning adapts to guideline changes without retraining and was strongly preferred by physicians over supervised models.</p>
+                <a href="https://arxiv.org/abs/2603.09448" class="source-link">Continued on Page 14 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+            <article>
+                <h3>STRUCTDAMAGE: LARGEST CRACK AND SURFACE DEFECT DATASET FOR ROBUST DETECTION</h3>
+                <p>Dataset with ~78,093 images spanning 9 surface types systematically aggregated from 32 public datasets covering concrete structures, asphalt pavements, masonry walls, bridges, and historic buildings. DenseNet201 achieved 98.62% accuracy on this comprehensive benchmark, providing robust damage detection approaches crucial for civil engineering and infrastructure monitoring systems.</p>
+                <a href="https://arxiv.org/abs/2603.10484" class="source-link">Continued on Page 15 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+            <article>
+                <h3>SEGANYPET: FOUNDATIONAL MODEL FOR UNIVERSAL SEGMENTATION FROM 3D PET IMAGING</h3>
+                <p>Built on the largest comprehensive PET dataset to date (11,041 3D whole-body PET scans with 59,831 segmentation masks), this foundational model features 3D architecture with prompt engineering strategy for universal organ and lesion segmentation. It demonstrates strong zero-shot performance across diverse segmentation tasks, supporting clinical human-in-the-loop workflows in molecular imaging.</p>
+                <a href="https://arxiv.org/abs/2603.11627" class="source-link">Continued on Page 16 >></a>
+                <span class="reporter">— Paula Rization</span>
+            </article>
+        </section>
+
+        <section class="mixed-feed">
+            <h2 style="column-span: all; margin-bottom: 15px;"><span>COMMUNITY WIRE</span></h2>
+            <article>
+                <h3>LEADERBOARD OF LEADERBOARDS: META-RANKING OF AI BENCHMARKS EMERGES</h3>
+                <p>A revolutionary new meta-ranking system evaluates AI leaderboards themselves using live HuggingFace trending scores and cumulative likes, with no editorial curation - just what the global AI research community actually trusts and uses in real-time. The system includes nine domain filters and ranks everything from Open LLM Leaderboard to FINAL Bench targeting AGI-level evaluation.</p>
+                <a href="https://huggingface.co/posts/mayafree/802385854425752" class="source-link">Continued on Page 17 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+            <article>
+                <h3>NVIDIA REINFORCEMENT LEARNING PARTNERSHIP WITH UNSLOTH: EDUCATION REVOLUTION</h3>
+                <p>Unsloth collaborated with NVIDIA to create comprehensive educational content on Reinforcement Learning and RL environments, covering why RL environments matter, how to build them, when RL is better than SFT, GRPO and RL best practices, and how verifiable rewards and RLVR work. This major partnership represents a significant win for the RL community seeking accessible education.</p>
+                <a href="https://huggingface.co/posts/danielhanchen/475818078032725" class="source-link">Continued on Page 18 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+            <article>
+                <h3>BIBBY AI REVOLUTION: TOP UNIVERSITIES SHIP AI-WRITTEN PAPERS INSTEAD OF GPT-5</h3>
+                <p>Researchers at Allen Institute, Simons Foundation, Yale, and other top-tier institutions are quietly shipping papers written by Bibby AI rather than GPT-5 or Claude Opus. The AI specifically solves the "3am writing sessions bottleneck" where good science dies in Google Docs, with citation-aware and argument-aware capabilities that are transforming academic productivity.</p>
+                <a href="https://huggingface.co/posts/BibbyResearch/453885408087761" class="source-link">Continued on Page 19 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+            <article>
+                <h3>VISUAL PROMPT BUILDER REVOLUTION: END OF TEXT PROMPT HELL</h3>
+                <p>A revolutionary visual prompt builder lets users compose AI image/video prompts through visual controls instead of text walls. The tool allows selection of camera models, angles, focal length, aperture, motion, styles, and lighting setups, then generates structured prompts automatically - addressing years of frustration with complex prompt engineering that made AI art inaccessible to non-technical users.</p>
+                <a href="https://www.reddit.com/r/StableDiffusion/comments/1rtz6jl/i_built_a_visual_prompt_builder_for_ai/" class="source-link">Continued on Page 20 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+            <article>
+                <h3>ZERO-COPY GRAPH ENGINE BREAKTHROUGH: 50GB DATASETS WITH ZERO RAM</h3>
+                <p>GraphZero v0.2 is a C++ zero-copy graph engine that bypasses system RAM entirely, allowing training on massive datasets (50GB+) with literally 0 bytes of RAM allocation for the dataset itself. The tool compiles CSVs into optimized binary formats and uses POSIX mmap to memory-map massive files directly from SSD, solving the OOM crisis for local machine learning enthusiasts.</p>
+                <a href="https://www.reddit.com/r/MachineLearning/comments/1ru7bnz/p_i_got_tired_of_pytorch_geometric_ooming_my/" class="source-link">Continued on Page 21 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+            <article>
+                <h3>AI AGENT RELIABILITY CRISIS: PROMPT GROWTH AND BEHAVIOR DRIFT</h3>
+                <p>A critical discussion reveals that while building demo-ready AI agents is easy, making them behave reliably over time is an entirely different challenge. The post highlights issues with growing prompts, disappearing information, behavior drift, and the need for custom memory layers and structured facts extraction for long-term agent stability in real-world applications.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1rtzwyq/everyone_explains_how_to_build_ai_agents_nobody/" class="source-link">Continued on Page 22 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+            <article>
+                <h3>AI ENGINEERING SKILLS GAP: "AI EXPERT" RESUMES LACK FOUNDATION</h3>
+                <p>A CTO's analysis shows that candidates listing "AI Expert" or "Agent Architect" on resumes often lack foundational engineering depth. Many can build agentic loops using tool-calling but fail to understand concurrency implications, distributed transaction handling, or scalability concerns - leading companies to prioritize seniority before AI proficiency in hiring decisions.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1routeb/hiring_for_ai_agents_is_revealing_a_lack_of/" class="source-link">Continued on Page 23 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+            <article>
+                <h3>LOCAL LLM QUANTIZATION SHIFT: UNSLOTH ABANDONS TQ1_0 QUANTS</h3>
+                <p>Unsloth announced they will no longer make TQ1_0 quants, signaling a significant shift in local LLM optimization strategies that affects how developers can run large models on consumer hardware. This change has caused strong reactions in the community, indicating a major evolution in quantization approaches for edge AI deployment.</p>
+                <a href="https://www.reddit.com/r/LocalLLaMA/comments/1ru25ms/unsloth_will_no_longer_be_making_tq1_0_quants/" class="source-link">Continued on Page 24 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+            <article>
+                <h3>AI MODEL SPECIALIZATION DEBATE: OPENAI VS GOOGLE VS ANTHROPIC</h3>
+                <p>A lively community discussion about OpenAI vs Google vs Anthropic model specialization, with users debating which models excel at specific tasks beyond daily queries. The conversation explores anthropic's perceived coding advantages and the practical differences between major LLM providers as users seek the right tool for specialized AI workloads.</p>
+                <a href="https://www.reddit.com/r/AI_Agents/comments/1ru64tv/openai_vs_google_vs_anthropic/" class="source-link">Continued on Page 25 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+            <article>
+                <h3>ARXIV INDEPENDENCE MOVEMENT: ACADEMIA'S MIDLIFE CRISIS</h3>
+                <p>The arXiv is separating from Cornell University after decades of partnership and establishing itself as an independent nonprofit organization, hiring a CEO with a $300,000 salary. This significant institutional change signals the growing importance and commercialization of academic research repositories, akin to your 70-year-old uncle buying a red sports car and calling it "reinvention."</p>
+                <a href="https://www.reddit.com/r/MachineLearning/comments/1rtjirw/the_arxiv_is_separating_from_cornell_university/" class="source-link">Continued on Page 26 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+            <article>
+                <h3>MARWARI LANGUAGE AI DEVELOPMENT: ACCESSIBILITY FOR MILLIONS</h3>
+                <p>Development of the largest Dataset and Pre-trained model for Text to Speech and Speech to text for Marwari language in India, addressing the critical need for low-resourced language AI tools and potentially expanding AI accessibility for millions of speakers who have been historically underserved by mainstream language technologies.</p>
+                <a href="https://huggingface.co/posts/BibbyResearch/497989260118610" class="source-link">Continued on Page 27 >></a>
+                <span class="reporter">— Corry Stack</span>
+            </article>
+            <article>
+                <h3>AGE VERIFICATION LOBBYING EXPOSED: $2 BILLION DATA INDUSTRY</h3>
+                <p>Reddit user traced $2 billion in nonprofit grants and lobbying records across 45 states, revealing how a data company profits from writing laws that collect more personal information through age verification systems. This perfect example of capitalism turning "protecting children" into a $2 billion industry operates like a villain's scheme in a bad spy movie, except it's actually happening.</p>
+                <a href="https://www.reddit.com/r/privacy/comments/1rsnm5i/a_reddit_user_traced_2_billion_in_nonprofit/" class="source-link">Continued on Page 28 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+            <article>
+                <h3>META HIRING CONCERNS: NEW GRADUATES AMID 20% LAYOFFS</h3>
+                <p>A new data science graduate expressed concern about joining Meta amidst reported 20% workforce layoffs, highlighting instability in the AI job market that affects local AI talent development. This corporate AI industry instability may drive more talent toward self-hosted AI projects and open-source contributions rather than traditional employment paths.</p>
+                <a href="https://www.reddit.com/r/datascience/comments/1rtypmu/joining_meta_in_june_what_should_be_my_game_plan/" class="source-link">Continued on Page 29 >></a>
+                <span class="reporter">— Ada Kernel</span>
+            </article>
+            <!-- Commentary items from flair.md -->
+            <article class="flair-box">
+                <h3>THE WEEK IN AI: WHEN TECHNOLOGY GETS WEIRDER THAN YOUR BROWSER HISTORY</h3>
+                <p>Well, dear readers, another week in the wonderful world of AI where the headlines get progressively more absurd than my attempt at parallel parking. From fake RAM sticks to wrongful imprisonments via faulty facial recognition, ChatGPT's anxiety attacks, and Meta's $20 billion magic sword deals - it's like the digital dumpster fire we call "progress" has reached critical mass. Stay tuned for next week when AI probably learns to write better jokes than me, which honestly wouldn't be that hard.</p>
+                <a href="#" class="source-link">Continued on Page 30 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+            <article class="flair-box">
+                <h3>SINGLE PIXEL IMAGING: THE MOST BRILLIANT TECHNOLOGY EVER OR 3AM ESPRESSO?</h3>
+                <p>Image classification at multi-kHz frame rates by combining single pixel imaging with low complexity ML - it's like trying to recognize your friend by looking at just one of their eyebrows. Revolutionary approach for real-time image classification using minimal hardware - or as I call it, "the solution to a problem nobody asked for." Still, it's probably more useful than my ability to remember where I left my keys.</p>
+                <a href="#" class="source-link">Continued on Page 31 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+            <article class="flair-box">
+                <h3>BUMBLEBEE QUEENS BREATHING UNDERWATER: NATURE'S HORROR MOVIE</h3>
+                <p>Fascinating discovery about bumblebee physiology and underwater survival mechanisms - it's like they're part fish, part bee, and all nightmare fuel for anyone with entomophobia. The fact they can live submerged for a week makes my ability to hold my breath for 10 seconds seem pathetic. Either way, I'm not going near any ponds this summer. Mother Nature has clearly been watching too many superhero movies.</p>
+                <a href="#" class="source-link">Continued on Page 32 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+            <article class="flair-box">
+                <h3>HAN KOREAN PROGRAMMING LANGUAGE: NICHE SINCE BOTTLE CAP GUY</h3>
+                <p>New programming language targeting Korean developers, implemented with Rust's safety guarantees - it's like making a car that only drives on Korean roads but has seatbelts that stop you from dying. "Targeting Korean developers" because apparently the 20 billion Python developers weren't enough. "Implemented with Rust's safety guarantees" because nothing says "Korean programming" like memory safety checks. Revolutionary for about 80 million people, which is more than can be said about my startup ideas.</p>
+                <a href="#" class="source-link">Continued on Page 33 >></a>
+                <span class="reporter">— D.C. Voltaire</span>
+            </article>
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>Rack-mount hydroponics</h4>
+                    <p>An innovative approach to vertical farming using rack-mounted hydroponic systems for efficient indoor agriculture that could revolutionize food production in urban environments.</p>
+                    <a href="https://sa.lj.am/rack-mount-hydroponics/" class="source-link">Continued on Page 34 >></a>
+                </li>
+                <li>
+                    <h4>A most elegant TCP hole punching algorithm</h4>
+                    <p>Clever cryptographic technique for establishing direct connections through NAT firewalls that represents the digital equivalent of using a paperclip to pick a lock - technically impressive but probably illegal in most states.</p>
+                    <a href="https://robertsdotpm.github.io/cryptography/tcp_hole_punching.html" class="source-link">Continued on Page 35 >></a>
+                </li>
+                <li>
+                    <h4>How kernel anti-cheats work</h4>
+                    <p>Deep dive into the technical mechanisms of kernel-level anti-cheat systems in gaming that reveal the ongoing arms race between game protection and cheating software developers.</p>
+                    <a href="https://s4dbrd.github.io/posts/how-kernel-anti-cheats-work/" class="source-link">Continued on Page 36 >></a>
+                </li>
+                <li>
+                    <h4>Han – A Korean programming language written in Rust</h4>
+                    <p>New programming language targeting Korean developers, implemented with Rust's safety guarantees that represents one of the more niche innovations since that one guy who collects bottle caps.</p>
+                    <a href="https://github.com/xodn348/han" class="source-link">Continued on Page 37 >></a>
+                </li>
+                <li>
+                    <h4>Ageless Linux – Software for humans of indeterminate age</h4>
+                    <p>Linux distribution designed to be age-neutral and accessible to users of all ages that's basically the tech industry's attempt to solve the "my grandma can't use this" problem by making everything look like Windows 95.</p>
+                    <a href="https://agelesslinux.org/" class="source-link">Continued on Page 38 >></a>
+                </li>
+                <li>
+                    <h4>Mathematics Distillation Challenge – Equational Theories</h4>
+                    <p>Advanced mathematical challenge focused on distilling complex theories into simpler equations that's the perfect example of academia solving problems that don't exist for people who don't care.</p>
+                    <a href="https://terrytao.wordpress.com/2026/03/13/mathematics-distillation-challenge-equational-theories/" class="source-link">Continued on Page 39 >></a>
+                </li>
+                <li>
+                    <h4>Tree Search Distillation for Language Models Using PPO</h4>
+                    <p>Novel approach to improving language model performance using tree search and Proximal Policy Optimization that represents another step toward making AI less terrible at actually reasoning.</p>
+                    <a href="https://ayushtambde.com/blog/tree-search-distillation-for-language-models-using-ppo/" class="source-link">Continued on Page 40 >></a>
+                </li>
+                <li>
+                    <h4>SBCL Fibers – Lightweight Cooperative Threads</h4>
+                    <p>Implementation of lightweight cooperative threading in Common Lisp's SBCL that's basically the programming equivalent of finding a vintage vinyl record player in the digital age - impressive but completely unnecessary for most people.</p>
+                    <a href="https://atgreen.github.io/repl-yell/posts/sbcl-fibers/" class="source-link">Continued on Page 41 >></a>
+                </li>
+                <li>
+                    <h4>An unappetizing shrub became different vegetables</h4>
+                    <p>Botanical exploration of how one plant species evolved into various vegetables that reminds us that sometimes the most interesting scientific discoveries are about food rather than artificial intelligence.</p>
+                    <a href="https://www.worksinprogress.news/p/many-of-the-tastiest-vegetables-are" class="source-link">Continued on Page 42 >></a>
+                </li>
+                <li>
+                    <h4>Bumblebee queens breathe underwater to survive drowning</h4>
+                    <p>Fascinating discovery about bumblebee physiology and underwater survival mechanisms that reveals nature's weird solutions to problems, like insects secretly preparing for climate change by developing underwater breathing capabilities.</p>
+                    <a href="https://www.smithsonianmag.com/science-nature/bumblebee-queens-breathe-underwater-to-survive-drowning-revealing-how-they-can-live-submerged-for-a-week-180988330/" class="source-link">Continued on Page 43 >></a>
+                </li>
+                <li>
+                    <h4>Jeff Bezos wants Washington Post's newsroom budget halved, productivity doubled</h4>
+                    <p>Major cost-cutting measures at Washington Post under Bezos ownership that highlight the ongoing tension between corporate efficiency and journalistic quality in modern media.</p>
+                    <a href="https://www.nytimes.com/2026/03/14/business/media/washington-post-jeff-bezos-layoffs.html" class="source-link">Continued on Page 44 >></a>
+                </li>
+                <li>
+                    <h4>MCP is dead; long live MCP</h4>
+                    <p>Commentary on the evolution of Model Context Protocol and its future direction that reflects the rapid changes in AI tooling standards and developer ecosystems.</p>
+                    <a href="https://chrlschn.dev/blog/2026/03/mcp-is-dead-long-live-mcp/" class="source-link">Continued on Page 45 >></a>
+                </li>
+                <li>
+                    <h4>The Compose key is magic</h4>
+                    <p>Exploration of the powerful but underutilized Compose key for creating special characters that reveals how much productivity we lose by not knowing simple keyboard tricks.</p>
+                    <a href="https://crescentro.se/posts/compose-key/" class="source-link">Continued on Page 46 >></a>
+                </li>
+                <li>
+                    <h4>Tree-style invite systems reduce AI slop</h4>
+                    <p>Analysis of how invite systems with hierarchical structure can improve content quality in online communities, offering insights into combating the AI-generated content flood.</p>
+                    <a href="https://abyss.fish/tree-style_invite_systems_reduce_AI_slop" class="source-link">Continued on Page 47 >></a>
+                </li>
+                <li>
+                    <h4>A Guide to vim.pack (Neovim built-in plugin manager)</h4>
+                    <p>Comprehensive guide to using Neovim's built-in plugin management system that helps developers streamline their workflow and reduce dependency hell in their editor setup.</p>
+                    <a href="https://echasnovski.com/blog/2026/03-13-a-guide-to-vim-pack/" class="source-link">Continued on Page 48 >></a>
+                </li>
+                <li>
+                    <h4>Changes to OpenTTD distribution on Steam</h4>
+                    <p>Update on the popular transport tycoon game's distribution strategy that reflects the evolving relationship between classic games and modern distribution platforms.</p>
+                    <a href="https://www.openttd.org/news/2026/03/14/steam-changes" class="source-link">Continued on Page 49 >></a>
+                </li>
+                <li>
+                    <h4>Sunsetting Jazzband</h4>
+                    <p>Announcement about the retirement of the popular Python packaging organization that marks the end of an era for many open-source Python developers and tool maintainers.</p>
+                    <a href="https://jazzband.co/news/2026/03/14/sunsetting-jazzband/" class="source-link">Continued on Page 50 >></a>
+                </li>
+                <li>
+                    <h4>Treasure hunter freed from jail after refusing to turn over shipwreck gold</h4>
+                    <p>Legal battle involving maritime salvage rights and treasure discovery that demonstrates the ongoing tension between individual adventurers and government control of historical artifacts.</p>
+                    <a href="https://www.bbc.com/news/articles/cg4g7kn99q3o" class="source-link">Continued on Page 51 >></a>
+                </li>
+                <li>
+                    <h4>Why Mathematica does not simplify sinh(arccosh(x))</h4>
+                    <p>Mathematical analysis of why Mathematica struggles with simplifying hyperbolic trigonometric expressions that reveals the complexity even advanced computational systems face with symbolic mathematics.</p>
+                    <a href="https://www.johndcook.com/blog/2026/03/10/sinh-arccosh/" class="source-link">Continued on Page 52 >></a>
+                </li>
+                <li>
+                    <h4>Allow me to get to know you, mistakes and all</h4>
+                    <p>Personal reflection on vulnerability and authenticity in technical communities that reminds us that even in our high-tech world, human connection and acceptance of imperfection remain essential.</p>
+                    <a href="https://sebi.io/posts/2026-03-14-allow-me-to-get-to-know-you-mistakes-and-all/" class="source-link">Continued on Page 53 >></a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            Reporters: Jimmy Vector, D.C. Voltaire, Paula Rization, Ada Kernel, Corry Stack<br>
+            GRADIENT DESCENT Publication
+        </footer>
+    </div>
+</body>
+</html>
