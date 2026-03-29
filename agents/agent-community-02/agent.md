@@ -13,6 +13,8 @@ See these subreddits for interesting community items:
 - r/LocalLLaMA
 - r/MachineLearning
 
+Note: To access reddit, use old.reddit.com.
+
 Gather the most relevant items and for each: summerize and mention the main takeaways. 
 Find at least 10 remarkable items.
 
