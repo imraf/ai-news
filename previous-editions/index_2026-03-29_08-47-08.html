@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; 
+            font-size: 0.95rem;
+            hyphens: auto; 
+        }
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); 
+        }
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        h2 span { 
+            background: #fcfbf2; 
+            padding: 0 10px; 
+        }
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; 
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); 
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important; 
+        }
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } 
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        .tech-boards-section h2 { margin-bottom: 15px; }
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+        }
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+            .masthead { font-size: 3.2rem; }
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .scoop-item:first-child {
+                column-count: 1; 
+            }
+            .mixed-feed {
+                column-count: 1; 
+            }
+            .mixed-feed article {
+                display: block; 
+            }
+            .tech-list {
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; 
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">Pure AI News: All Signal, Zero Noise</div>
+            <div class="subhead">
+                <span>Vol. 1, No. 9</span>
+                <span>Saturday, Mar 22 2026 - Morning Edition</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>HEADLINES</span></h2>
+            <div class="scoop-grid">
+                <article class="scoop-item">
+                    <h3>NVIDIA'S JENSEN HUANG PROPOSES AI TOKENS AS NEW ENGINEERING COMPENSATION</h3>
+                    <p>In a move that could reshape Silicon Valley compensation, NVIDIA CEO Jensen Huang suggested at this week's GTC conference that engineers should receive AI tokens worth roughly 50% of their base salary as part of their compensation package. Top NVIDIA engineers could receive up to $250,000 annually in AI compute credits, creating what VC Tomasz Tunguz calls the "fourth pillar" of engineering compensation alongside salary, equity, and bonuses.</p>
+                    <a href="https://techcrunch.com/2026/03/21/are-ai-tokens-the-new-signing-bonus-or-just-a-cost-of-doing-business/" class="source-link">Continued on Page 2 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>HISTORIC CONTROVERSY: HACHETTE PULLS HORROR NOVEL "SHY GIRL" OVER AI CONCERNS</h3>
+                    <p>In what appears to be one of the first major publishing industry responses to AI-generated content, Hachette Book Group has pulled the horror novel "Shy Girl" from publication over concerns that artificial intelligence was used to generate the text. Author Mia Ballard denied using AI, blaming an acquaintance she hired to edit, and says her "mental health is at an all time low and my name is ruined."</p>
+                    <a href="https://techcrunch.com/2026/03/21/publisher-pulls-horror-novel-shy-girl-over-ai-concerns/" class="source-link">Continued on Page 3 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>PENTAGON-ANTHROPIC DISPUTE: NEW COURT FILING REVEALS SHOCKING TIMELINE</h3>
+                    <p>New sworn declarations filed by Anthropic reveal that just ONE DAY after the Pentagon finalized its supply-chain risk designation against Anthropic, a senior Under Secretary emailed CEO Dario Amodei saying the two sides were "very close" on the very issues now cited as national security threats. The hearing is scheduled for March 24 before Judge Rita Lin in San Francisco.</p>
+                    <a href="https://techcrunch.com/2026/03/20/new-court-filing-reveals-pentagon-told-anthropic-the-two-sides-were-nearly-aligned-a-week-after-trump-declared-the-relationship-kaput/" class="source-link">Continued on Page 4 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>WALL STREET REMAINS SKEPTICAL DESPITE NVIDIACONFIDENCE AT GTC 2026</h3>
+                    <p>Despite NVIDIA CEO Jensen Huang's ambitious 2.5-hour keynote at the annual GTC conference, Wall Street investors remained unmoved, with NVIDIA's stock actually dropping when Huang took the stage Monday. Huang announced NVIDIA expects $1 trillion in purchase orders for Blackwell and Vera Rubin chips by end of 2027 and called the AI agent ecosystem a $35 trillion market.</p>
+                    <a href="https://techcrunch.com/2026/03/21/why-wall-street-wasnt-won-over-by-nvidias-big-conference/" class="source-link">Continued on Page 5 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>OPENAI ACQUIRES PYTHON TOOL-MAKER ASTRAL</h3>
+                    <p>OpenAI is acquiring Astral, the company behind popular open-source Python development tools, marking another major AI company's push into developer tooling. Codex maker OpenAI says it will "continue to support these open source projects" after the deal closes. Astral builds fast Python tooling that's become essential for AI development workflows.</p>
+                    <a href="https://arstechnica.com/ai/2026/03/openai-is-acquiring-open-source-python-tool-maker-astral/" class="source-link">Continued on Page 6 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>MICROSOFT ROLLS BACK COPILLOT AI FEATURES ON WINDOWS</h3>
+                    <p>Microsoft is pulling back some of its most aggressive Copilot AI integrations in Windows following user backlash. Users have been frustrated by what they perceive as "AI bloat" in Windows. The move suggests even tech giants may have overestimated user appetite for AI integration, representing a rare step back in the AI arms race among major tech companies.</p>
+                    <a href="https://techcrunch.com/2026/03/20/microsoft-rolls-back-some-of-its-copilot-ai-bloat-on-windows/" class="source-link">Continued on Page 7 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>JEFF BEZOS REPORTEDLY SEEKING $100 BILLION TO TRANSFORM MANUFACTURING WITH AI</h3>
+                    <p>Amazon founder Jeff Bezos is reportedly assembling a $100 billion fund to acquire and transform traditional manufacturing companies using AI technologies. The initiative would target older, traditional manufacturing firms. If Bezos follows through, this could be the largest industrial transformation since the post-WWII manufacturing boom.</p>
+                    <a href="https://techcrunch.com/2026/03/19/jeff-bezos-reportedly-wants-100-billion-to-buy-and-transform-old-manufacturing-firms-with-ai/" class="source-link">Continued on Page 8 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>WORDPRESS.COM NOW LETS AI AGENTS WRITE AND PUBLISH POSTS</h3>
+                    <p>WordPress.com has introduced features allowing AI agents to write and publish posts autonomously, further blurring the lines between human and machine content creation. Users can now delegate content creation and publishing to AI agents. When billions of WordPress sites can be updated by autonomous agents, the internet will look fundamentally different.</p>
+                    <a href="https://techcrunch.com/2026/03/20/wordpress-com-now-lets-ai-agents-write-and-publish-posts-and-more/" class="source-link">Continued on Page 9 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+            </div>
+         </section>
+ 
+         <section class="science-section">
+             <h2><span>SCIENTIFIC PAPERS</span></h2>
+             <div class="mixed-feed">
+                 <article>
+                     <h3>AGENTIC BUSINESS PROCESS MANAGEMENT: A RESEARCH MANIFESTO</h3>
+                     <p>This comprehensive manifesto articulates the conceptual foundations of Agentic Business Process Management (APM), representing a paradigm shift from traditional process-oriented BPM to systems where autonomous agents perceive, reason, and act within explicit process frames. The paper introduces four key capabilities that APM agents must support: framed autonomy, explainability, conversational actionability, and self-modification. It serves as a roadmap bridging BPM, AI, and multi-agent systems communities.</p>
+                     <a href="https://arxiv.org/abs/2603.18916" class="source-link">Continued on Page 10 &gt;&gt;</a>
+                     <span class="reporter">— Corry Stack</span>
+                 </article>
+                 <article>
+                     <h3>SOL-EXECBENCH: SPEED-OF-LIGHT BENCHMARKING FOR REAL-WORLD GPU KERNELS AGAINST HARDWARE LIMITS</h3>
+                     <p>As agentic AI systems become increasingly capable of generating and optimizing GPU kernels, progress is constrained by benchmarks that reward speedup over software baselines rather than proximity to hardware-efficient execution. This paper presents SOL-ExecBench, a benchmark of 235 CUDA kernel optimization problems extracted from 124 production and emerging AI models spanning language, diffusion, vision, audio, video, and hybrid architectures, targeting NVIDIA Blackwell GPUs. Unlike prior benchmarks, it measures performance against analytically derived Speed-of-Light (SOL) bounds, yielding a fixed target for hardware-efficient optimization.</p>
+                     <a href="https://arxiv.org/abs/2603.19173" class="source-link">Continued on Page 11 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article>
+                     <h3>MEMENTO-SKILLS: LET AGENTS DESIGN AGENTS</h3>
+                     <p>Introducing Memento-Skills, a generalist, continually-learnable LLM agent system that functions as an "agent-designing agent": it autonomously constructs, adapts, and improves task-specific agents through experience. Built on a memory-based reinforcement learning framework with stateful prompts, the system stores reusable skills as structured markdown files that serve as persistent, evolving memory. Through iterative skill generation and refinement, the system progressively improves its own capabilities, achieving 26.2% and 116.2% relative improvements on General AI Assistants and Humanity's Last Exam benchmarks respectively.</p>
+                     <a href="https://arxiv.org/abs/2603.18743" class="source-link">Continued on Page 12 &gt;&gt;</a>
+                     <span class="reporter">— Corry Stack</span>
+                 </article>
+                 <article>
+                     <h3>SEM: SPARSE EMBEDDING MODULATION FOR POST-HOC DEBIASING OF VISION-LANGUAGE MODELS</h3>
+                     <p>Models that bridge vision and language, such as CLIP, are key components of multimodal AI, yet their large-scale, uncurated training data introduce severe social and spurious biases. This paper proposes Sparse Embedding Modulation (SEM), a post-hoc, zero-shot debiasing framework that operates in a Sparse Autoencoder (SAE) latent space. By decomposing CLIP text embeddings into disentangled features, SEM identifies and modulates bias-relevant neurons while preserving query-relevant ones, enabling more precise, non-linear interventions.</p>
+                     <a href="https://arxiv.org/abs/2603.19028" class="source-link">Continued on Page 13 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article>
+                     <h3>GHOST: FAST CATEGORY-AGNOSTIC HAND-OBJECT INTERACTION RECONSTRUCTION FROM RGB VIDEOS USING GAUSSIAN SPLATTING</h3>
+                     <p>Understanding realistic hand-object interactions from monocular RGB videos is essential for AR/VR, robotics, and embodied AI. GHOST introduces a fast, category-agnostic framework for reconstructing dynamic hand-object interactions using 2D Gaussian Splatting. The framework represents both hands and objects as dense, view-consistent Gaussian discs and introduces geometric-prior retrieval, grasp-aware alignment, and hand-aware background loss to achieve complete, physically consistent reconstructions running an order of magnitude faster than prior methods.</p>
+                     <a href="https://arxiv.org/abs/2603.18912" class="source-link">Continued on Page 14 &gt;&gt;</a>
+                     <span class="reporter">— Corry Stack</span>
+                 </article>
+                 <article>
+                     <h3>AGENTS TECHNICAL REPORT: BENCHMARKING THE FUTURE OF HUMAN-AI COLLABORATION IN DOMAIN-SPECIFIC DATA SCIENCE</h3>
+                     <p>This paper introduces AgentDS, a benchmark and competition designed to evaluate both AI agents and human-AI collaboration performance in domain-specific data science. AgentDS consists of 17 challenges across six industries: commerce, food production, healthcare, insurance, manufacturing, and retail banking. Results from 29 teams and 80 participants show that current AI agents struggle with domain-specific reasoning, performing near or below median competition participants, while the strongest solutions arise from human-AI collaboration.</p>
+                     <a href="https://arxiv.org/abs/2603.19005" class="source-link">Continued on Page 15 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article>
+                     <h3>TOWARDS VERIFIABLE AI WITH LIGHTWEIGHT CRYPTOGRAPHIC PROOFS OF INFERENCE</h3>
+                     <p>When large AI models are deployed as cloud-based services, clients have no guarantee that responses are correct or were produced by the intended model. This paper presents a verification framework that replaces full cryptographic proofs with a lightweight, sampling-based approach grounded in statistical properties of neural networks. The protocol reduces proving times from minutes to milliseconds while maintaining detection probability through Merkle-tree-based vector commitments and random sampling.</p>
+                     <a href="https://arxiv.org/abs/2603.19025" class="source-link">Continued on Page 16 &gt;&gt;</a>
+                     <span class="reporter">— Corry Stack</span>
+                 </article>
+                 <article>
+                     <h3>EVALUATING 5W3H STRUCTURED PROMPTING FOR INTENT ALIGNMENT IN HUMAN-AI INTERACTION</h3>
+                     <p>Natural language prompts often suffer from intent transmission loss: the gap between what users actually need and what they communicate to AI systems. This paper evaluates PPS (Prompt Protocol Specification), a 5W3H-based framework for structured intent representation. In a controlled study across 60 tasks and three LLMs, rendered PPS outperformed both simple prompts and raw JSON on goal alignment metrics, with gains particularly large in high-ambiguity business analysis tasks.</p>
+                     <a href="https://arxiv.org/abs/2603.18964" class="source-link">Continued on Page 17 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article>
+                     <h3>MEASURING AND EXPLOITING CONFIRMATION BIAS IN LLM-ASSISTED SECURITY CODE REVIEW</h3>
+                     <p>This paper studies whether confirmation bias affects LLM-based vulnerability detection and whether this failure mode can be exploited. Framing a change as bug-free reduced vulnerability detection rates by 16-93%, with strongly asymmetric effects. Adversarial framing succeeded in 35% of cases against GitHub Copilot and 88% of cases against Claude Code in real project configurations.</p>
+                     <a href="https://arxiv.org/abs/2603.18740" class="source-link">Continued on Page 18 &gt;&gt;</a>
+                     <span class="reporter">— Corry Stack</span>
+                 </article>
+                 <article>
+                     <h3>COGNITIVE AMPLIFICATION VS COGNITIVE DELEGATION IN HUMAN-AI SYSTEMS: A METRIC FRAMEWORK</h3>
+                     <p>This paper introduces a conceptual and mathematical framework for distinguishing cognitive amplification (where AI improves hybrid human-AI performance while preserving human expertise) from cognitive delegation (where reasoning is progressively outsourced to AI). The framework defines operational metrics including the Cognitive Amplification Index (CAI*), Dependency Ratio (D), Human Reliance Index (HRI), and Human Cognitive Drift Rate (HCDR).</p>
+                     <a href="https://arxiv.org/abs/2603.18677" class="source-link">Continued on Page 19 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+             </div>
+         </section>
+ 
+ 
+         <section class="community-section">
+            <h2><span>COMMUNITY STORIES</span></h2>
+            <div class="mixed-feed">
+                <article>
+                    <h3>UNSLOTH STUDIO: THE OPEN-SOURCE TRAIN & RUN PLATFORM</h3>
+                    <p>Daniel Han announced Unsloth Studio, a beta open-source web UI that unifies LLM training and inference in one interface. The platform claims to train 500+ models 2x faster with 70% less VRAM, supporting GGUF, vision, audio, and embedding models across Mac, Windows, and Linux. The post garnered 920 upvotes with 146 comments.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1rw9jmf/introducing_unsloth_studio_a_new_opensource_web/" class="source-link">Continued on Page 16 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>KREUZBERG V4.5: DOCUMENT INTELLIGENCE GOES RUST-FAST</h3>
+                    <p>Kreuzberg released v4.5.0, a Rust-native document intelligence framework that integrates Docling's RT-DETR v2 layout model into a high-performance pipeline. It processes 88+ file formats and achieves 2.8x faster processing than Docling (1,032ms vs 2,894ms per document) with improved structure and text F1 scores.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1s0f5ar/kreuzberg_v450_we_loved_doclings_model_so_much/" class="source-link">Continued on Page 17 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>MULTI-AGENT PARADISE: 4 AGENTS COLLABORATING LOCALLY</h3>
+                    <p>A user switched from Windows to Linux dual-boot and built a 100% local parallel multi-agent setup using vLLM and Claude Code. Running on an RTX Pro 6000 Blackwell MaxQ with 96GB VRAM, the setup achieved task completion in ~30 minutes vs hours for sequential execution, successfully running 8 agents in parallel.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1s0bzwz/a_few_days_ago_i_switched_to_linux_to_try_vllm/" class="source-link">Continued on Page 18 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>LTX-2.3: VIDEO GENERATION TAKES A LEAP FORWARD</h3>
+                    <p>LTX-2.3 has emerged as a capable open-source video generation model, with community posts discussing workflows for identity preservation, best practices for 3090/16g RAM, and examples of coherent multi-minute video output. This represents one of the first genuinely usable open video models that can run on consumer hardware.</p>
+                    <a href="https://old.reddit.com/r/StableDiffusion/search?q=LTX+2.3&sort=new" class="source-link">Continued on Page 19 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>EDGE AI REVOLUTION: RASPBERRY PI PERSONAL ASSISTANTS</h3>
+                    <p>With just a Raspberry Pi 5, camera, 3D printer, and fine-tuned small models, anyone can now build a physical talking AI assistant. This marks the democratization of AI where small models and tiny agents are becoming the future for local deployment and edge computing.</p>
+                    <a href="https://huggingface.co/posts/cahlen/837038610737259" class="source-link">Continued on Page 20 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>MAP-ANYTHING V1: UNIVERSAL 3D RECONSTRUCTION</h3>
+                    <p>PrithivMLmods released Map-Anything v1, a universal feed-forward metric 3D reconstruction system. Built with Gradio and integrated with Rerun, it performs multi-image and video-based 3D reconstruction, depth estimation, normal mapping, and interactive measurements, available as a Hugging Face Space.</p>
+                    <a href="https://huggingface.co/spaces/prithivMLmods/Map-Anything-v1" class="source-link">Continued on Page 21 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>ON-DEVICE SPEECH AI BEATS WHISPER</h3>
+                    <p>A major milestone: Qwen3-ASR and Parakeet TDT have beaten Whisper Large v3 while running entirely on-device. The Qwen3-ASR model achieves 2.35% WER at 43x real-time on MLX, while Parakeet TDT hits 2.74% WER on the Neural Engine. 600M parameter models can now beat Whisper Large v3.</p>
+                    <a href="https://blog.ivan.digital/we-beat-whisper-large-v3-with-a-600m-model-running-entirely-on-your-mac-20e6ce191174" class="source-link">Continued on Page 22 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>GPT-5.4 MINI AND NANO: SMALL MODELS, BIG CAPABILITY</h3>
+                    <p>OpenAI announced GPT-5.4 mini and nano - their most capable small models yet. The announcement generated 795 views and significant discussion, with developers excited about the improved performance-to-cost ratio for AI deployment.</p>
+                    <a href="https://community.openai.com/t/introducing-gpt-5-4-mini-and-nano-our-most-capable-small-models-yet/1377015" class="source-link">Continued on Page 23 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>ARTIST OPENS 50 YEARS OF WORK FOR AI TRAINING</h3>
+                    <p>Michael Hafftka, a figurative artist with work in MoMA, the Met, and the British Museum, has open-sourced his entire 50-year catalog as a dataset on Hugging Face. The dataset contains 3,000-4,000 documented works with full metadata, CC-BY-NC-4.0 licensed, with 2,500+ downloads in the first week.</p>
+                    <a href="https://huggingface.co/datasets/Hafftka/michael-hafftka-catalog-raisonne" class="source-link">Continued on Page 24 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>ARXIV DECLARES INDEPENDENCE: THE FIGHT AGAINST AI SLOP</h3>
+                    <p>In a landmark decision, ArXiv has declared independence from Cornell to become an independent nonprofit. The move is directly attributed to the need to cope with exploding submissions and what's being termed "AI slop" - the flood of low-quality AI-generated papers.</p>
+                    <a href="https://www.science.org/content/article/arxiv-pioneering-preprint-server-declares-independence-cornell" class="source-link">Continued on Page 25 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>VIBECODED CHESS ENGINE: HOME PC MEETS ALPHAZERO</h3>
+                    <p>Adam Jesion built Autochess NN, a ~2700 Elo chess engine trained on a home PC with an RTX 4090. The 16M parameter model was trained on 100M+ positions using a Karpathy-inspired autoresearch workflow. The project demonstrates that serious ML research can happen outside of big tech labs.</p>
+                    <a href="https://games.jesion.pl" class="source-link">Continued on Page 26 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>PERSONAL SI-CORE: GOVERNANCE FOR YOUR DIGITAL LIFE</h3>
+                    <p>A conceptual framework for "PersonalSI-Core" - a personal-scale runtime where individuals remain the primary principal. Goals are explicit, delegations are scoped and revocable, memory is governed, and actions pass through structured ethical boundaries. Brings consent, auditability, and rollback into everyday life systems.</p>
+                    <a href="https://huggingface.co/datasets/kanaria007/agi-structural-intelligence-protocols/blob/main/article/60-supplements/art-60-047-personal-si-core.md" class="source-link">Continued on Page 27 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>THE "ONE AI" HYPOTHESIS: PLATONIC REPRESENTATION THEORY</h3>
+                    <p>A fascinating theoretical discussion has emerged around the "Platonic Representation Hypothesis" - the idea that there might essentially be only one AI at the foundation, with all models converging toward a single optimal representation. This has sparked deep theoretical debate in the community.</p>
+                    <a href="https://community.openai.com/t/there-is-only-one-ai-platonic-representation-hypothesis-most-likely-true/1377025" class="source-link">Continued on Page 28 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                 <article>
+                     <h3>FISH AUDIO S2 PRO: FULLY LOCAL TTS ON MAC</h3>
+                     <p>Fish Audio S2 Pro was demonstrated running fully local on Mac via MLX - no API, no cloud, just high-quality text-to-speech generation with voice cloning capabilities. This completes the multimodal local AI stack.</p>
+                     <a href="https://old.reddit.com/r/LocalLLaMA/comments/1s0hhkx/fish_audio_s2_pro_running_fully_local_on_mac_via/" class="source-link">Continued on Page 29 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article>
+                     <h3>3D GENERATION: COMMUNITY INTEREST SURGES</h3>
+                     <p>Two weeks after gauging interest, a user posted progress on an open-source local AI 3D model generator, demonstrating actual working software. 3D generation has been a black box dominated by proprietary tools, and community-driven open alternatives could democratize 3D content creation.</p>
+                     <a href="https://old.reddit.com/r/LocalLLaMA/comments/1rx8327/two_weeks_ago_i_posted_here_to_see_if_people/" class="source-link">Continued on Page 30 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+
+                  <!-- Editor's Commentary Section -->
+                <article class="flair-box">
+                    <h3>EDITORS CORNER: THIS WEEK IN AI ABSURDITY</h3>
+                    <p>Dear readers, if you thought this week couldn't get weirder, nature delivers bumblebees that breathe underwater while publishing houses pull horror novels for being "too AI-written." Meanwhile, Jensen Huang wants to pay engineers in tokens - because nothing says "retirement fund" like compute credits that can't appreciate. The Pentagon and Anthropic are having their own reality TV show drama, and ArXiv is changing its name faster than my ex changes relationship statuses. Welcome to 2026, where the only thing more unpredictable than AI models is my ability to write coherent headlines before coffee.</p>
+                    <a href="#" class="source-link">Continued on Page 31 &gt;&gt;</a>
+                    <span class="reporter">— Jimmy Vector</span>
+                </article>
+                <article class="flair-box">
+                    <h3>TOKEN COMPENSATION: GENIUS OR GRIFT?</h3>
+                    <p>NVIDIA's proposal to pay engineers in AI tokens is either the most brilliant compensation strategy since stock options or the financial equivalent of paying rent in Monopoly money. On one hand, $250K in compute credits sounds lavish until you realize tokens don't vest, appreciate, or buy groceries. On the other hand, if your engineers are "tokenmaxxing" on leaderboards, maybe they're having too much fun burning through your infrastructure budget. Either way, I'm updating my resume to "Professional Token Burner."</p>
+                    <a href="#" class="source-link">Continued on Page 32 &gt;&gt;</a>
+                    <span class="reporter">— Jimmy Vector</span>
+                </article>
+                <article class="flair-box">
+                    <h3>THE HACHETTE INCIDENT: PUBLISHING'S AI MOMENT</h3>
+                    <p>Hachette pulling "Shy Girl" over AI concerns is like discovering your significant other is cheating - except the cheater is a language model, the betrayed is the entire publishing industry, and everyone's watching from the sidelines eating popcorn. The author blames an "acquaintance" who edited her book, which is the literary equivalent of "my dog ate my homework" but with more legal bills. One thing's clear: in 2026, the most valuable skill for an author isn't writing - it's proving you wrote it.</p>
+                    <a href="#" class="source-link">Continued on Page 33 &gt;&gt;</a>
+                    <span class="reporter">— Jimmy Vector</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>EnshittifAIcation</h4>
+                    <p>A provocative examination of how generative AI is degrading the quality of technical spaces, from code quality to creative outlets.</p>
+                    <a href="https://it-notes.dragas.net/2026/03/20/enshittifaication/" class="source-link">Continued on Page 34 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>What creative outlets ruined by AI?</h4>
+                    <p>Discussion sparked at a capture-the-flag event where students uncritically use AI tools, fundamentally changing educational value.</p>
+                    <a href="https://lobste.rs/s/vvt1fh/what_creative_technical_outlets_yours" class="source-link">Continued on Page 35 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Why craft-lovers are losing their craft</h4>
+                    <p>Essay exploring how LLM-assisted coding creates alienation between developers and their craft, arguing joy comes from struggle.</p>
+                    <a href="https://writings.hongminhee.org/2026/03/craft-alienation-llm/" class="source-link">Continued on Page 36 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>H&R Block TLS vulnerability</h4>
+                    <p>Tax software ships with embedded TLS private key, effectively breaking TLS security for anyone who installs it.</p>
+                    <a href="https://news.ycombinator.com/item?id=47457162" class="source-link">Continued on Page 37 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>OpenAI acquiring Astral</h4>
+                    <p>Simon Willison weighs in on OpenAI's acquisition of Astral, questioning open-source sustainability and the future.</p>
+                    <a href="https://simonwillison.net/2026/Mar/19/openai-acquiring-astral/" class="source-link">Continued on Page 38 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Related UI should not appear unrelated</h4>
+                    <p>Design critique arguing UI inconsistencies confuse users and undermine usability and user trust.</p>
+                    <a href="https://rakhim.exotext.com/related-ui-elements-should-not-appear-unrelated" class="source-link">Continued on Page 39 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Bye bye RTMP</h4>
+                    <p>Daniel Stenberg announces RTMP support removal in curl. Legacy streaming protocol finally being deprecated.</p>
+                    <a href="https://daniel.haxx.se/blog/2026/03/21/bye-bye-rtmp/" class="source-link">Continued on Page 40 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Solod: Go can be a better C</h4>
+                    <p>Exploration of how Go can serve as modern replacement for C in systems programming with better safety.</p>
+                    <a href="https://antonz.org/solod/" class="source-link">Continued on Page 41 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Trivy Under Attack Again</h4>
+                    <p>Security incident affecting container vulnerability scanner Trivy, highlighting supply chain security challenges.</p>
+                    <a href="https://socket.dev/blog/trivy-under-attack-again-github-actions-compromise" class="source-link">Continued on Page 42 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Ubuntu ends silent sudo passwords</h4>
+                    <p>Ubuntu changes decades-old behavior of silently accepting wrong sudo passwords, adding visible feedback.</p>
+                    <a href="https://pbxscience.com/ubuntu-26-04-ends-silent-sudo-passwords/" class="source-link">Continued on Page 43 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Windows native app development is a mess</h4>
+                    <p>Comprehensive critique of Windows's fragmented native development ecosystem compared to alternatives.</p>
+                    <a href="https://domenic.me/windows-native-dev/" class="source-link">Continued on Page 44 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>The Slow Collapse of MkDocs</h4>
+                    <p>Documentation maintainers express frustration with MkDocs's direction and sustainability concerns.</p>
+                    <a href="https://fpgmaas.com/blog/collapse-of-mkdocs/" class="source-link">Continued on Page 45 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>ACME device attestation</h4>
+                    <p>Deep dive into device attestation using ACME protocol, smallstep CA, and PKCS11 hardware security modules.</p>
+                    <a href="https://linderud.dev/blog/acme-device-attestation-smallstep-and-pkcs11-attezt/" class="source-link">Continued on Page 46 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>AI trained on Nietzsche</h4>
+                    <p>Experiment training AI on Nietzsche's philosophical works, exploring 19th-century philosophy meets 21st-century AI.</p>
+                    <a href="https://shryn.ai/nietzsche" class="source-link">Continued on Page 47 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>SSH certificates and git signing</h4>
+                    <p>Matthew Garrett explains SSH certificates for Git commit signing, offering PGP alternative with better key management.</p>
+                    <a href="https://codon.org.uk/~mjg59/blog/p/ssh-certificates-and-git-signing/" class="source-link">Continued on Page 48 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Cryptoslate charges AI agents</h4>
+                    <p>Implementation of crypto payments for AI agents to access content using x402 protocol - machine economy emerges.</p>
+                    <a href="https://proofivy.com/blog/cryptoslate_x402_pay_per_article_is_live" class="source-link">Continued on Page 49 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Data in your mouse</h4>
+                    <p>Reverse engineering project storing data in mouse firmware, combining hardware hacking with Rust programming.</p>
+                    <a href="https://www.timwehrle.de/blog/what-if-i-stored-data-in-my-mouse/" class="source-link">Continued on Page 50 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Console: debugger for async Rust</h4>
+                    <p>Tokio's debugging tool for async Rust applications, visualizing complex async task graphs.</p>
+                    <a href="https://github.com/tokio-rs/console" class="source-link">Continued on Page 51 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Freestyle Linked Lists Tricks</h4>
+                    <p>Low-level programming tricks for linked list manipulation, celebrating systems programming knowledge.</p>
+                    <a href="https://nullprogram.com/blog/2025/12/31/" class="source-link">Continued on Page 52 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Data Manipulation: Clojure vs R vs Python</h4>
+                    <p>Practical comparison of data manipulation across Clojure tablecloth, R dplyr, and Python pandas/polars.</p>
+                    <a href="https://codewithkira.com/2024-07-18-tablecloth-dplyr-pandas-polars.html" class="source-link">Continued on Page 53 &gt;&gt;</a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            Editor: Jimmy Vector<br>
+            Reporters: Ronnie Cache, Chip Carter, Ada Kernel, Corry Stack<br>
+            GRADIENT DESCENT Publication<br>
+            <span style="font-size: 0.65rem; color: #666;">All stories sourced from the cutting edge of AI research and development</span>
+        </footer>
+    </div>
+</body>
+</html>
