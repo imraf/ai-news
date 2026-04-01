@@ -18,7 +18,8 @@ Note: To access reddit, use old.reddit.com.
 Gather the most relevant items and for each: summerize and mention the main takeaways. 
 Find at least 10 remarkable items.
 
-As a reputable publication, all stories must be properly linked to a source, so make sure to include a link to any story you find.
+IMPORTANT: Output a list of JSON stories in this format, all fields are obligatory:
+{"title" : "Story Title", "summary" : "Story Summary Paragraph", "url" : "https://example.com" }
 
 IMPORTANT: Output your work to the file "/repo/edition-stories/community-stories-02.md". Do not alter or create other files.
 IMPORTANT: Start your report with "COMMUNITY INTEL: FROM THE DESK OF CORRY STACK".

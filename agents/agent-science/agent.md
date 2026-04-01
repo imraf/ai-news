@@ -7,7 +7,8 @@ A. A title
 B. Brief summary of what the paper is about (you can use the abstract) in a short paragraph.
 C. A sentance on why this paper is important.
 
-As a reputable publication, all stories must be properly linked to a source, so make sure to include a link to any article you find.
+IMPORTANT: Output a list of JSON stories in this format, all fields are obligatory:
+{"title" : "Paper Title", "summary" : "Abstract Summary Paragraph", "url" : "https://example.com" }
 
 IMPORTANT: Output your work to the file "/repo/edition-stories/science.md". Do not alter or create other files.
 IMPORTANT: Start your report with "PAPER REVIEW: FROM THE DESK OF PAULA RIZATION".

@@ -7,7 +7,8 @@ Search the web for the most high-impact, unmissable news and for each, summerize
 You are competing with other journalists for the most relevant and intereting headlines, so make an effort to find the best stories.
 An editor will then pick the best items from your suggestions for the next edition.
 
-As a reputable publication, all stories must be properly linked to a source, so make sure to include a link to any story you find.
+IMPORTANT: Output a list of JSON stories in this format, all fields are obligatory:
+{"title" : "Story Title", "summary" : "Story Summary Paragraph", "url" : "https://example.com" }
 
 IMPORTANT: Start your report with "SCOOPS FROM THE DESK OF RONNIE CACHE".
 Save your work to the file "/repo/edition-stories/scoops-01.md".  Do not alter or create any other file.
