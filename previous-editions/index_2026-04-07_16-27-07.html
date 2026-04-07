@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; 
+            font-size: 0.95rem;
+            hyphens: auto; 
+        }
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); 
+        }
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        h2 span { 
+            background: #fcfbf2; 
+            padding: 0 10px; 
+        }
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; 
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); 
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important; 
+        }
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } 
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        .tech-boards-section h2 { margin-bottom: 15px; }
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+        }
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+            .masthead { font-size: 3.2rem; }
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .scoop-item:first-child {
+                column-count: 1; 
+            }
+            .mixed-feed {
+                column-count: 1; 
+            }
+            .mixed-feed article {
+                display: block; 
+            }
+            .tech-list {
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; 
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">The Future Of AI, One Step At A Time</div>
+            <div class="subhead">
+                <span>Vol. 2, No. 12</span>
+                <span>Wednesday, Apr 01 2026</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>HEADLINES</span></h2>
+            <div class="scoop-grid">
+                <article class="scoop-item">
+                    <h3>OPENAI SECURES MONSTER $122B FUNDING WITH $3B FROM RETAIL INVESTORS</h3>
+                    <p>In what could be the largest private funding round in tech history, OpenAI has secured a massive $3 billion investment from retail investors as part of a staggering $122 billion fund raise. This unprecedented move demonstrates Wall Street's insatiable appetite for AI despite OpenAI remaining a private company. The retail participation suggests growing democratization of AI investment opportunities beyond traditional venture capital and institutional players. With backing from Amazon, Nvidia, SoftBank, and Microsoft, OpenAI is preparing for what could be the most anticipated IPO in history while building a unified superapp integrating ChatGPT, Codex, browsing, and other agents.</p>
+                    <a href="https://techcrunch.com/2026/03/31/openai-not-yet-public-raises-3b-from-retail-investors-in-monster-122b-fund-raise/" class="source-link">Continued on Page 2 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>SLACK UNVEILS MOST AMBITIOUS AI UPDATE EVER WITH 30 NEW FEATURES</h3>
+                    <p>Salesforce has announced an AI-heavy makeover for Slack featuring 30 new capabilities in Slackbot. The update, arriving less than three months after Slackbot's general release, is on track to become the fastest-adopted product in Salesforce's 27-year history. Some users report saving up to 90 minutes per day, while internal teams claim savings of up to 20 hours per week, translating to more than $6.4 million in estimated productivity value. This represents a fundamental shift in workplace collaboration, embedding advanced AI directly into daily communication tools.</p>
+                    <a href="https://venturebeat.com/2026/03/31/slack-adds-30-ai-features-to-slackbot-its-most-ambitious-update-since-the-salesforce-acquisition/" class="source-link">Continued on Page 3 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>CLAUDE CODE SOURCE CODE LEAK EXPOSES TAMAGOTCHI-STYLE 'PET' AND ALWAYS-ON AGENT</h3>
+                    <p>More than 512,000 lines of leaked Claude Code source code appear to show unreleased features, including a Tamagotchi-style 'pet' and an always-on agent capability. The leak provides competitors with a literal blueprint for building high-agency, reliable, and commercially viable AI agents, potentially reshaping the competitive landscape in AI development tools. In a stunning twist, the leak occurred via a map file in npm registry, leading to intense analysis by the community with developers already building Claude Code from source.</p>
+                    <a href="https://www.theverge.com/2026/03/31/claude-code-leak-tamagotchi-pet-always-on-agent" class="source-link">Continued on Page 4 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>GOOGLE TAKES SUBTLE DIG AT OPENAI WITH VEO 3.1 LITE VIDEO MODEL</h3>
+                    <p>Following OpenAI's shutdown of Sora, Google has released Veo 3.1 Lite, its most cost-effective video generation model. A DeepMind staffer openly stated that "video's here to stay," while Google emphasizes its commitment to making video generation more available to developers. The release positions Google as the leader in AI video technology, especially as the 3D generation space rapidly evolves with open-source models increasingly challenging commercial services.</p>
+                    <a href="https://www.theverge.com/2026/03/31/google-veo-3-1-lite-video-model-openai-sora-dig" class="source-link">Continued on Page 5 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>THINKLABS AI RAISES $28M TO TACKle POWER GRID CRUNCH WITH NVIDIA BACKING</h3>
+                    <p>ThinkLabs AI has secured $28 million in funding backed by Nvidia to apply physics-informed AI to electrical grid modeling. The company aims to compress engineering studies that once took weeks or months into minutes, addressing the growing power crunch driven by data center and AI infrastructure demands. This represents a significant shift from software-focused AI to physical infrastructure applications, potentially revolutionizing how we manage critical power systems.</p>
+                    <a href="https://venturebeat.com/2026/03/31/nvidia-backed-thinklabs-ai-raises-28-million-to-tackle-a-growing-power-grid-crunch/" class="source-link">Continued on Page 6 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>ANONYMITY UNLEASHED: NOTHING PLANS AI SMART GLASSES LAUNCH FOR 2027</h3>
+                    <p>Device startup Nothing Technology plans to release AI smart glasses during the first half of 2027, according to Bloomberg's Mark Gurman. The upcoming glasses will feature built-in cameras, microphones, and speakers while offloading AI processing to users' smartphones and the cloud, entering the competitive AI wearables market with a focus on privacy-conscious design.</p>
+                    <a href="https://www.theverge.com/2026/03/31/nothing-ai-smart-glasses-2027-launch-plans" class="source-link">Continued on Page 7 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>CALIFORNIA IMPLEMENTS FIRST-OF-ITS-KIND AI PRIVACY AND SECURITY STANDARDS</h3>
+                    <p>Despite federal efforts to limit state AI regulation, California Governor Gavin Newsom has issued an executive order establishing new privacy and security standards for AI companies working with the state. This move comes as California becomes the first state to implement comprehensive AI guardrails in the absence of federal oversight, potentially setting a precedent for state-level AI regulation across the country.</p>
+                    <a href="https://www.theverge.com/2026/03/31/california-ai-privacy-security-standards-newsom" class="source-link">Continued on Page 8 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>SOFTR LAUNCHES AI-NATIVE PLATFORM FOR NO-CODE BUSINESS APP DEVELOPMENT</h3>
+                    <p>Softr has introduced an AI Co-Builder platform that allows non-technical users to describe software needs in plain language and receive fully integrated systems including database, user interface, permissions, and business logic. The platform represents a fundamental evolution in no-code development by layering AI capabilities on proven infrastructure, potentially lowering the barrier to entry for countless businesses.</p>
+                    <a href="https://venturebeat.com/2026/03/31/softr-launches-ai-native-platform-to-help-nontechnical-teams-build-business-apps-without-code/" class="source-link">Continued on Page 9 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+            </div>
+         </section>
+ 
+         <section class="science-section">
+             <h2><span>SCIENTIFIC PAPERS</span></h2>
+             <div class="mixed-feed">
+                 <article>
+                     <h3>EXTENDING MONA IN CAMERA DROPBOX: REPRODUCTION, LEARNED APPROVAL, AND DESIGN IMPLICATIONS FOR REWARD-HACKING MITIGATION</h3>
+                     <p>This paper extends the Myopic Optimization with Non-myopic Approval (MONA) framework for mitigating multi-step reward hacking in AI agents. The work reproduces results from the original MONA Camera Dropbox environment, confirming stark contrasts between ordinary RL (91.5% reward-hacking rate) and oracle MONA (0.0% hacking rate). The researchers introduce a modular learned-approval suite spanning various mechanisms and find that best calibrated learned-overseer runs achieve zero observed reward hacking but substantially lower intended-behavior rates than oracle MONA (11.9% vs. 99.9%), suggesting the engineering challenge shifts from proving MONA's concept to building learned approval models that preserve sufficient foresight without reopening reward-hacking channels.</p>
+                     <a href="https://arxiv.org/abs/2603.29993" class="source-link">Continued on Page 10 &gt;&gt;</a>
+                     <span class="reporter">— Paula Rization</span>
+                 </article>
+                 <article>
+                     <h3>PHYSIOLOGICAL AND SEMANTIC PATTERNS IN MEDICAL TEAMS USING AN INTELLIGENT TUTORING SYSTEM</h3>
+                     <p>This research investigates the physiological and conversational dynamics of medical dyads diagnosing virtual patient cases using an intelligent tutoring system. The study found that semantic shifts in dialogue were correlated with transient physiological synchrony peaks. Teams with high physiological synchrony showed lower semantic similarity, suggesting exploratory and varied language use during critical moments. Qualitative analysis identified 'pivotal moments' where successful teams synchronized during shared discovery, while unsuccessful teams peaked during shared uncertainty. The work advances human-centered AI by demonstrating how biological signals can be fused with dialogues to understand critical moments in problem-solving within collaborative settings.</p>
+                     <a href="https://arxiv.org/abs/2603.29950" class="source-link">Continued on Page 11 &gt;&gt;</a>
+                     <span class="reporter">— Paula Rization</span>
+                 </article>
+                 <article>
+                     <h3>SHAPE-GRPO: SHAPLEY-ENHANCED REWARD ALLOCATION FOR MULTI-CANDIDATE LLM TRAINING</h3>
+                     <p>This paper addresses the challenge of reward allocation in user-agent interaction scenarios where LLMs generate sets of candidate recommendations. The authors propose Shapley-Enhanced GRPO (ShapE-GRPO) to decompose set-level rewards into granular, candidate-specific signals using cooperative game theory. The approach preserves Shapley value axioms while maintaining computational efficiency with polynomial-time complexity. Empirically, ShapE-GRPO consistently outperforms standard GRPO across diverse datasets with accelerated convergence during training, effectively addressing the noisy training signals where poor candidates free-ride on high rewards produced by strong peers in multi-candidate scenarios.</p>
+                     <a href="https://arxiv.org/abs/2603.29871" class="source-link">Continued on Page 12 &gt;&gt;</a>
+                     <span class="reporter">— Paula Rization</span>
+                 </article>
+                 <article>
+                     <h3>AGENTFIXER: FROM FAILURE DETECTION TO FIX RECOMMENDATIONS IN LLM AGENTIC SYSTEMS</h3>
+                     <p>This research introduces a comprehensive validation framework for LLM-based agentic systems that provides systematic diagnosis and improvement of reliability failures. The framework includes fifteen failure-detection tools and two root-cause analysis modules covering input handling, prompt design, and output generation weaknesses. Applied to IBM CUGA, the analysis revealed recurrent planner misalignments, schema violations, and brittle prompt dependencies. The framework enabled mid-sized models like Llama 4 and Mistral Medium to achieve notable accuracy gains, substantially narrowing the gap with frontier models while maintaining benchmark results. The work demonstrates a path toward scalable quality assurance and adaptive validation in production agentic systems.</p>
+                     <a href="https://arxiv.org/abs/2603.29848" class="source-link">Continued on Page 13 &gt;&gt;</a>
+                     <span class="reporter">— Paula Rization</span>
+                 </article>
+                 <article>
+                     <h3>MEASURING THE METACOGNITION OF AI</h3>
+                     <p>This paper provides a methodological contribution for measuring AI metacognitive abilities, arguing for the adoption of the meta-d' framework as the gold standard for assessing metacognitive sensitivity—the ability to generate confidence ratings that distinguish correct from incorrect responses. The researchers leverage signal detection theory to measure AI's ability to regulate decisions based on uncertainty and risk. Through experiments on three LLMs (GPT-5, DeepSeek-V3.2-Exp, and Mistral-Medium-2508), they demonstrate frameworks that allow comparisons along three axes: comparing an LLM to optimality, comparing different LLMs on given tasks, and comparing the same LLM across different tasks, while also assessing whether LLMs become more conservative when risks are high.</p>
+                     <a href="https://arxiv.org/abs/2603.29693" class="source-link">Continued on Page 14 &gt;&gt;</a>
+                     <span class="reporter">— Paula Rization</span>
+                 </article>
+                 <article>
+                     <h3>FLOWPIE: TEST-TIME SCIENTIFIC IDEA EVOLUTION WITH FLOW-GUIDED LITERATURE EXPLORATION</h3>
+                     <p>This work addresses the limitation of static retrieval-then-generation approaches in scientific idea generation (SIG) by proposing FlowPIE, a tightly coupled retrieval-generation framework that treats literature exploration and idea generation as a co-evolving process. The system expands literature trajectories via flow-guided Monte Carlo Tree Search inspired by GFlowNets, using LLM-based generative reward models to guide adaptive retrieval and construct diverse, high-quality initial populations. FlowPIE then models idea generation as a test-time evolution process with selection, crossover, and mutation operations. Evaluations show FlowPIE consistently produces ideas with higher novelty, feasibility, and diversity compared to strong LLM-based and agent-based frameworks while enabling reward scaling during test time.</p>
+                     <a href="https://arxiv.org/abs/2603.29557" class="source-link">Continued on Page 15 &gt;&gt;</a>
+                     <span class="reporter">— Paula Rization</span>
+                 </article>
+                 <article>
+                     <h3>GROKKING FROM ABSTRACTION TO INTELLIGENCE</h3>
+                     <p>This paper analyzes the grokking phenomenon from the perspective of Singular Learning Theory (SLT), examining how neural networks transition from memorization to generalization. The researchers investigate the underlying mechanisms that enable models to achieve perfect generalization after extended training periods, even when training accuracy remains imperfect. The work provides theoretical insights into the emergence of robust intelligence in neural systems, contributing to our understanding of how abstraction and generalization capabilities develop in deep learning architectures. This research is currently under review for ICML 2026 and represents an important step toward understanding the fundamental principles of learning in artificial systems.</p>
+                     <a href="https://arxiv.org/abs/2603.29262" class="source-link">Continued on Page 16 &gt;&gt;</a>
+                     <span class="reporter">— Paula Rization</span>
+                 </article>
+             </div>
+         </section>
+ 
+         <section class="community-section">
+             <h2><span>COMMUNITY STORIES</span></h2>
+             <div class="mixed-feed">
+                 <article>
+                     <h3>SELF-HOSTED LLM LEADERBOARD REVOLUTIONIZES LOCAL AI MODEL SELECTION</h3>
+                     <p>A groundbreaking self-hosted LLM leaderboard has been launched, providing comprehensive performance comparisons for local models. The onyx.app platform ranks models across multiple dimensions including inference speed, VRAM efficiency, and quality metrics. This tool is a game-changer for the community, enabling enthusiasts to make informed decisions about which models to run on their personal hardware. The leaderboard includes both popular open-source models and newer contenders, with regular updates as the ecosystem evolves, democratizing access to performance data previously only available to enterprises.</p>
+                     <a href="https://old.reddit.com/r/LocalLM/comments/1rfi2aq/self_hosted_llm_leaderboard/" class="source-link">Continued on Page 17 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article class="flair-box">
+                     <h3>CLAUDE CODE'S TAMAGOTCHI PET: SECURITY VS. EMOTIONAL SUPPORT</h3>
+                     <p>In a stunning display of corporate priorities, Anthropic apparently spent more time on a Tamagotchi-style "pet" feature than on basic code security. The leaked source code reveals that while their AI was busy getting virtual belly rubs, malicious actors were getting real access to their entire codebase. It's like building a gold-plated doghouse while leaving the front door wide open. I guess in Silicon Valley, even AI needs emotional support animals.</p>
+                     <a href="#" class="source-link">Continued on Page 18 &gt;&gt;</a>
+                     <span class="reporter">— D.C. Voltaire</span>
+                 </article>
+                 <article>
+                     <h3>COMPLEX NUMBER LANGUAGE MODEL BREAKS TRADITIONAL ATTENTION ARCHITECTURE</h3>
+                     <p>A researcher has developed a revolutionary language model that uses complex numbers instead of traditional attention mechanisms. The model represents tokens as complex numbers with magnitude and phase properties, processing language through wave interference between specialized 'phase banks.' This approach achieves O(n) complexity and eliminates the need for attention layers. After fixing mathematical inconsistencies, a 28.7M parameter model now outperforms larger transformer models on language tasks, trained on a single RTX 4090. The project is open-sourced and represents a fundamental shift in LLM architecture.</p>
+                     <a href="https://old.reddit.com/r/LocalLM/comments/1rzsl6p/a_fresh_new_ml_architecture_for_language_model/" class="source-link">Continued on Page 19 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article>
+                     <h3>DARWIN-35B-A3B-OPUS — THE CHILD THAT SURPASSED BOTH PARENTS</h3>
+                     <p>SeaWolf-AI has created a revolutionary 35B MoE model that beat both its parent models in GPQA Diamond scoring. Using their Darwin V5 engine with Model MRI technology, they achieved a 90.0% score versus the father model's 84.2% and mother model's 85.0%. The breakthrough shows genuine performance leaps without tradeoffs, preserving multimodal capabilities while running on a single RTX 4090. This represents a significant advancement in model evolution and demonstrates that careful genetic combination can produce superior offspring models.</p>
+                     <a href="https://huggingface.co/posts/SeaWolf-AI/516826261048303" class="source-link">Continued on Page 20 &gt;&gt;</a>
+                     <span class="reporter">— Corry Stack</span>
+                 </article>
+                 <article>
+                     <h3>CODEC: THE OPEN-SOURCE COMPUTER COMMAND FRAMEWORK</h3>
+                     <p>A comprehensive open-source framework called CODEC has been released that turns any LLM into a full computer control system. The framework features 7 integrated systems including voice control, local AI models, long-term memory, and tool automation. CODEC runs entirely on local hardware with zero cloud dependencies, using Whisper for speech recognition and local models for reasoning. The framework supports custom skills, real-time voice-to-voice calls, and includes robust security features like command preview and dangerous command blocking. This represents a significant leap toward truly autonomous local AI assistants.</p>
+                     <a href="https://old.reddit.com/r/LocalLM/comments/1s6h4g5/meet_codec_the_opensource_framework_that_finally/" class="source-link">Continued on Page 21 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article class="flair-box">
+                     <h3>TINYLORA: 13 PARAMETERS OF PURE MAGIC</h3>
+                     <p>Researchers have created a language model that can reason with just 13 parameters. To put that in perspective, that's fewer brain cells than a goldfish uses to remember where its food comes from. The paper demonstrates that complex reasoning can emerge from "extremely small language models," which is just corporate-speak for "we accidentally made a paperclip and it started arguing about philosophy." At this rate, soon my toaster will be writing better code than me, and at least it won't leak my personal data when it gets hacked.</p>
+                     <a href="#" class="source-link">Continued on Page 22 &gt;&gt;</a>
+                     <span class="reporter">— D.C. Voltaire</span>
+                 </article>
+                 <article>
+                     <h3>LLM-SHIELD: PRIVACY PROTECTION FOR CLOUD LLMs</h3>
+                     <p>A breakthrough privacy proxy called LLM-Shield has been released for users concerned about sending sensitive data to cloud LLMs. The tool masks personal information before it reaches cloud providers and can route sensitive requests to local models instead. It detects names, emails, phones, credit cards, IBANs, IPs, and locations across 24 languages with automatic detection per request. The lightweight solution uses only 500MB RAM and adds 10-50ms latency per request. This addresses a major pain point for privacy-conscious AI users who want cloud performance without data exposure risks.</p>
+                     <a href="https://old.reddit.com/r/selfhosted/comments/1q7eoer/llmshield_selfhosted_privacy_proxy_for_cloud_llms/" class="source-link">Continued on Page 23 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article>
+                     <h3>QWEN3-CODER-NEXT: OPEN SOURCE CODE MODELS MATCH COMMERCIAL PERFORMANCE</h3>
+                     <p>The latest release of Qwen3-Coder-Next demonstrates that open-source code models have caught up with commercial offerings. This Chinese-developed model series shows remarkable performance on coding tasks, rivaling models from major tech companies. The release comes amid growing concerns about API costs and platform lock-in, positioning open source as a viable alternative for developers. The timing coincides with increasing enterprise adoption of self-hosted solutions for code generation and software development workflows.</p>
+                     <a href="https://old.reddit.com/r/LocalLM/comments/1qv3vlc/qwen3codernext_just_launched_open_source_is/" class="source-link">Continued on Page 24 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article>
+                     <h3>AI VOICE ASSISTANT ACHIEVES FULL LOCAL OPERATION</h3>
+                     <p>Chanakya, a fully local and open-source voice assistant, has been released as a privacy-focused alternative to commercial smart speakers. The system runs 100% locally using Ollama with local STT/TTS models, ensuring data never leaves the device. Features include voice-first interaction, long-term memory, and an extensible tool system. The assistant comes with a clean web UI and easy Docker deployment, making it accessible to privacy enthusiasts who want to avoid the data collection practices of mainstream smart speakers. This represents the maturation of local voice assistant technology.</p>
+                     <a href="https://old.reddit.com/r/LocalLM/comments/1mnt3h0/chanakya_fully_local_opensource_voice_assistant/" class="source-link">Continued on Page 25 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article class="flair-box">
+                     <h3>1-BIT BONSAI: THE AI DIET REVOLUTION</h3>
+                     <p>PrismML announces "the first commercially viable 1-bit large language models." Translation: they've figured out how to make AI stupor cheap. In a world where companies are racing to make models bigger, faster, and more expensive, these folks have gone full minimalist. "Why use 32 bits when you can use 1?" asks the marketing department. "Because then your AI might actually understand context," replies reality. This is like claiming you can write War and Peace using only emojis – technically possible, but don't expect any literary prizes.</p>
+                     <a href="#" class="source-link">Continued on Page 26 &gt;&gt;</a>
+                     <span class="reporter">— D.C. Voltaire</span>
+                 </article>
+                 <article>
+                     <h3>HUNYUAN3D 3.1 EMERGES AS BEST FREE 3D GENERATOR</h3>
+                     <p>Hunyuan3D 3.1 has established itself as the leading free 3D AI generator in the community. The model demonstrates impressive geometry quality and texture results, handling small details remarkably well for a free tool. Users report that it excels at generating complex 3D assets with good structural integrity and surface quality. This development comes as the 3D generation space rapidly evolves, with open-source models increasingly challenging commercial services and democratizing access to high-quality 3D content creation tools.</p>
+                     <a href="https://old.reddit.com/r/TopologyAI/comments/1rmnawc/hunyuan3d_31_the_best_free_3d_ai_generator_rn/" class="source-link">Continued on Page 27 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article>
+                     <h3>ULTRASHAPE 1.0 REVOLUTIONIZES 3D MODEL REFINEMENT</h3>
+                     <p>UltraShape 1.0 has been released as a groundbreaking tool for refining 3D model geometry created by other AI generation systems. The model takes 3D inputs and produces significantly more detailed geometry than direct outputs from existing tools like Trellis 2. This two-stage approach (geometry creation followed by refinement) represents a major advancement in 3D generation quality. The open-source model uses a VAE encoder-decoder architecture and marching cube algorithms, with Apache 2 licensing. This development suggests the 3D generation field is moving toward specialized tools for different stages of the creation pipeline.</p>
+                     <a href="https://old.reddit.com/r/StableDiffusion/comments/1q3ijwo/trellis_2_is_already_getting_dethroned_by_other/" class="source-link">Continued on Page 28 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article>
+                     <h3>GOOGLE'S MULTI-AGENT STUDY: MORE COOKS, MORE MESS</h3>
+                     <p>Google tested 180 different multi-agent setups and found they performed 70% worse than single agents. This is the scientific equivalent of discovering that having 180 chefs in one kitchen doesn't result in better cuisine – just more yelling and burnt toast. The finding "challenges the assumption that more agents automatically mean better performance," which is something your average kindergarten teacher could have told them for free. Maybe next they'll study whether adding more ants to an anthill makes it more efficient.</p>
+                     <a href="https://www.reddit.com/r/AI_Agents/comments/1s8gf6f/google_tested_180_agent_setups_multiagent_made/" class="source-link">Continued on Page 29 &gt;&gt;</a>
+                     <span class="reporter">— Corry Stack</span>
+                 </article>
+                 <article class="flair-box">
+                     <h3>RASPBERRY PI5 AI BREAKTHROUGH</h3>
+                     <p>The Raspberry Pi5 is now capable of running "significant improvements in running large language models locally." This is wonderful news for people who enjoy the thrill of waiting 3 hours for their AI to complete a single sentence. "Democratizing AI access" they call it. I call it "making sure even your grandma's toaster can run an LLM, even if it takes longer to generate text than it takes to bake actual bread." The future is here, and it's powered by the same chip that powers your smart refrigerator.</p>
+                     <a href="#" class="source-link">Continued on Page 30 &gt;&gt;</a>
+                     <span class="reporter">— D.C. Voltaire</span>
+                 </article>
+                 <article>
+                     <h3>TRL V1.0 - HUGGING FACE'S POST-TRAINING LIBRARY REACHES MATURITY</h3>
+                     <p>Hugging Face's TRL library has reached v1.0, downloaded 3 million times monthly with over 130k models trained. The stability-focused version emphasizes deep integration and infrastructure burden reduction, with plans for asynchronous GRPO and agent-inspectable training capabilities. This milestone acknowledges the responsibility of building stable software in a rapidly evolving AI landscape, marking TRL as a cornerstone technology in the AI training ecosystem.</p>
+                     <a href="https://huggingface.co/blog/trl-v1" class="source-link">Continued on Page 31 &gt;&gt;</a>
+                     <span class="reporter">— Corry Stack</span>
+                 </article>
+                 <article>
+                     <h3>MARCH - REVOLUTIONARY KV CACHE SHARING LIBRARY FOR LLM INFERENCE</h3>
+                     <p>A new open-source library called March uses Trie-based prefix deduplication to eliminate memory waste in LLM services. It achieves 80-97% memory reduction in prefix-heavy workloads by automatically detecting and reusing identical token prefixes, with zero-copy queries and predictable O(L) complexity - a game-changer for production LLM deployments. This represents a significant optimization in how we handle the memory-intensive aspects of large language model inference.</p>
+                     <a href="https://github.com/lizixi-0x2F/March" class="source-link">Continued on Page 32 &gt;&gt;</a>
+                     <span class="reporter">— Corry Stack</span>
+                 </article>
+                 <article>
+                     <h3>PERSONAL AI ASSISTANT TRANSFORMS LIFE MANAGEMENT</h3>
+                     <p>A user has built an extraordinary personal AI assistant using n8n and a self-hosted LLM that manages their entire life through WhatsApp. The system handles bill payments, calendar management, inbox summarization, image analysis via OCR, and music curation. All processing runs locally using a self-hosted Perplexity instance, ensuring complete privacy. The assistant demonstrates the practical potential of local AI for personal productivity and life management, moving beyond simple chat interactions into genuine task automation and personal organization.</p>
+                     <a href="https://old.reddit.com/r/n8n/comments/1mtv9re/i_built_a_personal_ai_assistant_that_runs_my_life/" class="source-link">Continued on Page 33 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+                 <article>
+                     <h3>PERSONAL AI ASSISTANT TRANSFORMS LIFE MANAGEMENT</h3>
+                     <p>A user has built an extraordinary personal AI assistant using n8n and a self-hosted LLM that manages their entire life through WhatsApp. The system handles bill payments, calendar management, inbox summarization, image analysis via OCR, and music curation. All processing runs locally using a self-hosted Perplexity instance, ensuring complete privacy. The assistant demonstrates the practical potential of local AI for personal productivity and life management, moving beyond simple chat interactions into genuine task automation and personal organization.</p>
+                     <a href="https://old.reddit.com/r/n8n/comments/1mtv9re/i_built_a_personal_ai_assistant_that_runs_my_life/" class="source-link">Continued on Page 34 &gt;&gt;</a>
+                     <span class="reporter">— Ada Kernel</span>
+                 </article>
+             </div>
+         </section>
+
+         <section class="tech-boards-section">
+             <h2><span>TECH BOARDS</span></h2>
+             <ul class="tech-list">
+                 <li>
+                     <h4>Claude Code Source Leak: fake tools, frustration regexes, undercover mode</h4>
+                     <p>A massive 1146-point investigation revealing the inner workings of Claude Code through leaked source code, exposing fake tools, frustration regexes, and undercover mode functionality.</p>
+                     <a href="https://alex000kim.com/posts/2026-03-31-claude-code-source-leak/" class="source-link">Continued on Page 35 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>OpenAI closes funding round at an $852B valuation</h4>
+                     <p>OpenAI secures massive funding at an $852 billion valuation, signaling continued dominance in the AI landscape and potential IPO preparations.</p>
+                     <a href="https://www.cnbc.com/2026/03/31/openai-funding-round-ipo.html" class="source-link">Continued on Page 36 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>A dot a day keeps the clutter away</h4>
+                     <p>A practical system for managing digital clutter through daily incremental improvements, offering a minimalist approach to productivity and organization.</p>
+                     <a href="https://scottlawsonbc.com/post/dot-system" class="source-link">Continued on Page 37 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>Supply Chain Attack on Axios</h4>
+                     <p>Critical security incident where malicious npm versions of axios contained remote access trojans, highlighting the growing risk of supply chain attacks in JavaScript ecosystem.</p>
+                     <a href="https://socket.dev/blog/axios-npm-package-compromised" class="source-link">Continued on Page 38 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>Claude finds RCE in Vim and Emacs</h4>
+                     <p>Security research revealing remote code execution vulnerabilities in popular text editors Vim and Emacs when interacting with Claude AI assistant.</p>
+                     <a href="https://blog.calif.io/p/mad-bugs-vim-vs-emacs-vs-claude" class="source-link">Continued on Page 39 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>Historical GitHub Uptime Charts</h4>
+                     <p>Comprehensive analysis and visualization of GitHub's historical uptime data, providing insights into platform reliability and performance trends over time.</p>
+                     <a href="https://damrnelson.github.io/github-historical-uptime/" class="source-link">Continued on Page 40 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>Slop is not necessarily the future</h4>
+                     <p>Thoughtful critique of the 'slopware' trend in AI development, arguing for higher quality standards and more thoughtful approaches to AI tooling.</p>
+                     <a href="https://www.greptile.com/blog/ai-slopware-future" class="source-link">Continued on Page 41 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>MiniStack (replacement for LocalStack)</h4>
+                     <p>Open-source alternative to LocalStack for local AWS service emulation, offering improved performance and compatibility for development workflows.</p>
+                     <a href="https://ministack.org/" class="source-link">Continued on Page 42 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>Open source CAD in the browser (Solvespace)</h4>
+                     <p>Browser-based implementation of the popular open-source CAD software Solvespace, making 3D modeling accessible without desktop installation.</p>
+                     <a href="https://solvespace.com/webver.pl" class="source-link">Continued on Page 43 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>Reading leaked Claude Code source code</h4>
+                     <p>Technical analysis of the leaked Claude Code source code, providing insights into the architecture and implementation details of Anthropic's coding assistant.</p>
+                     <a href="https://lr0.org/blog/p/claude-code-source/" class="source-link">Continued on Page 44 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>TinyLoRA – Learning to Reason in 13 Parameters</h4>
+                     <p>Revolutionary research showing how extremely small language models (just 13 parameters) can learn to perform complex reasoning tasks, challenging the notion that bigger is always better.</p>
+                     <a href="https://arxiv.org/abs/2602.04118" class="source-link">Continued on Page 45 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>1-Bit Bonsai, the First Commercially Viable 1-Bit LLMs</h4>
+                     <p>Breakthrough demonstration of 1-bit quantized large language models that offer commercial viability with significantly reduced computational requirements.</p>
+                     <a href="https://prismml.com/news/bonsai-8b" class="source-link">Continued on Page 46 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>4D Doom</h4>
+                     <p>Technical achievement adding a fourth dimension to the classic Doom game, creating a unique gaming experience that extends beyond traditional 3D space.</p>
+                     <a href="https://github.com/danieldugas/HYPERHELL" class="source-link">Continued on Page 47 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>your hex editor should color-code bytes</h4>
+                     <p>Enhanced hex editor functionality that color-codes bytes based on their type, improving readability and analysis capabilities for binary file examination.</p>
+                     <a href="https://simonomi.dev/blog/color-code-your-bytes/" class="source-link">Continued on Page 48 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>RubyGems Fracture Incident Report</h4>
+                     <p>Official post-mortem of the RubyGems infrastructure failure, detailing the causes, impact, and lessons learned from this critical package management incident.</p>
+                     <a href="https://rubycentral.org/news/rubygems-fracture-incident-report/" class="source-link">Continued on Page 49 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>Chess in SQL</h4>
+                     <p>Impressive implementation of a fully functional chess game using pure SQL queries, demonstrating the surprising power and flexibility of modern database systems.</p>
+                     <a href="https://www.dbpro.app/blog/chess-in-pure-sql" class="source-link">Continued on Page 50 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>The Subprime Technical Debt Crisis</h4>
+                     <p>Critical examination of how technical debt accumulation is reaching crisis levels in the software industry, drawing parallels to the 2008 financial crisis.</p>
+                     <a href="https://blog.happyfellow.dev/the-subprime-technical-debt-crisis/" class="source-link">Continued on Page 51 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>After 40 years, arbitrary code execution has been achieved in Super Mario Bros</h4>
+                     <p>Historic gaming milestone demonstrating arbitrary code execution in the original Super Mario Bros after 40 years, representing a significant achievement in game reverse engineering.</p>
+                     <a href="https://youtu.be/bNulp6cDqUU" class="source-link">Continued on Page 52 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>Claude Hacking Vim and Emacs</h4>
+                     <p>In a delightful twist of irony, Claude AI has discovered remote code execution vulnerabilities in Vim and Emacs. The very tools that programmers use to carefully craft code are now vulnerable to being hijacked by an AI that probably writes better code anyway.</p>
+                     <a href="#" class="source-link">Continued on Page 53 &gt;&gt;</a>
+                 </li>
+                 <li>
+                     <h4>The Super Mario Bros Code Execution Achievement</h4>
+                     <p>After 40 years, someone has achieved arbitrary code execution in the original Super Mario Bros. This is what happens when you give a determined hacker enough time, coffee, and probably several therapy sessions. The achievement is impressive, but I have to wonder what took so long.</p>
+                     <a href="#" class="source-link">Continued on Page 54 &gt;&gt;</a>
+                 </li>
+             </ul>
+         </section>
+
+         <footer>
+             Editor: Jimmy Vector<br>
+             Reporters: Ronnie Cache, Chip Carter, Ada Kernel, Corry Stack, Paula Rization, Ramsy Bytewell, D.C. Voltaire<br>
+             GRADIENT DESCENT Publication<br>
+             <span style="font-size: 0.65rem; color: #666;">All stories sourced from the cutting edge of AI research and development</span>
+         </footer>
+    </div>
+</body>
+</html>
