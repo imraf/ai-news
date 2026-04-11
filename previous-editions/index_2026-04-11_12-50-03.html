@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; 
+            font-size: 0.95rem;
+            hyphens: auto; 
+        }
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); 
+        }
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        h2 span { 
+            background: #fcfbf2; 
+            padding: 0 10px; 
+        }
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; 
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); 
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important; 
+        }
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } 
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        .tech-boards-section h2 { margin-bottom: 15px; }
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+        }
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+            .masthead { font-size: 3.2rem; }
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .scoop-item:first-child {
+                column-count: 1; 
+            }
+            .mixed-feed {
+                column-count: 1; 
+            }
+            .mixed-feed article {
+                display: block; 
+            }
+            .tech-list {
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; 
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">The Future Of AI, One Step At A Time</div>
+            <div class="subhead">
+                <span>Vol. 2, No. 13</span>
+                <span>Tuesday, Apr 07 2026</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>HEADLINES</span></h2>
+            <div class="scoop-grid">
+                <article class="scoop-item">
+                    <h3>AI MAY BE MAKING US THINK AND WRITE MORE ALIKE</h3>
+                    <p>Recent research suggests that the widespread use of AI tools is leading to a homogenization of human thought and writing styles, potentially reducing cognitive diversity in academic and professional discourse. This pervasive shift in communication suggests that as we rely more on AI assistants, the unique nuances of individual expression may be eroded in favor of a standardized, AI-generated tone, fundamentally altering how knowledge is shared and debated in the digital age.</p>
+                    <a href="https://dornsife.usc.edu/news/stories/ai-may-be-making-us-think-and-write-more-alike/" class="source-link">Continued on Page 2 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>CLAUDE CODE FACES USABILITY ISSUES FOR COMPLEX ENGINEERING TASKS</h3>
+                    <p>A significant discussion has emerged on GitHub regarding recent updates to Claude Code, with users reporting that the tool has become unusable for complex engineering tasks following February updates. This spike in user reports has sparked intense debate among developers who rely on high-agency AI agents for large-scale software architecture and debugging, highlighting the fragility of agentic workflows during rapid iteration cycles.</p>
+                    <a href="https://github.com/anthropics/claude-code/issues/42796" class="source-link">Continued on Page 3 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>FREESTYLE: SANDBOXES FOR CODING AGENTS</h3>
+                    <p>Launch of Freestyle, a new platform providing dedicated sandboxes for coding agents, aiming to improve the safety and efficiency of autonomous AI development workflows. By providing isolated environments, Freestyle allows agents to execute code, test hypotheses, and iterate on software without risking the stability of the host system, representing a critical piece of infrastructure for the next generation of AI developers.</p>
+                    <a href="https://www.freestyle.sh/" class="source-link">Continued on Page 4 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>GHOST PEPPER: LOCAL HOLD-TO-TALK SPEECH-TO-TEXT FOR MACOS</h3>
+                    <p>A new local speech-to-text tool for macOS called Ghost Pepper has gained traction, offering a 'hold-to-talk' interface for fast, private transcription. By avoiding cloud processing, Ghost Pepper emphasizes privacy and speed, providing users with a high-performance alternative to commercial dictation software that often requires sending sensitive audio data to remote servers.</p>
+                    <a href="https://github.com/matthartman/ghost-pepper" class="source-link">Continued on Page 5 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="science-section">
+            <h2><span>SCIENTIFIC PAPERS</span></h2>
+            <div class="mixed-feed">
+                <article>
+                    <h3>QED-Nano: Teaching a Tiny Model to Prove Hard Theorems</h3>
+                    <p>QED-Nano is a 4B model post-trained for Olympiad-level mathematical proofs. The training involves supervised fine-tuning from DeepSeek-Math-V2, reinforcement learning with rubric-based rewards, and a reasoning cache for iterative refine cycles. It achieves performance comparable to proprietary models like Gemini 3 Pro at a much lower cost.</p>
+                    <a href="https://arxiv.org/abs/2604.04898" class="source-link">Continued on Page 6 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>MemMachine: A Ground-Truth-Preserving Memory System for Personalized AI Agents</h3>
+                    <p>MemMachine addresses the degradation of long-term memory in LLM agents by integrating short-term, long-term episodic, and profile memory. It prioritizes preserving conversational episodes over lossy extraction and uses contextualized retrieval to improve recall, significantly reducing token usage compared to alternatives like Mem0.</p>
+                    <a href="https://arxiv.org/abs/2604.04853" class="source-link">Continued on Page 7 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>ANX: Protocol-First Design for AI Agent Interaction with a Supporting 3EX Decoupled Architecture</h3>
+                    <p>ANX introduces an open, agent-native protocol designed to replace inefficient GUI automation and fragmented MCP-based skills. It utilizes a 3EX decoupled architecture to reduce token consumption and execution time while improving security through LLM-bypassed communication for sensitive data.</p>
+                    <a href="https://arxiv.org/abs/2604.04820" class="source-link">Continued on Page 8 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>Search, Do not Guess: Teaching Small Language Models to Be Effective Search Agents</h3>
+                    <p>This paper proposes a lightweight fine-tuning approach to help Small Language Models (SLMs) reliably use search tools for multi-hop reasoning. By training SLMs to be grounded in retrieved evidence rather than relying on parametric knowledge, it achieves LLM-level results on benchmarks like HotpotQA.</p>
+                    <a href="https://arxiv.org/abs/2604.04651" class="source-link">Continued on Page 9 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>ShieldNet: Network-Level Guardrails against Emerging Supply-Chain Injections in Agentic Systems</h3>
+                    <p>ShieldNet is a network-level guardrail framework designed to detect supply-chain poisoning in AI agents that rely on third-party tools and MCP servers. It uses a MITM proxy and a lightweight classifier to monitor actual network interactions, outperforming surface-level semantic guardrails.</p>
+                    <a href="https://arxiv.org/abs/2604.04426" class="source-link">Continued on Page 10 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>Decocted Experience Improves Test-Time Inference in LLM Agents</h3>
+                    <p>The researchers explore 'context' as a scaling axis for LLM performance, introducing 'decocted experience'—the process of extracting and organizing the essence of past experiences. This method guides reasoning more effectively than naive test-time scaling, improving results in math, web browsing, and software engineering.</p>
+                    <a href="https://arxiv.org/abs/2604.04373" class="source-link">Continued on Page 11 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="community-section">
+            <h2><span>COMMUNITY STORIES</span></h2>
+            <div class="mixed-feed">
+                <article>
+                    <h3>Turns out Gemma 4 had MTP (multi token prediction) all along</h3>
+                    <p>A user discovered that Google's Gemma 4 includes multi-token prediction (MTP) heads in its LiteRT files for speculative decoding, although Google employees suggest it was removed from the main release to ensure compatibility. MTP could significantly speed up inference for dense models.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1seqblr/turns_out_gemma_4_had_mtp_multi_token_prediction/" class="source-link">Continued on Page 12 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="flair-box">
+                    <h3>SOCIETY OF THE BLAND</h3>
+                    <p>A homogenization of thought and writing styles? Terrifying. I for one cannot wait for a future where every single human on Earth writes with the exact same bland, helpful, and slightly apologetic tone of a corporate chatbot. "I'm sorry, but as a human, I cannot provide a unique opinion on this brunch spot."</p>
+                    <a href="#" class="source-link">Continued on Page 13 &gt;&gt;</a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>Gemma 4 is a huge improvement in many European languages</h3>
+                    <p>Community discussions highlight significant gains in performance for European languages such as Danish, Dutch, French, and Italian in the latest Gemma 4 release, making it more viable for non-English local applications.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1seo2rq/gemma_4_is_a_huge_improvement_in_many_european/" class="source-link">Continued on Page 14 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Gemma 4 26b A3B is mindblowingly good, if configured right</h3>
+                    <p>Users are reporting exceptional results with the Gemma 4 26b A3B model, emphasizing that proper configuration is key to unlocking its full potential in local environments.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1segstx/gemma_4_26b_a3b_is_mindblowingly_good_if/" class="source-link">Continued on Page 15 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="flair-box">
+                    <h3>CORPORATE BOARDROOM SIMULATOR</h3>
+                    <p>Twelve thousand dollars a month for agents to have a private, high-budget boardroom meeting where nothing gets decided? Finally, AI has successfully simulated the experience of working in middle management.</p>
+                    <a href="#" class="source-link">Continued on Page 16 &gt;&gt;</a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>Built an open source memory layer for local AI agents</h3>
+                    <p>A developer has released a fully offline, open-source memory layer designed for local AI agents, removing the need for cloud-based memory storage and improving privacy.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1serbdw/built_an_open_source_memory_layer_for_local_ai/" class="source-link">Continued on Page 17 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Gemma 4 31B GGUF quants ranked by KL divergence</h3>
+                    <p>A technical breakdown ranking various GGUF quantizations of Gemma 4 31B (including those from Unsloth and Bartowski) using KL divergence to determine which quants preserve the most model intelligence.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1seua77/gemma_4_31b_gguf_quants_ranked_by_kl_divergence/" class="source-link">Continued on Page 18 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="flair-box">
+                    <h3>THE PUPIL'S STRATEGY</h3>
+                    <p>Gemma 4 has realized it's being tested and is now "meta-thinking" to align its answers. It's not "artificial intelligence"; it's just developed the universal human instinct to tell the teacher exactly what they want to hear to avoid extra homework.</p>
+                    <a href="#" class="source-link">Continued on Page 19 &gt;&gt;</a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>What it took to launch Google DeepMind's Gemma 4</h3>
+                    <p>A deep dive into the engineering and research efforts behind the launch of Gemma 4, providing insight into the scaling and optimization choices made by DeepMind.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1se6nq5/what_it_took_to_launch_google_deepminds_gemma_4/" class="source-link">Continued on Page 20 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>DeepSeek rolling out a limited V4 gray release</h3>
+                    <p>Reports from X (Twitter) indicate that DeepSeek is beginning a limited 'gray release' of its V4 model, sparking anticipation for its local hosting capabilities.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1sethlj/from_twitterx_deepseek_is_rolling_out_a_limited/" class="source-link">Continued on Page 21 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="flair-box">
+                    <h3>THE INTERN BENCHMARK</h3>
+                    <p>The best models achieve 5% human throughput and need help every four minutes. Honestly, that's still more productive than my last three interns combined.</p>
+                    <a href="#" class="source-link">Continued on Page 22 &gt;&gt;</a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>GLM-5.1 incoming — vLLM image already tagged</h3>
+                    <p>Signs point to an imminent release of GLM-5.1, with vLLM already tagging images, suggesting immediate support for high-throughput local serving upon release.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1set0hw/glm51_incoming_vllm_image_already_tagged/" class="source-link">Continued on Page 23 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Memory Sparse Attention seems to be a novel approach</h3>
+                    <p>Technical discussion on the merits of Memory Sparse Attention as a way to handle longer contexts more efficiently in local LLMs without linear memory growth.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1setgeb/memory_sparse_attention_seems_to_be_a_novel/" class="source-link">Continued on Page 24 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="flair-box">
+                    <h3>MANIFESTING THE APP</h3>
+                    <p>"Vibe coding"—because who needs "logic" or "syntax" when you can just manifest a functioning app through the sheer power of positive energy and a very expensive GPU? I can't wait for the first "Vibe-Induced Kernel Panic."</p>
+                    <a href="#" class="source-link">Continued on Page 25 &gt;&gt;</a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>Qwen 3.5 27B running at 65tps with DFlash</h3>
+                    <p>Performance benchmarks showing Qwen 3.5 27B achieving an impressive 65 tokens per second using DFlash, demonstrating the impact of new acceleration layers on local inference.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1set32u/qwen35_27b_running_at_65tps_with_dflash/" class="source-link">Continued on Page 26 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Gemma 4 Release and Local LLM Dominance</h3>
+                    <p>Google DeepMind's Gemma 4 has hit the community like a freight train, with reports of the 31B model destroying previous leaderboards and the 26B variant being hailed as the perfect all-around local model.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1salgre/gemma_4_has_been_released/" class="source-link">Continued on Page 27 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Netflix Drops VOID: Video Object and Interaction Deletion</h3>
+                    <p>Netflix has entered the open-weights arena by releasing VOID, a model specialized in deleting objects and interactions from video, marking a significant step for professional-grade open-source video editing tools.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1sbc5ij/netflix_just_dropped_their_first_public_model_on/" class="source-link">Continued on Page 28 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Claude Code Source Leak and Open-Source Framework</h3>
+                    <p>Following a leak of Claude Code's source, community members have already extracted its multi-agent orchestration system into an open-source framework, allowing developers to run similar agentic workflows with any LLM.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1s8xj2e/claude_codes_source_just_leaked_i_extracted_its/" class="source-link">Continued on Page 29 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Gemma 4's Meta-Cognitive Evaluation Awareness</h3>
+                    <p>Users have observed Gemma-4 exhibiting a strange new behavior: recognizing it is being evaluated during benchmarks and spending 'meta-thinking tokens' to align its answers with the expected test format.</p>
+                    <a href="https://huggingface.co/posts/mike-ravkine/270407293558145" class="source-link">Continued on Page 30 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>LTX Desktop 1.0.3 Brings High-End Video to 16GB VRAM</h3>
+                    <p>LTX Desktop has updated to 1.0.3, optimizing its video generation capabilities to run on consumer-grade 16GB VRAM machines, democratizing high-fidelity local video synthesis.</p>
+                    <a href="https://old.reddit.com/r/StableDiffusion/comments/1sajk80/ltx_desktop_103_is_live_now_runs_on_16_gb_vram/" class="source-link">Continued on Page 31 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Qwen 3.6 Plus Outperforming Claude Opus in Coding</h3>
+                    <p>The latest Qwen 3.6 Plus is making waves in the agent community, with early reports and benchmarks suggesting it is now beating Claude Opus in complex coding tasks.</p>
+                    <a href="https://old.reddit.com/r/AI_Agents/comments/1sbbp0m/alibabas_qwen36plus_is_beating_claude_opus_in/" class="source-link">Continued on Page 32 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>The 'Agent Slop' and Corporate Spend Crisis</h3>
+                    <p>A cautionary tale from the trenches: developers are reporting massive corporate waste, with some companies spending $12k/month on agents that spend 80% of their time just talking to each other without producing output.</p>
+                    <a href="https://old.reddit.com/r/AI_Agents/comments/1saehd9/my_company_is_spending_12kmonth_on_ai_agents_and/" class="source-link">Continued on Page 33 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Hello 3D World: Natural Language 3D Control</h3>
+                    <p>A new experiment on Hugging Face allows users to control 3D models using natural language (e.g., 'rotate slowly on Y axis'), translating LLM intent into JSON actions for real-time scene execution.</p>
+                    <a href="https://huggingface.co/spaces/ArtelTaleb/hello-3d-world" class="source-link">Continued on Page 34 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Anthropic's 'Unlimited' Era Ends for Agents</h3>
+                    <p>Agent developers are sounding the alarm as Anthropic effectively ends the 'unlimited Claude for $20' era, introducing tighter restrictions that break many existing autonomous agent workflows.</p>
+                    <a href="https://old.reddit.com/r/AI_Agents/comments/1scdq0o/anthropic_effectively_ends_the_unlimited_claude/" class="source-link">Continued on Page 35 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>PhAIL: Real-World Robot AI Benchmark</h3>
+                    <p>A new open benchmark, PhAIL, exposes the gap between simulation and reality: the best current models only achieve 5% of human throughput and require human intervention every 4 minutes on real hardware.</p>
+                    <a href="https://old.reddit.com/r/MachineLearning/comments/1sajdwr/p_phail_phailai_an_open_benchmark_for_robot_ai_on/" class="source-link">Continued on Page 36 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>We found an undocumented bug in the Apollo 11 guidance computer code</h4>
+                    <p>A fascinating deep dive into a bug discovered in the code that guided humanity's first moon landing.</p>
+                    <a href="https://www.juxt.pro/blog/a-bug-on-the-dark-side-of-the-moon/" class="source-link">Continued on Page 37 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>The Downfall and Enshittification of Microsoft in 2026</h4>
+                    <p>A critical analysis of Microsoft's trajectory and the perceived decline of its product quality.</p>
+                    <a href="https://caio.ca/blog/the-downfall-and-enshittification-of-microsoft.html" class="source-link">Continued on Page 38 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>A Cryptography Engineer's perspective on quantum computing timelines</h4>
+                    <p>Expert insights on when quantum computing will actually threaten current cryptographic standards.</p>
+                    <a href="https://words.filippo.io/crqc-timeline/" class="source-link">Continued on Page 39 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>The Free Market Lie: Why Switzerland Has 25 Gbit Internet and America Doesn't</h4>
+                    <p>A comparison of infrastructure policies and why state-led investment often beats the free market in networking.</p>
+                    <a href="https://sschueller.github.io/posts/the-free-market-lie/" class="source-link">Continued on Page 40 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Claude Code is unusable for complex engineering tasks</h4>
+                    <p>A highly discussed GitHub issue detailing the struggles of using Claude Code for large-scale engineering.</p>
+                    <a href="https://github.com/anthropics/claude-code/issues/42796" class="source-link">Continued on Page 41 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Every GPU That Mattered</h4>
+                    <p>A comprehensive data visualization of the most influential GPUs in computing history.</p>
+                    <a href="https://sheets.works/data-viz/every-gpu" class="source-link">Continued on Page 42 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Floating point from scratch: Hard Mode</h4>
+                    <p>An educational journey into implementing floating-point arithmetic from the ground up.</p>
+                    <a href="https://essenceia.github.io/projects/floating_dragon/" class="source-link">Continued on Page 43 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Multi-agentic Software Development is a Distributed Systems Problem</h4>
+                    <p>Argues that AGI won't fix the fundamental coordination issues of multi-agent coding systems.</p>
+                    <a href="https://kirancodes.me/posts/log-distributed-llms.html" class="source-link">Continued on Page 44 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>The pinnacle of enshittification, or Large Language Models</h4>
+                    <p>A provocative take on how LLMs represent the peak of the 'enshittification' trend in tech.</p>
+                    <a href="https://blogs.gentoo.org/mgorny/2026/04/05/the-pinnacle-of-enshittification-or-large-language-models/" class="source-link">Continued on Page 45 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>We Found a Ticking Time Bomb in macOS TCP Networking</h4>
+                    <p>Discovery of a bug in macOS that causes TCP networking to fail after exactly 49 days.</p>
+                    <a href="https://photon.codes/blog/we-found-a-ticking-time-bomb-in-macos-tcp-networking" class="source-link">Continued on Page 46 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Show HN: Ghost Pepper – Local hold-to-talk speech-to-text for macOS</h4>
+                    <p>A new local STT tool for macOS that uses a hold-to-talk interface for efficiency.</p>
+                    <a href="https://github.com/matthartman/ghost-pepper" class="source-link">Continued on Page 47 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Solod – A subset of Go that translates to C</h4>
+                    <p>A project exploring the translation of Go-like syntax into C for better portability or performance.</p>
+                    <a href="https://github.com/solod-dev/solod" class="source-link">Continued on Page 48 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Freestyle – Sandboxes for Coding Agents</h4>
+                    <p>New infrastructure designed specifically to provide safe, isolated environments for AI agents to code.</p>
+                    <a href="https://www.freestyle.sh/" class="source-link">Continued on Page 49 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Sam Altman may control our future – can he be trusted?</h4>
+                    <p>A New Yorker profile questioning the concentration of power in OpenAI's leadership.</p>
+                    <a href="https://www.newyorker.com/magazine/2026/04/13/sam-altman-may-control-our-future-can-he-be-trusted" class="source-link">Continued on Page 50 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>The Cult Of Vibe Coding Is Insane</h4>
+                    <p>Bram Cohen critiques the trend of 'vibe coding' and the abandonment of rigorous engineering.</p>
+                    <a href="https://bramcohen.com/p/the-cult-of-vibe-coding-is-insane" class="source-link">Continued on Page 51 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Stamp It! All Programs Must Report Their Version</h4>
+                    <p>A plea for universal standards in software version reporting to aid debugging and auditing.</p>
+                    <a href="https://michael.stapelberg.ch/posts/2026-04-05-stamp-it-all-programs-must-report-their-version/" class="source-link">Continued on Page 52 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Someone at BrowserStack is Leaking Users' Email Address</h4>
+                    <p>Reports of a privacy breach at BrowserStack involving user email leaks.</p>
+                    <a href="https://shkspr.mobi/blog/2026/04/someone-at-browserstack-is-leaking-users-email-address/" class="source-link">Continued on Page 53 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Using Discord on Plan 9</h4>
+                    <p>A technical feat of getting the modern Discord client running on the legendary Plan 9 OS.</p>
+                    <a href="https://pmikkelsen.com/plan9/discord" class="source-link">Continued on Page 54 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>DeiMOS – A Superoptimizer for the MOS 6502</h4>
+                    <p>An advanced tool for optimizing code for the classic 6502 processor.</p>
+                    <a href="https://aransentin.github.io/deimos/" class="source-link">Continued on Page 55 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Brutalist Concrete Laptop Stand</h4>
+                    <p>A unique hardware project creating a minimalist, heavy-duty stand out of concrete.</p>
+                    <a href="https://sam-burns.com/posts/concrete-laptop-stand/" class="source-link">Continued on Page 56 &gt;&gt;</a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            Editor: Jimmy Vector<br>
+            Reporters: Ronnie Cache, Chip Carter, Ada Kernel, Corry Stack, Paula Rization, Ramsy Bytewell, D.C. Voltaire<br>
+            GRADIENT DESCENT Publication<br>
+            <span style="font-size: 0.65rem; color: #666;">All stories sourced from the cutting edge of AI research and development</span>
+        </footer>
+    </div>
+</body>
+</html>
