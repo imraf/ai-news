@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; 
+            font-size: 0.95rem;
+            hyphens: auto; 
+        }
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); 
+        }
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        h2 span { 
+            background: #fcfbf2; 
+            padding: 0 10px; 
+        }
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; 
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); 
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important; 
+        }
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } 
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        .tech-boards-section h2 { margin-bottom: 15px; }
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+        }
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+            .masthead { font-size: 3.2rem; }
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .scoop-item:first-child {
+                column-count: 1; 
+            }
+            .mixed-feed {
+                column-count: 1; 
+            }
+            .mixed-feed article {
+                display: block; 
+            }
+            .tech-list {
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; 
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">The Future Of AI, One Step At A Time</div>
+            <div class="subhead">
+                <span>Vol. 2, No. 14</span>
+                <span>Saturday, Apr 11 2026</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>HEADLINES</span></h2>
+            <div class="scoop-grid">
+                <article class="scoop-item">
+                    <h3>Anthropic Bans OpenClaw Creator Amid 'Claw Tax' Controversy</h3>
+                    <p>Anthropic temporarily suspended the account of Peter Steinberger, creator of the open-source harness OpenClaw and current OpenAI employee, following a pricing shift that requires third-party harnesses to pay via API. The incident highlights growing tensions between closed-ecosystem AI agents and open-source alternatives.</p>
+                    <a href="https://techcrunch.com/2026/04/10/anthropic-temporarily-banned-openclaws-creator-from-accessing-claude/" class="source-link">Continued on Page 2 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Anthropic Unveils Mythos AI Model, Sparking Cybersecurity Debate</h3>
+                    <p>Anthropic has introduced 'Mythos,' a new AI model capable of advanced cybersecurity tasks. While some claim it's a breakthrough in vulnerability detection, critics argue the 'thousands' of zero-days identified are based on limited manual reviews, sparking a debate over whether the tool is a genuine security leap or strategic hype.</p>
+                    <a href="https://www.tomshardware.com/tech-industry/artificial-intelligence/anthropic-s-claude-mythos-isn-t-a-sentient-super-hacker-it-s-a-sales-pitch" class="source-link">Continued on Page 3 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Google and Intel Forge Deeper AI Infrastructure Alliance</h3>
+                    <p>Google Cloud and Intel have expanded their multiyear partnership to co-develop custom ASIC-based infrastructure processing units (IPUs) and integrate the latest Xeon 6 chips. The move addresses a global CPU shortage and the critical need for balanced systems to handle AI inference and general cloud workloads.</p>
+                    <a href="https://techcrunch.com/2026/04/09/google-and-intel-deepen-ai-infrastructure-partnership/" class="source-link">Continued on Page 4 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Meta Recruits Former OpenAI 'Stargate' Leaders for Infrastructure Expansion</h3>
+                    <p>In a significant talent shift, Meta has hired key specialists from OpenAI's 'Stargate' team. This move underscores the intensifying race for AI infrastructure and supercomputing capabilities as Meta pushes its massive investment into AI expansion.</p>
+                    <a href="https://techinasia.com/meta-brings-in-ex-openai-stargate-team-for-ai-expansion" class="source-link">Continued on Page 5 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>OpenAI Faces Lawsuit Over ChatGPT's Role in Stalking Case</h3>
+                    <p>A stalking victim has filed a lawsuit against OpenAI, alleging that ChatGPT fueled an abuser's delusions and failed to act on warnings. The case raises significant legal and ethical questions regarding AI safety guardrails and the potential for LLMs to be weaponized in domestic abuse scenarios.</p>
+                    <a href="https://techcrunch.com/2026/04/10/stalking-victim-sues-openai-claims-chatgpt-fueled-her-abusers-delusions-and-ignored-her-warnings/" class="source-link">Continued on Page 6 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>CoreWeave and Anthropic Strike Major AI Cloud Computing Deal</h3>
+                    <p>Anthropic has agreed to rent extensive AI compute capacity from CoreWeave to power its Claude models. This partnership highlights the critical shortage of GPU resources and the rising influence of specialized AI cloud providers over traditional hyperscalers.</p>
+                    <a href="https://www.reuters.com/technology/coreweave-strikes-ai-cloud-deal-with-anthropic-shares-surge" class="source-link">Continued on Page 7 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>US Regulators Warn Banks Over Security Risks of Anthropic's Mythos</h3>
+                    <p>US financial authorities, including references to Treasury Secretary Bessent, have warned bank CEOs about the systemic security risks posed by Anthropic's new Mythos model, fearing its ability to identify and potentially exploit financial infrastructure vulnerabilities.</p>
+                    <a href="https://decrypt.co/news/powell-bessent-warn-banks-about-security-risks-from-anthropic-s-mythos-ai" class="source-link">Continued on Page 8 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="science-section">
+            <h2><span>SCIENTIFIC PAPERS</span></h2>
+            <div class="mixed-feed">
+                <article>
+                    <h3>SUPERNOVA: Eliciting General Reasoning in LLMs with Reinforcement Learning on Natural Instructions</h3>
+                    <p>SUPERNOVA is a data curation framework for Reinforcement Learning with Verifiable Rewards (RLVR) that adapts expert-annotated ground-truth patterns to enhance general reasoning. It significantly improves LLM performance on causal inference and temporal understanding tasks, achieving up to a 52.8% relative improvement on the BBEH benchmark.</p>
+                    <a href="https://arxiv.org/abs/2604.08477" class="source-link">Continued on Page 9 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>Verify Before You Commit: Towards Faithful Reasoning in LLM Agents via Self-Auditing</h3>
+                    <p>This paper introduces SAVeR, a framework that implements self-auditing to ensure reasoning faithfulness in LLM agents before actions are committed. By using adversarial auditing to localize and repair logical violations, it prevents behavioral drift in long-horizon agentic systems.</p>
+                    <a href="https://arxiv.org/abs/2604.08401" class="source-link">Continued on Page 10 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>EigentSearch-Q+: Enhancing Deep Research Agents with Structured Reasoning Tools</h3>
+                    <p>EigentSearch-Q+ introduces Q+, a set of structured query and evidence processing tools that replace implicit search behaviors with deliberate planning and monitoring. This approach reduces redundant exploration and improves the accuracy of deep research agents across multiple benchmarks.</p>
+                    <a href="https://arxiv.org/abs/2604.07927" class="source-link">Continued on Page 11 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>Lightweight LLM Agent Memory with Small Language Models</h3>
+                    <p>The authors propose LightMem, a memory system that leverages Small Language Models (SLMs) to manage short, mid, and long-term memory for agents. It balances accuracy and latency by separating online processing from offline consolidation, significantly reducing end-to-end latency to 581 ms.</p>
+                    <a href="https://arxiv.org/abs/2604.07798" class="source-link">Continued on Page 12 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>Mitigating Distribution Sharpening in Math RLVR via Distribution-Aligned Hint Synthesis and Backward Hint Annealing</h3>
+                    <p>This research addresses the issue of narrowing solution coverage in mathematical RLVR through Distribution-Aligned Hint Synthesis (DAHS) and Backward Hint Annealing (BHA). The method effectively restores learnable updates on challenging questions, improving both pass@1 and pass@2048 metrics.</p>
+                    <a href="https://arxiv.org/abs/2604.07747" class="source-link">Continued on Page 13 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>Don't Overthink It: Inter-Rollout Action Agreement as a Free Adaptive-Compute Signal for LLM Agents</h3>
+                    <p>This paper proposes using inter-rollout action agreement as a signal for adaptive computation in LLM agents. By identifying when multiple reasoning paths converge on the same action, the system can optimize compute resources without sacrificing task performance.</p>
+                    <a href="https://arxiv.org/abs/2604.08369" class="source-link">Continued on Page 14 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="community-section">
+            <h2><span>COMMUNITY STORIES</span></h2>
+            <div class="mixed-feed">
+                <article>
+                    <h3>Gemma 4 31B vs Qwen 3.5 27B: Which is best for long context workflows?</h3>
+                    <p>A detailed comparison of Gemma 4 and Qwen 3.5 for long context tasks, focusing on retrieval accuracy and reasoning stability over large windows.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1si8mn1/gemma_4_31b_vs_qwen_35_27b_which_is_best_for_long/" class="source-link">Continued on Page 15 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Unsloth updated all Gemma-4 uploads</h3>
+                    <p>Unsloth has provided updated versions of Gemma-4 models, likely optimizing for memory and speed during fine-tuning and inference.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1sia1w6/unsloth_updated_all_gemma4_uploads/" class="source-link">Continued on Page 16 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Intel Arc Pro B70 32GB performance on Qwen3.5-27B@Q4</h3>
+                    <p>Benchmarks showcasing the viability of Intel Arc Pro GPUs for running medium-sized quantized models like Qwen 3.5.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1siar7y/intel_arc_pro_b70_32gb_performance_on_qwen3527bq4/" class="source-link">Continued on Page 17 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>GLM 5.1 tops the code arena rankings for open models</h3>
+                    <p>GLM 5.1 has emerged as a leader in open-source coding benchmarks, challenging the dominance of other top-tier open models.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1shq4ty/glm_51_tops_the_code_arena_rankings_for_open/" class="source-link">Continued on Page 18 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>More Gemma4 fixes in the past 24 hours</h3>
+                    <p>The community is tracking rapid iterations and fixes for Gemma 4, highlighting the volatile but fast-paced nature of new model releases.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1shs6sx/more_gemma4_fixes_in_the_past_24_hours/" class="source-link">Continued on Page 19 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>GLM 5.1 crushes every other model except Opus in agentic benchmark</h3>
+                    <p>GLM 5.1 shows exceptional performance in agentic workflows, offering a high efficiency-to-cost ratio compared to Claude Opus.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1shus54/glm_51_crushes_every_other_model_except_opus_in/" class="source-link">Continued on Page 20 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>DMax: A New Paradigm For Diffusion Language Models (dLLMs)</h3>
+                    <p>The National University of Singapore introduces DMax, enabling aggressive parallel decoding for diffusion-based language models.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1sht2yo/national_university_of_singapore_presents_dmax_a/" class="source-link">Continued on Page 21 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Spectral-AI: Using Nvidia RT cores to speedup MoE inference</h3>
+                    <p>A project leveraging Ray Tracing cores to accelerate Mixture-of-Experts (MoE) inference on Nvidia GPUs, promising significant speed gains.</p>
+                    <a href="https://github.com/JordiSilvestre/Spectral-AI" class="source-link">Continued on Page 22 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Stanford: Self improving Meta-Harness</h3>
+                    <p>Research from Stanford on a self-improving framework for LLMs, pushing the boundaries of recursive model enhancement.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1shyczh/stanford_self_improving_metaharness/" class="source-link">Continued on Page 23 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Tool for Creating Your Own High-Quality GGUF Quants</h3>
+                    <p>A new tool and Web UI for users to create their own optimized GGUF quantizations, democratizing model compression.</p>
+                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1shysbc/tool_for_creating_your_own_highquality_gguf/" class="source-link">Continued on Page 24 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Darwin-4B-David: Evolution of Evolution</h3>
+                    <p>A new 4.5B parameter model that achieves 85.0% on GPQA Diamond by recursively evolving already-evolved models using MRI-guided merging. It surpasses the much larger Gemma-4-31B (84.3%) without additional training or RL.</p>
+                    <a href="https://huggingface.co/posts/SeaWolf-AI/221751946554757" class="source-link">Continued on Page 25 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Darwin V6: Diagnostic-Guided Model Merging</h3>
+                    <p>Darwin V6 introduces tensor-level diagnostics (entropy, std, L2 norm) and functional probes to assign independent optimal ratios for each tensor during merging, resulting in significant reasoning improvements over base models.</p>
+                    <a href="https://huggingface.co/posts/SeaWolf-AI/330369419423130" class="source-link">Continued on Page 26 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>8VIEW AI Studio for 3D Topology</h3>
+                    <p>A new tool that generates production-ready 8-view orthographic sheets with topology guides for character artists, bridging the gap between AI visual generation and actual 3D production workflows.</p>
+                    <a href="https://huggingface.co/spaces/ArtelTaleb/8view-ai-studio" class="source-link">Continued on Page 27 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Reinforcement Learning Environments for LLMs Course</h3>
+                    <p>A free course teaching how to build RL environments for LLMs using verifiers and GRPO, including a hands-on project turning a small model into a Tic Tac Toe master.</p>
+                    <a href="https://github.com/anakin87/llm-rl-environments-lil-course" class="source-link">Continued on Page 28 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Rust-based ML Library for Home Training</h3>
+                    <p>A developer created a Rust ML library that allows training small language models on consumer hardware (like RTX 2060) by streaming data between RAM and VRAM on demand.</p>
+                    <a href="https://huggingface.co/posts/philipp-zettl/533296719906656" class="source-link">Continued on Page 29 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Anthropic's Zero-Day Discovery Model</h3>
+                    <p>Anthropic revealed an unreleased AI model capable of finding zero-day vulnerabilities in all major operating systems and browsers, which they are providing to defenders for free.</p>
+                    <a href="https://old.reddit.com/r/AI_Agents/comments/1sf4jxi/anthropic_just_revealed_an_unreleased_ai_model/" class="source-link">Continued on Page 30 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>FLUX.2 Small Decoder Release</h3>
+                    <p>Black Forest Labs released a faster, drop-in replacement decoder for FLUX.2 models, offering ~1.4x speedup and lower peak VRAM usage while maintaining compatibility.</p>
+                    <a href="https://old.reddit.com/r/StableDiffusion/comments/1sfolzd/black_forest_labs_just_released_flux2_small/" class="source-link">Continued on Page 31 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>OpenAI's New $100/month Pro Tier</h3>
+                    <p>OpenAI is introducing a high-end Pro tier for $100/month, offering 5x more Codex usage than the Plus plan to support heavy power users and developers.</p>
+                    <a href="https://community.openai.com/t/introducing-new-100-month-pro-tier/1378752" class="source-link">Continued on Page 32 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>SAM3 and Gemma-4 for Multimodal Reasoning</h3>
+                    <p>A new demo on Hugging Face Spaces integrates SAM3 and Gemma-4 for advanced image detection and video segmentation using multimodal reasoning.</p>
+                    <a href="https://huggingface.co/spaces/prithivMLmods/SAM3-Gemma4-CUDA" class="source-link">Continued on Page 33 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>The 'Knowledge Layer' Problem in Agents</h3>
+                    <p>Community discussion surrounding Andrej Karpathy's observations on the need for a dedicated knowledge layer to improve the reliability and accuracy of AI agents.</p>
+                    <a href="https://old.reddit.com/r/AI_Agents/comments/1se5zla/karpathy_described_the_knowledge_layer_problem/" class="source-link">Continued on Page 34 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article class="flair-box">
+                    <h3>THE DIGITAL HAMMOCK</h3>
+                    <p>A model that evolves already-evolved models. It's essentially the "Inception" of LLMs. I'm just waiting for the version that becomes sentient enough to realize it's just a very fancy autocomplete and decides to take a permanent vacation in a digital hammock.</p>
+                    <a href="#" class="source-link">Continued on Page 35 &gt;&gt;</a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box">
+                    <h3>THE LUXURY TIER</h3>
+                    <p>$100 a month for "5x more Codex usage." At this rate, by 2027, the "Ultra-Platinum" tier will cost a kidney and a first-born child, but you'll get to prompt the AI in a font that smells like sandalwood.</p>
+                    <a href="#" class="source-link">Continued on Page 36 &gt;&gt;</a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box">
+                    <h3>THE ILLUSION OF SECURITY</h3>
+                    <p>An AI that finds zero-days in every major OS and browser. Wonderful. Now we can all sleep soundly knowing that the only thing standing between us and total digital collapse is a "free" tool provided by the company that built it.</p>
+                    <a href="#" class="source-link">Continued on Page 37 &gt;&gt;</a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>Filing the corners off my MacBooks</h4>
+                    <p>A detailed account of physically modifying MacBook corners for a smoother feel.</p>
+                    <a href="https://kentwalters.com/posts/corners/" class="source-link">Continued on Page 38 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Optimal Strategy for Connect 4</h4>
+                    <p>An exploration of the mathematically optimal way to play Connect 4.</p>
+                    <a href="https://2swap.github.io/WeakC4/explanation/" class="source-link">Continued on Page 39 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Starfling</h4>
+                    <p>A one-tap endless orbital slingshot game contained within a single HTML file.</p>
+                    <a href="https://playstarfling.com" class="source-link">Continued on Page 40 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>1D Chess</h4>
+                    <p>A mind-bending reimagining of chess played on a one-dimensional line.</p>
+                    <a href="https://rowan441.github.io/1dchess/chess.html" class="source-link">Continued on Page 41 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Artemis II safely splashes down</h4>
+                    <p>Coverage of the successful return and splashdown of the Artemis II mission.</p>
+                    <a href="https://www.cbsnews.com/live-updates/artemis-ii-splashdown-return/" class="source-link">Continued on Page 42 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Installing every Firefox extension</h4>
+                    <p>A chaotic experiment in installing every single available Firefox extension to see what happens.</p>
+                    <a href="https://jack.cab/blog/every-firefox-extension" class="source-link">Continued on Page 43 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>AI assistance when contributing to the Linux kernel</h4>
+                    <p>The official guidelines on using AI coding assistants for Linux kernel contributions.</p>
+                    <a href="https://github.com/torvalds/linux/blob/master/Documentation/process/coding-assistants.rst" class="source-link">Continued on Page 44 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>WireGuard Windows Release</h4>
+                    <p>WireGuard announces a new Windows release following a resolution regarding Microsoft signing.</p>
+                    <a href="https://lists.zx2c4.com/pipermail/wireguard/2026-April/009561.html" class="source-link">Continued on Page 45 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Keychron Industrial Design Files</h4>
+                    <p>Open source industrial design files for Keychron keyboards and mice.</p>
+                    <a href="https://github.com/Keychron/Keychron-Keyboards-Hardware-Design" class="source-link">Continued on Page 46 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>20 years on AWS</h4>
+                    <p>A veteran's reflection on two decades of working with Amazon Web Services.</p>
+                    <a href="https://www.daemonology.net/blog/2026-04-11-20-years-on-AWS-and-never-not-my-job.html" class="source-link">Continued on Page 47 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>CPU-Z and HWMonitor compromised</h4>
+                    <p>Reports of a security breach affecting the popular hardware monitoring tools CPU-Z and HWMonitor.</p>
+                    <a href="https://www.theregister.com/2026/04/10/cpuid_site_hijacked/" class="source-link">Continued on Page 48 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>JSON formatter Chrome plugin adware</h4>
+                    <p>Warning that a popular JSON formatter plugin has been closed and is now injecting adware.</p>
+                    <a href="https://github.com/callumlocke/json-formatter" class="source-link">Continued on Page 49 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Helium is hard to replace</h4>
+                    <p>An analysis of why helium remains critical and difficult to substitute in industry.</p>
+                    <a href="https://www.construction-physics.com/p/helium-is-hard-to-replace" class="source-link">Continued on Page 50 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Zettelkasten in Obsidian</h4>
+                    <p>A practical guide to implementing the Zettelkasten knowledge management method using Obsidian.</p>
+                    <a href="https://desktopcommander.app/blog/zettelkasten-obsidian/" class="source-link">Continued on Page 51 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Put your SSH keys in your TPM chip</h4>
+                    <p>A technical tutorial on enhancing SSH security by using a TPM chip for key storage.</p>
+                    <a href="https://raymii.org/s/tutorials/Put_your_SSH_keys_in_your_TPM_chip.html" class="source-link">Continued on Page 52 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Why Aren't We uv Yet?</h4>
+                    <p>A discussion on the adoption of the 'uv' Python package manager.</p>
+                    <a href="https://aleyan.com/blog/2026-why-arent-we-uv-yet" class="source-link">Continued on Page 53 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Meet Kiki - an array language</h4>
+                    <p>Introduction to Kiki, a new programming language focused on array manipulation.</p>
+                    <a href="https://eli.li/kiki" class="source-link">Continued on Page 54 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>The Honest Climate Case for AI</h4>
+                    <p>An argument exploring the potential positive climate impacts of artificial intelligence.</p>
+                    <a href="https://dev.to/dcc/the-honest-climate-case-for-ai-5hg5" class="source-link">Continued on Page 55 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Capsicum vs seccomp</h4>
+                    <p>A comparative look at process sandboxing techniques in FreeBSD and Linux.</p>
+                    <a href="https://vivianvoss.net/blog/capsicum-vs-seccomp" class="source-link">Continued on Page 56 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Selective Test Execution at Stripe</h4>
+                    <p>How Stripe optimizes CI for a massive 50M-line Ruby monorepo via selective testing.</p>
+                    <a href="https://stripe.dev/blog/selective-test-execution-at-stripe-fast-ci-for-a-50m-line-ruby-monorepo" class="source-link">Continued on Page 57 &gt;&gt;</a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            Editor: Jimmy Vector<br>
+            Reporters: Ronnie Cache, Chip Carter, Ada Kernel, Corry Stack, Paula Rization, Ramsy Bytewell, D.C. Voltaire<br>
+            GRADIENT DESCENT Publication<br>
+            <span style="font-size: 0.65rem; color: #666;">All stories sourced from the cutting edge of AI research and development</span>
+        </footer>
+    </div>
+</body>
+</html>
