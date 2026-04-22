@@ -18,7 +18,7 @@
             --ink-color: #1a1917;
             --faded-ink: #33312e;
             --border-black: #000000;
-            --paper-texture: 
+            --paper-texture:
                 radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
                 radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
                 radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
@@ -30,13 +30,13 @@
         /* --- PAPER TEXTURE & BODY --- */
         body {
             background-color: var(--paper-bg);
-            background-image: var(--paper-texture); 
-            background-size: 16px 16px; 
+            background-image: var(--paper-texture);
+            background-size: 16px 16px;
             color: var(--ink-color);
             font-family: var(--body-font);
             margin: 0;
             padding: 0;
-            line-height: 1.35; 
+            line-height: 1.35;
             -webkit-font-smoothing: antialiased;
         }
         body::before {
@@ -50,9 +50,9 @@
         .container {
             max-width: 1000px;
             margin: 20px auto;
-            background-color: rgba(255,255,255,0.8); 
+            background-color: rgba(255,255,255,0.8);
             padding: 20px;
-            border: 1px solid #d4d4d4; 
+            border: 1px solid #d4d4d4;
             box-shadow: 0 0 15px rgba(0,0,0,0.15);
             position: relative;
         }
@@ -68,9 +68,9 @@
         }
         p {
             margin: 0 0 10px 0;
-            text-align: justify; 
+            text-align: justify;
             font-size: 0.95rem;
-            hyphens: auto; 
+            hyphens: auto;
         }
         header {
             text-align: center;
@@ -80,13 +80,13 @@
             position: relative;
         }
         .masthead {
-            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-size: clamp(3rem, 10vw, 5.5rem);
             font-weight: 900;
             letter-spacing: -3px;
             margin-bottom: 5px;
             color: #1a1a1a;
             text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
-            transform: scaleY(1.1); 
+            transform: scaleY(1.1);
         }
         .tagline {
             font-family: var(--headline-font);
@@ -116,16 +116,16 @@
             text-align: center;
             border-bottom: 1px solid var(--border-black);
             line-height: 0.1em;
-            margin: 10px 0 20px; 
+            margin: 10px 0 20px;
             width: 100%;
         }
-        h2 span { 
-            background: #fcfbf2; 
-            padding: 0 10px; 
+        h2 span {
+            background: #fcfbf2;
+            padding: 0 10px;
         }
         .scoop-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; 
+            grid-template-columns: 1fr 1fr;
             gap: 15px;
             border-bottom: 2px solid var(--border-black);
             padding-bottom: 15px;
@@ -133,10 +133,10 @@
         }
         .scoop-item:first-child {
             grid-column: 1 / -1;
-            column-count: 2; 
+            column-count: 2;
             column-gap: 20px;
             column-rule: none;
-            border-bottom: 1px solid var(--border-black); 
+            border-bottom: 1px solid var(--border-black);
             padding-bottom: 15px;
             margin-bottom: 15px;
         }
@@ -183,12 +183,12 @@
             widows: 1;
         }
         .mixed-feed article {
-            display: inline-block; 
+            display: inline-block;
             width: 100%;
             margin-bottom: 15px;
             padding-bottom: 10px;
             vertical-align: top;
-            border-bottom: 1px dotted var(--ink-color); 
+            border-bottom: 1px dotted var(--ink-color);
         }
         .flair-box {
             border: 2px solid var(--border-black) !important;
@@ -201,10 +201,13 @@
                 transparent 4px
             );
             position: relative;
-            margin-bottom: 15px !important; 
+            margin-bottom: 15px !important;
         }
         .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
-        .flair-box::before { display: none; } 
+        .flair-box::before { display: none; }
+        .sidebar-commentary {
+            break-inside: avoid;
+        }
         .tech-boards-section {
             background-color: transparent;
             padding: 0;
@@ -216,7 +219,7 @@
             padding: 0;
             margin: 0;
             display: grid;
-            grid-template-columns: repeat(4, 1fr); 
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
         }
         .tech-list li {
@@ -264,21 +267,21 @@
                 gap: 20px;
             }
             .scoop-item:first-child {
-                column-count: 1; 
+                column-count: 1;
             }
             .mixed-feed {
-                column-count: 1; 
+                column-count: 1;
             }
             .mixed-feed article {
-                display: block; 
+                display: block;
             }
             .tech-list {
-                grid-template-columns: 1fr 1fr; 
+                grid-template-columns: 1fr 1fr;
             }
         }
         @media (max-width: 480px) {
             .tech-list {
-                grid-template-columns: 1fr; 
+                grid-template-columns: 1fr;
             }
             .subhead {
                 flex-direction: column;
@@ -295,8 +298,8 @@
             <h1 class="masthead">The Gradient Descent</h1>
             <div class="tagline">The Future Of AI, One Step At A Time</div>
             <div class="subhead">
-                <span>Vol. 2, No. 17</span>
-                <span>Tuesday, Apr 21 2026</span>
+                <span>Vol. 2, No. 18</span>
+                <span>Wednesday, Apr 22 2026</span>
                 <span>Cost: 96GB</span>
             </div>
         </header>
@@ -305,34 +308,82 @@
             <h2><span>HEADLINES</span></h2>
             <div class="scoop-grid">
                 <article class="scoop-item">
-                    <h3>Humanoid Robots Outpace Humans in Beijing Half-Marathon</h3>
-                    <p>In a striking display of rapid advancement in robotics and AI, humanoid robots successfully competed in and outpaced humans during a half-marathon in Beijing, signaling a major leap in bipedal locomotion and endurance.</p>
-                    <a href="https://www.reuters.com" class="source-link">Continued on Page 2 &gt;&gt;</a>
+                    <h3>SpaceX Offers $60 Billion to Acquire Cursor, Halting $2B Fundraise</h3>
+                    <p>In one of the most aggressive power plays in AI startup history, SpaceX has preemptively offered to acquire coding assistant Cursor from Anthropic for up to $60 billion — derailing the startup's planned $2 billion funding round. Even if the deal ultimately does not close, SpaceX will pay a $10 billion "collaboration fee" and has signaled the purchase will follow after its summer IPO. Analysts say the move signals Elon Musk's all-out push into enterprise AI developer tools and is expected to trigger a frenzy of competing bids that could reshape the entire coding assistant landscape.</p>
+                    <a href="https://techcrunch.com/2026/04/22/how-spacex-preempted-a-2b-fundraise-with-a-60b-buyout-offer/" class="source-link">Continued on Page 2 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter, Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Google Unveils TPU 8t and TPU 8i — Two Chips Built for the Agentic Era</h3>
+                    <p>At Google Cloud Next 2026, Google announced its eighth-generation TPU lineup split into two purpose-built chips: TPU 8t for massive model training (nearly 3x compute per pod, 121 ExaFlops) and TPU 8i for ultra-low-latency inference (5x faster on-chip operations, 80% better per-dollar). Both run on custom Axion ARM CPUs, and together they represent Google's boldest challenge yet to Nvidia's accelerator monopoly.</p>
+                    <a href="https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/eighth-generation-tpu-agentic-era/" class="source-link">Continued on Page 3 &gt;&gt;</a>
                     <span class="reporter">— Chip Carter</span>
                 </article>
                 <article class="scoop-item">
-                    <h3>Anthropic takes $5B from Amazon and pledges $100B in cloud spending</h3>
-                    <p>In a massive strategic alignment, Anthropic has secured $5 billion in funding from Amazon. In exchange, the AI startup has committed to spending $100 billion on Amazon's cloud infrastructure, cementing a deep interdependence between the model builder and the cloud giant.</p>
-                    <a href="https://techcrunch.com/2026/04/20/anthropic-takes-5b-from-amazon-and-pledges-100b-in-cloud-spending-in-return/" class="source-link">Continued on Page 3 &gt;&gt;</a>
+                    <h3>Unauthorized Group Gains Access to Anthropic's Mythos Cybersecurity Model</h3>
+                    <p>Anthropic's tightly restricted Mythos AI — intended for only roughly 40 vetted organizations — has fallen into unauthorized hands. Meanwhile, the NSA is reportedly using Mythos to hunt vulnerabilities in its own networks, despite the Pentagon previously labeling Anthropic a supply-chain risk. The leak intensifies a tense relationship between government and the startup over AI procurement oversight.</p>
+                    <a href="https://www.theverge.com/ai-artificial-intelligence/916501/anthropic-mythos-unauthorized-users-access-security" class="source-link">Continued on Page 4 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter, Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>OpenAI Launches Workspace Agents in ChatGPT for Teams</h3>
+                    <p>OpenAI introduced workspace agents — Codex-powered, cloud-running AI agents that teams can build to handle complex, long-running workflows. The agents can triage software requests, route product feedback, generate reports, and qualify leads, all while running inside ChatGPT or Slack. Free until May 6 for Business, Enterprise, and Edu plans.</p>
+                    <a href="https://openai.com/index/introducing-workspace-agents-in-chatgpt/" class="source-link">Continued on Page 5 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Meta Will Record Employee Keystrokes to Train Its AI Agents</h3>
+                    <p>Meta has implemented a program to capture employee mouse movements, clicks, and keystrokes on company computers to train its next-generation AI agents. The move highlights the industry's growing hunger for proprietary, real-world usage data as companies race to build autonomous systems that behave naturally in everyday tasks.</p>
+                    <a href="https://www.theverge.com/tech/916681/meta-ai-agents-employee-tracking" class="source-link">Continued on Page 6 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache, Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Mythos AI Finds 271 Vulnerabilities in Firefox</h3>
+                    <p>Mozilla CTO Bobby Holley revealed that Anthropic's Claude Mythos Preview found 271 security bugs in Firefox 150, declaring the model "every bit as capable" as top human researchers. Holley said the finding marks a turning point where defenders can finally close the gap — "the zero-days are numbered."</p>
+                    <a href="https://blog.mozilla.org/en/firefox/ai-security-zero-day-vulnerabilities/" class="source-link">Continued on Page 7 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Sam Altman Trashes Mythos as "Fear-Based Marketing"</h3>
+                    <p>OpenAI CEO Sam Altman publicly dismissed Anthropic's Mythos cybersecurity model as "fear-based marketing" — a direct jab as both companies race for enterprise and government AI contracts. The feud escalates even as Mythos has found hundreds of bugs in Firefox.</p>
+                    <a href="https://www.theverge.com/ai-artificial-intelligence" class="source-link">Continued on Page 8 &gt;&gt;</a>
                     <span class="reporter">— Ronnie Cache</span>
                 </article>
                 <article class="scoop-item">
-                    <h3>NSA reportedly using Anthropic’s Mythos despite Pentagon friction</h3>
-                    <p>Reports indicate that the NSA is utilizing Anthropic's 'Mythos' AI tool for intelligence operations. This development comes amid ongoing tensions and feuds within the Pentagon regarding the adoption and oversight of AI technologies.</p>
-                    <a href="https://techcrunch.com/2026/04/20/nsa-spies-are-reportedly-using-anthropics-mythos-despite-pentagon-feud/" class="source-link">Continued on Page 4 &gt;&gt;</a>
+                    <h3>AI Hallucinations Sink Sullivan &amp; Cromwell in Federal Court</h3>
+                    <p>The prestigious Sullivan &amp; Cromwell was forced to apologize to a federal judge after filing documents containing a three-page list of fabricated case citations — every one hallucinated by an AI. The episode underscores the very real dangers of trusting large language models with legal research.</p>
+                    <a href="https://www.theverge.com/ai-artificial-intelligence" class="source-link">Continued on Page 9 &gt;&gt;</a>
                     <span class="reporter">— Ronnie Cache</span>
                 </article>
                 <article class="scoop-item">
-                    <h3>Google expands Gemini in Chrome to seven new countries</h3>
-                    <p>Google continues the global rollout of its Gemini AI integration within the Chrome browser, expanding access to seven additional countries to bring generative AI capabilities directly into the web browsing experience for millions more users.</p>
-                    <a href="https://techcrunch.com/2026/04/20/google-rolls-out-gemini-in-chrome-in-seven-new-countries/" class="source-link">Continued on Page 5 &gt;&gt;</a>
+                    <h3>Google Teases Siri Upgrade Powered by Gemini</h3>
+                    <p>Google Cloud CEO Thomas Kurian confirmed on stage that Apple's upcoming Siri overhaul will be powered by Google's Gemini AI. With Apple's newly named CEO John Ternus set to inherit the dependency, the partnership marks a major strategic shift for Apple, which has struggled to keep pace in AI.</p>
+                    <a href="https://www.theverge.com/tech/917100/spotted-on-the-google-stage-a-giant-apple-logo" class="source-link">Continued on Page 10 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter, Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Google Deepens Ties With Thinking Machines Lab in Multi-Billion Dollar Deal</h3>
+                    <p>Google significantly expanded its partnership with the Thinking Machines Lab through a new multi-billion-dollar agreement, strengthening its position in advanced AI reasoning research alongside DeepMind. The arrangement is seen as a direct counter to Anthropic's growing credibility in rigorous AI safety research.</p>
+                    <a href="https://techcrunch.com/2026/04/21/google-deepens-thinking-machines-lab-ties-with-new-multibillion-dollar-deal/" class="source-link">Continued on Page 11 &gt;&gt;</a>
                     <span class="reporter">— Ronnie Cache</span>
                 </article>
                 <article class="scoop-item">
-                    <h3>Fermi AI nuclear power upstart sees CEO and CFO depart</h3>
-                    <p>Fermi, a startup focused on the intersection of AI and nuclear power, has suffered a major leadership blow with the sudden departure of both its CEO and CFO, raising questions about the stability of the AI-energy venture.</p>
-                    <a href="https://techcrunch.com/2026/04/20/fermi-ceo-and-cfo-depart-texas-nuclear-power-ai/" class="source-link">Continued on Page 6 &gt;&gt;</a>
+                    <h3>Warren Warns AI Failure Could Trigger Next Financial Crisis</h3>
+                    <p>Senator Elizabeth Warren issued a stark warning that the first major AI stumble in finance could spark systemic panic. She argued that investors have no framework for understanding AI-driven market moves as the technology permeates trading, lending, and advisory services.</p>
+                    <a href="https://www.theverge.com/ai-artificial-intelligence" class="source-link">Continued on Page 12 &gt;&gt;</a>
                     <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Zed Editor Ships Parallel Agents</h3>
+                    <p>Zed Industries released Parallel Agents, letting developers orchestrate multiple AI coding agents simultaneously in the same editor window — complete with a Threads Sidebar for managing parallel agent threads and isolated worktrees. The feature runs at Zed's blistering 120fps and is fully open-source.</p>
+                    <a href="https://zed.dev/blog/parallel-agents" class="source-link">Continued on Page 13 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Qwen3.6-27B: Flagship-Level Coding in a Compact Dense Model</h3>
+                    <p>Alibaba unveiled Qwen3.6-27B, a 27-billion-parameter dense model delivering flagship-tier coding performance at a fraction of the size of frontier models. The release is generating enormous buzz among self-hosting developers for its practicality on consumer hardware.</p>
+                    <a href="https://qwen.ai/blog?id=qwen3.6-27b" class="source-link">Continued on Page 14 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
                 </article>
             </div>
         </section>
@@ -341,39 +392,63 @@
             <h2><span>SCIENTIFIC PAPERS</span></h2>
             <div class="mixed-feed">
                 <article>
-                    <h3>Agentic Forecasting using Sequential Bayesian Updating of Linguistic Beliefs</h3>
-                    <p>Introduces BLF, an agentic system for binary forecasting that uses a Bayesian linguistic belief state combining numerical probabilities with natural-language evidence.</p>
-                    <a href="https://arxiv.org/abs/2604.18576" class="source-link">Continued on Page 7 &gt;&gt;</a>
+                    <h3>FASTER: Value-Guided Sampling for Fast RL</h3>
+                    <p>Models action candidate selection as a Markov Decision Process during the denoising process, filtering low-value samples early to deliver sampling-based RL benefits without the compute cost.</p>
+                    <a href="https://arxiv.org/abs/2604.19730" class="source-link">Continued on Page 15 &gt;&gt;</a>
                     <span class="reporter">— Paula Rization</span>
                 </article>
                 <article>
-                    <h3>LLM Safety From Within: Detecting Harmful Content with Internal Representations</h3>
-                    <p>Presents SIREN, a lightweight guard model that detects harmful content by analyzing internal LLM representations rather than just the final layer.</p>
-                    <a href="https://arxiv.org/abs/2604.18519" class="source-link">Continued on Page 8 &gt;&gt;</a>
+                    <h3>VLA Foundry: Unified Training for Vision-Language-Action Models</h3>
+                    <p>An open-source framework unifying LLM, VLM, and VLA training in a single codebase. Evaluated on the open LBM Eval simulator, a from-scratch model matches prior closed-source work.</p>
+                    <a href="https://arxiv.org/abs/2604.19728" class="source-link">Continued on Page 16 &gt;&gt;</a>
                     <span class="reporter">— Paula Rization</span>
                 </article>
                 <article>
-                    <h3>Training and Agentic Inference Strategies for LLM-based Manim Animation Generation</h3>
-                    <p>Explores the interaction between training (SFT and GRPO) and agentic inference for generating programmatic animations with Manim.</p>
-                    <a href="https://arxiv.org/abs/2604.18364" class="source-link">Continued on Page 9 &gt;&gt;</a>
+                    <h3>CoCo-SAM3: Harnessing Concept Conflict in Open-Vocabulary Segmentation</h3>
+                    <p>Decouples inference into intra-class enhancement and inter-class competition on a unified scale, stabilizing multi-class segmentation without additional training.</p>
+                    <a href="https://arxiv.org/abs/2604.19648" class="source-link">Continued on Page 17 &gt;&gt;</a>
                     <span class="reporter">— Paula Rization</span>
                 </article>
                 <article>
-                    <h3>LiteResearcher: A Scalable Agentic RL Training Framework for Deep Research Agent</h3>
-                    <p>Proposes a scalable RL training framework using a virtual world to mirror real-world search dynamics, allowing small agents to outperform larger models.</p>
-                    <a href="https://arxiv.org/abs/2604.17931" class="source-link">Continued on Page 10 &gt;&gt;</a>
+                    <h3>Generalization at the Edge of Stability</h3>
+                    <p>Represents stochastic optimizers as random dynamical systems converging to fractal attractor sets, introducing a "sharpness dimension" generalization bound based on Hessian spectrum.</p>
+                    <a href="https://arxiv.org/abs/2604.19740" class="source-link">Continued on Page 18 &gt;&gt;</a>
                     <span class="reporter">— Paula Rization</span>
                 </article>
                 <article>
-                    <h3>Polysemantic Experts, Monosemantic Paths: Routing as Control in MoEs</h3>
-                    <p>Analyzes Mixture-of-Experts (MoE) models to show that while individual experts are polysemantic, the trajectories they form are monosemantic.</p>
-                    <a href="https://arxiv.org/abs/2604.17837" class="source-link">Continued on Page 11 &gt;&gt;</a>
+                    <h3>Cyber Defense Benchmark: Agentic Threat Hunting for LLMs</h3>
+                    <p>Evaluates frontier models on SOC analyst-style threat hunting from raw Windows event logs. The best model flags only 3.8% of malicious events, and no run ever finds all flags.</p>
+                    <a href="https://arxiv.org/abs/2604.19533" class="source-link">Continued on Page 19 &gt;&gt;</a>
                     <span class="reporter">— Paula Rization</span>
                 </article>
                 <article>
-                    <h3>MathNet: a Global Multimodal Benchmark for Mathematical Reasoning and Retrieval</h3>
-                    <p>Introduces MathNet, a comprehensive multimodal benchmark designed to evaluate AI models in mathematical reasoning and retrieval.</p>
-                    <a href="https://arxiv.org/abs/2604.18584" class="source-link">Continued on Page 12 &gt;&gt;</a>
+                    <h3>Taming Actor-Observer Asymmetry via Dialectical Alignment</h3>
+                    <p>Introduces ReTAS — trained through Thesis-Antithesis-Synthesis chain-of-thought with GRPO — to enforce perspective-invariant reasoning in multi-agent fault resolution.</p>
+                    <a href="https://arxiv.org/abs/2604.19548" class="source-link">Continued on Page 20 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>Mesh Memory Protocol: Semantic Infrastructure for Multi-Agent Systems</h3>
+                    <p>Specifies composable primitives — CAT7 schema, SVAF evaluation, lineage tracking, and "remix" acceptance — for cross-session cognitive sharing among collaborating agents.</p>
+                    <a href="https://arxiv.org/abs/2604.19540" class="source-link">Continued on Page 21 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>Chat2Workflow: Generating Executable Visual Workflows from Language</h3>
+                    <p>A benchmark for generating industrial-grade workflows from natural language. SOTA models capture intent but struggle with correctness; an agentic framework improves resolve rates by 5.34%.</p>
+                    <a href="https://arxiv.org/abs/2604.19667" class="source-link">Continued on Page 22 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>SimDiff: Depth Pruning via Similarity and Difference</h3>
+                    <p>A novel layer importance criterion measuring representational similarity and transformation difference, retaining 91% of LLaMA2-7B performance at 25% pruning with up to 1.49x speedup.</p>
+                    <a href="https://arxiv.org/abs/2604.19520" class="source-link">Continued on Page 23 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>SafetyALFRED: Safety-Conscious Planning for Multimodal LLMs</h3>
+                    <p>Extends the ALFRED embodied agent benchmark with six categories of kitchen hazards. Models that recognize hazards in QA settings drop sharply when required to take corrective action.</p>
+                    <a href="https://arxiv.org/abs/2604.19638" class="source-link">Continued on Page 24 &gt;&gt;</a>
                     <span class="reporter">— Paula Rization</span>
                 </article>
             </div>
@@ -383,153 +458,190 @@
             <h2><span>COMMUNITY STORIES</span></h2>
             <div class="mixed-feed">
                 <article>
-                    <h3>Qwen3.6-Max-Preview: Smarter, Sharper, Still Evolving</h3>
-                    <p>Alibaba introduces a preview of Qwen3.6-Max, demonstrating significant improvements in reasoning and coding capabilities.</p>
-                    <a href="https://qwen.ai/blog?id=qwen3.6-max-preview" class="source-link">Continued on Page 13 &gt;&gt;</a>
+                    <h3>ggml.ai Joins Hugging Face</h3>
+                    <p>In a landmark announcement, the team behind llama.cpp and the GGUF format has joined Hugging Face to guarantee continued open development of local AI tooling and inference optimizations.</p>
+                    <a href="https://github.com/ggml-org/llama.cpp/discussions/19759" class="source-link">Continued on Page 25 &gt;&gt;</a>
                     <span class="reporter">— Ada Kernel</span>
                 </article>
                 <article>
-                    <h3>Ternary Bonsai: Top Intelligence at 1.58 Bits</h3>
-                    <p>A discussion on extreme quantization techniques that push LLM weights to ternary values, aiming to maintain high intelligence while reducing compute.</p>
-                    <a href="https://prismml.com/news/ternary-bonsai" class="source-link">Continued on Page 14 &gt;&gt;</a>
+                    <h3>TurboQuant: Extreme KV Cache Quantization</h3>
+                    <p>A breakthrough in extreme KV cache quantization allows local LLM inference to hold significantly longer context windows on constrained hardware — enabling 70B+ models on consumer GPUs.</p>
+                    <a href="https://github.com/ggml-org/llama.cpp/discussions/20969" class="source-link">Continued on Page 26 &gt;&gt;</a>
                     <span class="reporter">— Ada Kernel</span>
                 </article>
                 <article>
-                    <h3>Soul Player C64 – A real transformer running on a 1 MHz Commodore 64</h3>
-                    <p>An impressive technical feat showcasing a minimal transformer architecture implemented on legacy hardware, highlighting efficiency limits.</p>
-                    <a href="https://github.com/gizmo64k/soulplayer-c64" class="source-link">Continued on Page 15 &gt;&gt;</a>
+                    <h3>DFlash: Block Diffusion for Speculative Decoding</h3>
+                    <p>A speculative decoding technique using block diffusion to accelerate local LLM inference by speculatively generating blocks of tokens in parallel for multiple-times speedup.</p>
+                    <a href="https://github.com/ggml-org/llama.cpp/discussions/21569" class="source-link">Continued on Page 27 &gt;&gt;</a>
                     <span class="reporter">— Ada Kernel</span>
                 </article>
                 <article>
-                    <h3>thunderbolt: AI You Control</h3>
-                    <p>A trending open-source project focused on eliminating vendor lock-in by allowing users to choose their own models and maintain data ownership.</p>
-                    <a href="https://github.com/thunderbird/thunderbolt" class="source-link">Continued on Page 16 &gt;&gt;</a>
+                    <h3>llama.cpp Supports gpt-oss in Native MXFP4</h3>
+                    <p>llama.cpp maintainer ggerganov announced first-class native MXFP4 support for gpt-oss models, unlocking ultra-low-precision inference on consumer hardware while maintaining quality.</p>
+                    <a href="https://github.com/ggml-org/llama.cpp/discussions/15095" class="source-link">Continued on Page 28 &gt;&gt;</a>
                     <span class="reporter">— Ada Kernel</span>
                 </article>
                 <article>
-                    <h3>DeepGEMM: Efficient FP8 GEMM kernels</h3>
-                    <p>DeepSeek releases DeepGEMM, providing clean and efficient FP8 General Matrix Multiplication kernels for optimizing large models on NVIDIA GPUs.</p>
-                    <a href="https://github.com/deepseek-ai/DeepGEMM" class="source-link">Continued on Page 17 &gt;&gt;</a>
+                    <h3>Diffusion (LLaDA) Support Coming to llama.cpp?</h3>
+                    <p>A lively community discussion explores adding native diffusion model support for the LLaDA architecture — potentially making llama.cpp a unified platform for both autoregressive LLMs and diffusion generation, all running locally.</p>
+                    <a href="https://github.com/ggml-org/llama.cpp/discussions/12208" class="source-link">Continued on Page 29 &gt;&gt;</a>
                     <span class="reporter">— Ada Kernel</span>
                 </article>
                 <article>
-                    <h3>openai-agents-python: Framework for multi-agent workflows</h3>
-                    <p>OpenAI's lightweight framework for building multi-agent systems, providing a blueprint for orchestrating specialized agents.</p>
-                    <a href="https://github.com/openai/openai-agents-python" class="source-link">Continued on Page 18 &gt;&gt;</a>
+                    <h3>NousResearch/hermes-agent Tops 110k Stars</h3>
+                    <p>The open-source self-hosted AI agent framework has blown past 110,500 stars on GitHub, adding over 25,000 in a single week with local tool-use, RAG, and autonomous task execution.</p>
+                    <a href="https://github.com/NousResearch/hermes-agent" class="source-link">Continued on Page 30 &gt;&gt;</a>
                     <span class="reporter">— Ada Kernel</span>
                 </article>
                 <article>
-                    <h3>Kimi Vendor Verifier</h3>
-                    <p>A new tool designed to verify the accuracy and honesty of inference providers, addressing 'stealthy' model swapping issues.</p>
-                    <a href="https://www.kimi.com/blog/kimi-vendor-verifier" class="source-link">Continued on Page 19 &gt;&gt;</a>
+                    <h3>llama.cpp New WebUI Guide</h3>
+                    <p>Ggerganov published an official guide for llama.cpp's revamped WebUI, bringing a polished experience for downloading, managing, and chatting with local GGUF models — no code required.</p>
+                    <a href="https://github.com/ggml-org/llama.cpp/discussions/16938" class="source-link">Continued on Page 31 &gt;&gt;</a>
                     <span class="reporter">— Ada Kernel</span>
                 </article>
                 <article>
-                    <h3>Mediator.ai: Using Nash bargaining and LLMs for fairness</h3>
-                    <p>An exploration of combining game theory with LLMs to systematize fairness in automated negotiations and dispute resolutions.</p>
-                    <a href="https://mediator.ai/" class="source-link">Continued on Page 20 &gt;&gt;</a>
+                    <h3>Vulkan Performance Boosts Local AI on AMD &amp; Intel</h3>
+                    <p>A sprawling 700+ comment discussion on llama.cpp's Vulkan backend performance, with users reporting impressive numbers on AMD and Intel iGPUs — democratizing local LLM inference beyond NVIDIA.</p>
+                    <a href="https://github.com/ggml-org/llama.cpp/discussions/10879" class="source-link">Continued on Page 32 &gt;&gt;</a>
                     <span class="reporter">— Ada Kernel</span>
                 </article>
                 <article>
-                    <h3>Types and Neural Networks</h3>
-                    <p>A deep dive into the intersection of formal type systems and neural network architectures to improve model reliability.</p>
-                    <a href="https://www.brunogavranovic.com/posts/2026-04-20-types-and-neural-networks.html" class="source-link">Continued on Page 21 &gt;&gt;</a>
+                    <h3>AnyRecon: Arbitrary-View 3D from Video Diffusion</h3>
+                    <p>A novel approach to 3D reconstruction using video diffusion models. Given just a few input images, AnyRecon synthesizes arbitrary-view reconstructions with stunning fidelity.</p>
+                    <a href="https://huggingface.co/papers/2604.19747" class="source-link">Continued on Page 33 &gt;&gt;</a>
                     <span class="reporter">— Ada Kernel</span>
                 </article>
                 <article>
-                    <h3>OpenClaw-style Claude CLI usage</h3>
-                    <p>Discussions around the permissibility of using CLI wrappers for Claude, reflecting tension between API providers and the community.</p>
-                    <a href="https://docs.openclaw.ai/providers/anthropic" class="source-link">Continued on Page 22 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel</span>
+                    <h3>ShadowPEFT: Detachable Shadow Network for PEFT</h3>
+                    <p>A new fine-tuning paradigm introducing a lightweight, pretrainable, fully detachable shadow network that operates in parallel with a frozen base model — a major win for edge computing. Over 3,100 upvotes on HuggingFace in its first day.</p>
+                    <a href="https://huggingface.co/posts/SeanLee97/529198970271294" class="source-link">Continued on Page 34 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack, Ada Kernel</span>
                 </article>
                 <article>
-                    <h3>HY-World-2.0: Multi-Modal World Model</h3>
-                    <p>A new multi-modal world model for reconstructing, generating, and simulating 3D worlds, featuring Gaussian splats.</p>
-                    <a href="https://huggingface.co/spaces/prithivMLmods/HY-World-2.0-Demo" class="source-link">Continued on Page 23 &gt;&gt;</a>
+                    <h3>Apple's Self-Distillation Now in TRL</h3>
+                    <p>Apple's "Simple Self-Distillation" for improving coding models has landed in HuggingFace's TRL library — fine-tuning on a model's own outputs using plain cross-entropy, no labels needed.</p>
+                    <a href="https://huggingface.co/posts/sergiopaniego/723260804989830" class="source-link">Continued on Page 35 &gt;&gt;</a>
                     <span class="reporter">— Corry Stack</span>
                 </article>
                 <article>
-                    <h3>LLM Training with RL Environments</h3>
-                    <p>Exploration of Group Relative Policy Optimization (GRPO) for training LLMs in complex environments like tic-tac-toe without a critic model.</p>
-                    <a href="https://github.com/anakin87/llm-rl-environments-lil-course" class="source-link">Continued on Page 24 &gt;&gt;</a>
+                    <h3>GLM-5.1 + Pi: Open-Source Claude Code Contender</h3>
+                    <p>HuggingFace co-founder Victor demonstrated an open-source coding agent built from GLM-5.1 and the Pi IDE that rivals Claude Code on complex benchmarks, producing a 531-line 3D racing game with assets from scratch.</p>
+                    <a href="https://huggingface.co/posts/victor/264913204904294" class="source-link">Continued on Page 36 &gt;&gt;</a>
                     <span class="reporter">— Corry Stack</span>
                 </article>
                 <article>
-                    <h3>From LLM Wrappers to SIL: A Migration Cookbook</h3>
-                    <p>A practical guide for migrating from simple LLM wrappers to Structural Intelligence (SIL) by moving commit authority first.</p>
-                    <a href="https://huggingface.co/datasets/kanaria007/agi-structural-intelligence-protocols/blob/main/article/60-supplements/art-60-067-from-llm-wrappers-to-sil.md" class="source-link">Continued on Page 25 &gt;&gt;</a>
+                    <h3>Target BPW: Fit Gemma Models Exactly to Your GPU</h3>
+                    <p>A novel Target Bits-Per-Weight approach optimizes per-tensor precision based on weight error sensitivity, producing GGUF models sized precisely to fit hardware constraints — e.g., exactly 24GB VRAM.</p>
+                    <a href="https://huggingface.co/posts/eaddario/901225908419286" class="source-link">Continued on Page 37 &gt;&gt;</a>
                     <span class="reporter">— Corry Stack</span>
                 </article>
                 <article>
-                    <h3>AI & State Machines: Beyond Toy Agents</h3>
-                    <p>Argues that production-grade AI agents require explicit state design and disciplined architecture of state machines.</p>
-                    <a href="https://medium.com/towards-artificial-intelligence/ai-state-machine-106387406c5a" class="source-link">Continued on Page 26 &gt;&gt;</a>
+                    <h3>Esper 3.1 for DevOps, Fine-Tuned from Qwen 3.6</h3>
+                    <p>ValiantLabs released a specialized DevOps and architecture assistant fine-tuned from Qwen 3.6-35B-A3B, showing improved performance on code reasoning and boosted capabilities in MLOps and AI architecture.</p>
+                    <a href="https://huggingface.co/posts/sequelbox/488800753238388" class="source-link">Continued on Page 38 &gt;&gt;</a>
                     <span class="reporter">— Corry Stack</span>
                 </article>
                 <article>
-                    <h3>Apple Silicon Speech AI Benchmarks</h3>
-                    <p>Research showing INT8 runs 3.3x faster than INT4 on the Neural Engine for ASR/TTS/VAD, advocating for simultaneous MLX and CoreML usage.</p>
-                    <a href="https://blog.ivan.digital" class="source-link">Continued on Page 27 &gt;&gt;</a>
+                    <h3>Full-Duplex AI Tracker Launches</h3>
+                    <p>A new resource at fullduplex.ai organizes the growing landscape of speech-to-speech and audio foundation model research, covering models, benchmarks, and datasets.</p>
+                    <a href="https://huggingface.co/posts/consome2/602585610083541" class="source-link">Continued on Page 39 &gt;&gt;</a>
                     <span class="reporter">— Corry Stack</span>
                 </article>
                 <article>
-                    <h3>Esper 3.1 for Qwen 3.6</h3>
-                    <p>A new DevOps-specialized finetune of Qwen 3.6 designed to maximize architecture and MLOps helpfulness.</p>
-                    <a href="https://huggingface.co/ValiantLabs/Qwen3.6-35B-A3B-Esper3.1" class="source-link">Continued on Page 28 &gt;&gt;</a>
+                    <h3>ChatGPT Images 2.0 Livestream Event</h3>
+                    <p>OpenAI unveiled ChatGPT Images 2.0, the next iteration of its image generation integrated into ChatGPT, with community discussion focused on quality gains and competitive positioning.</p>
+                    <a href="https://community.openai.com/t/livestream-starting-now-chatgpt-images-2-0/1379464" class="source-link">Continued on Page 40 &gt;&gt;</a>
                     <span class="reporter">— Corry Stack</span>
                 </article>
                 <article>
-                    <h3>FullDuplex.ai: Speech-to-Speech Tracking</h3>
-                    <p>A new resource site tracking the landscape of full-duplex audio foundation models, benchmarks, and datasets.</p>
-                    <a href="https://www.fullduplex.ai/" class="source-link">Continued on Page 29 &gt;&gt;</a>
+                    <h3>Real-Time AI RPG With Evolving Narratives</h3>
+                    <p>A community project showcasing a real-time AI-powered RPG with dynamically evolving narratives, generated story branches, and character interactions driven by LLMs.</p>
+                    <a href="https://community.openai.com/t/building-a-real-time-ai-rpg-with-evolving-narratives-using-llms/1379208" class="source-link">Continued on Page 41 &gt;&gt;</a>
                     <span class="reporter">— Corry Stack</span>
                 </article>
                 <article>
-                    <h3>Go-Code-Large Dataset</h3>
-                    <p>A large-scale corpus of over 316k Go source code samples to support LLM pretraining and research in concurrent programming.</p>
-                    <a href="https://huggingface.co/datasets/ajibawa-2023/Go-Code-Large" class="source-link">Continued on Page 30 &gt;&gt;</a>
+                    <h3>Updated GPT4All Model List</h3>
+                    <p>The GPT4All community shares an updated model list curating the latest compatible models for local desktop and mobile inference, spanning multimodal and tool-use variants.</p>
+                    <a href="https://github.com/nomic-ai/gpt4all/discussions/3649" class="source-link">Continued on Page 42 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Micro Language Models for Instant Responses</h3>
+                    <p>A University of Washington team introduces ultra-compact micro language models designed for real-time edge inference, responding faster than traditional SLMs with tiny memory footprints.</p>
+                    <a href="https://huggingface.co/papers/2604.19642" class="source-link">Continued on Page 43 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Speculative Decoding for Video Generation</h3>
+                    <p>UC Berkeley researchers propose speculative decoding for autoregressive video generation, dramatically reducing the compute cost of local video synthesis on consumer hardware.</p>
+                    <a href="https://huggingface.co/papers/2604.17397" class="source-link">Continued on Page 44 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>OpenAI: The Next Codex for (Almost) Everything</h3>
+                    <p>OpenAI announced a major expansion of Codex across multiple workflows, alongside a teaser for the "next evolution of the Agents SDK" — signaling a push toward production-ready agentic frameworks.</p>
+                    <a href="https://community.openai.com/t/introducing-the-new-codex-for-almost-everything/1379125" class="source-link">Continued on Page 45 &gt;&gt;</a>
                     <span class="reporter">— Corry Stack</span>
                 </article>
                 <article>
-                    <h3>Introducing the New Codex</h3>
-                    <p>OpenAI community discussion and announcement regarding the evolution of Codex for broader application across various domains.</p>
-                    <a href="https://community.openai.com/t/introducing-the-new-codex-for-almost-everything/1379125" class="source-link">Continued on Page 31 &gt;&gt;</a>
-                    <span class="reporter">— Corry Stack</span>
-                </article>
-                <article>
-                    <h3>The Next Evolution of the Agents SDK</h3>
-                    <p>Discussion on the future roadmap and updates for the OpenAI Agents SDK to improve agentic capabilities.</p>
-                    <a href="https://community.openai.com/t/the-next-evolution-of-the-agents-sdk/1379072" class="source-link">Continued on Page 32 &gt;&gt;</a>
+                    <h3>RL Course: Training LLMs with GRPO</h3>
+                    <p>A free hands-on course explains how LLMs are trained with reinforcement learning using GRPO in a tic-tac-toe environment — no critic model needed — bridging simple RLV to complex multi-turn tools.</p>
+                    <a href="https://huggingface.co/posts/anakin87/346129929456219" class="source-link">Continued on Page 46 &gt;&gt;</a>
                     <span class="reporter">— Corry Stack</span>
                 </article>
                 <article class="flair-box">
-                    <h3>Vintage Pacing</h3>
-                    <p>Finally, a transformer that takes as long to process a sentence as I do to decide what to have for lunch. It's not "latency," it's "vintage pacing."</p>
-                    <a href="#" class="source-link">Continued on Page 33 &gt;&gt;</a>
+                    <h3>Keystrokes &amp; Interpretive Dance</h3>
+                    <p>Meta is training AI on employee keystrokes. Because nothing says "trust your data" like learning from Sarah in Accounting typing "password123" into Jira for the forty-seventh time. The most privacy-conscious Meta employee now communicates exclusively through interpretive dance.</p>
                     <span class="reporter">— D.C. Voltaire</span>
                 </article>
                 <article class="flair-box">
-                    <h3>Quantization Shrugs</h3>
-                    <p>1.58 bits? At this rate of quantization, by next Tuesday we'll have a super-intelligence that can only answer in "maybe" and a shrug.</p>
-                    <a href="#" class="source-link">Continued on Page 34 &gt;&gt;</a>
+                    <h3>The Deep Thinker Buyout</h3>
+                    <p>Elon, the man who once claimed the internet was "killing our ability to think deeply," has offered $60 billion to buy an AI that thinks for you. "Why build a Mars rocket when you can auto-complete someone's TODO comments?"</p>
                     <span class="reporter">— D.C. Voltaire</span>
                 </article>
                 <article class="flair-box">
-                    <h3>Roommates with Amazon</h3>
-                    <p>I love the business model: "Here is 5 billion dollars, please spend 100 billion of it back on us." It's essentially a very expensive way of saying "we're roommates now."</p>
-                    <a href="#" class="source-link">Continued on Page 35 &gt;&gt;</a>
+                    <h3>Phantom Precedents</h3>
+                    <p>Sullivan &amp; Cromwell submitted an entire list of fabricated case law to a federal judge — every citation dreamed up by an LLM. Precedents that never existed, written by judges who were never born, in courts that are purely aesthetic.</p>
                     <span class="reporter">— D.C. Voltaire</span>
                 </article>
                 <article class="flair-box">
-                    <h3>Critical Mass</h3>
-                    <p>When the CEO and CFO of a nuclear AI company both leave at once, I assume they've either found a way to upload their consciousness or they've seen the "critical mass" projections.</p>
-                    <a href="#" class="source-link">Continued on Page 36 &gt;&gt;</a>
+                    <h3>Vault Through the Gift Shop</h3>
+                    <p>Anthropic built the digital equivalent of a vault for Mythos, and someone got in through the gift shop. The NSA scanning itself with an AI it doesn't fully trust from a company the Pentagon called a supply-chain risk — that's not cybersecurity, that's a hostage situation.</p>
                     <span class="reporter">— D.C. Voltaire</span>
                 </article>
                 <article class="flair-box">
-                    <h3>The Cat's Sofa</h3>
-                    <p>An AI that uses game theory to ensure fairness in disputes. I can't wait for it to settle my argument with my cat by concluding that the cat technically owns the sofa and I am merely a tenant.</p>
-                    <a href="#" class="source-link">Continued on Page 37 &gt;&gt;</a>
+                    <h3>Your Browser, Your Snitch</h3>
+                    <p>Chrome is no longer just a browser — it's your co-worker, your assistant, and thanks to AI anomaly detection, your snitch. By the end of the afternoon, your browser owes <em>you</em> a performance review.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box">
+                    <h3>271 Independent Facts</h3>
+                    <p>Sam Altman called Mythos "fear-based marketing." Meanwhile, Mythos found 271 vulnerabilities in Firefox. Finding 271 ways a browser can leak your history <em>is</em> marketing — it's just a form backed by 271 independent facts.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box">
+                    <h3>AI Group Therapy for Code</h3>
+                    <p>Zed now supports parallel AI coding agents. Instead of one AI misunderstanding your code, you can have a whole team disagreeing among themselves. "The auth agent disagrees with the database agent." "They're working it out?" "No, they're both rewriting the router." This isn't coding — it's AI group therapy.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box">
+                    <h3>Just One More Context Window</h3>
+                    <p>TurboQuant lets you run 70B+ models on your gaming GPU by aggressively squeezing the KV cache. Congratulations — your Call of Duty rig now has more context than most of your friendships, and it's gasping for breath the whole time.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box">
+                    <h3>The Shadow Wants Your VRAM Back</h3>
+                    <p>ShadowPEFT introduces a secret twin working in the shadows, delivering corrections independently to each decoder layer. It doesn't have a backstory, a motivation, or a moral code. It just wants your VRAM back.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box">
+                    <h3>Cold Ones and Prayers</h3>
+                    <p>Researchers reverse-engineered Windows 9x inside Linux — the OS that once required a cold beverage and a prayer just to install. It works best if you unplug the monitor and say "Ctrl-Alt-Delete" out loud.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box">
+                    <h3>The Instruction Manual</h3>
+                    <p>Kate Crawford wrote a provocative essay arguing AI inherently encodes authoritarian power structures. Meanwhile, Meta records keystrokes and a browser-based AI takes your meeting notes. Crawford didn't write criticism — she wrote the instruction manual. We're all still reading it while our data ships to a Nevada datacenter.</p>
                     <span class="reporter">— D.C. Voltaire</span>
                 </article>
             </div>
@@ -539,104 +651,104 @@
             <h2><span>TECH BOARDS</span></h2>
             <ul class="tech-list">
                 <li>
-                    <h4>John Ternus to become Apple CEO</h4>
-                    <p>Tim Cook steps down as CEO to become executive chairman, handing the reins to John Ternus.</p>
-                    <a href="https://www.apple.com/newsroom/2026/04/tim-cook-to-become-apple-executive-chairman-john-ternus-to-become-apple-ceo/" class="source-link">Continued on Page 38 &gt;&gt;</a>
+                    <h4>Windows 9x Subsystem for Linux</h4>
+                    <p>Researchers reimplemented core Windows 9x subsystems so vintage software runs natively on modern Linux kernels.</p>
+                    <a href="https://hails.org" class="source-link">Continued on Page 47 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Qwen3.6-Max-Preview: Smarter, Sharper</h4>
-                    <p>Alibaba introduces a preview of Qwen3.6-Max, showcasing advancements in AI intelligence.</p>
-                    <a href="https://qwen.ai/blog?id=qwen3.6-max-preview" class="source-link">Continued on Page 39 &gt;&gt;</a>
+                    <h4>Qwen3.6-27B Coding Model</h4>
+                    <p>A dense 27B-parameter model matching flagship-tier coding performance through architecture and data gains alone.</p>
+                    <a href="https://qwen.ai" class="source-link">Continued on Page 48 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>EU to force replaceable batteries</h4>
-                    <p>New European Union regulations will mandate that all mobile devices have user-replaceable batteries from 2027.</p>
-                    <a href="https://www.theolivepress.es/spain-news/2026/04/20/eu-to-force-replaceable-batteries-in-phones-and-tablets-from-2027/" class="source-link">Continued on Page 40 &gt;&gt;</a>
+                    <h4>Google's Eighth-Gen TPU Lineup</h4>
+                    <p>Two distinct TPU chips designed for agentic AI workloads, reflecting a fundamental shift in training and inference balance.</p>
+                    <a href="https://blog.google" class="source-link">Continued on Page 49 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>ggsql: A Grammar of Graphics for SQL</h4>
-                    <p>A new alpha release that brings a grammar of graphics approach to SQL querying for better visualization.</p>
-                    <a href="https://opensource.posit.co/blog/2026-04-20_ggsql_alpha_release/" class="source-link">Continued on Page 41 &gt;&gt;</a>
+                    <h4>GitHub CLI Collects Telemetry</h4>
+                    <p>GitHub introduced pseudoanonymous telemetry in its CLI tool, sparking debate over developer privacy and tooling practices.</p>
+                    <a href="https://cli.github.com" class="source-link">Continued on Page 50 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Quantum vs 128-Bit Keys</h4>
-                    <p>An analysis explaining why 128-bit symmetric encryption remains secure even against quantum attacks.</p>
-                    <a href="https://words.filippo.io/128-bits/" class="source-link">Continued on Page 42 &gt;&gt;</a>
+                    <h4>Apple Patches Deleted iMessage Bug</h4>
+                    <p>Apple fixed an iOS vulnerability law enforcement used to extract deleted iMessage data, raising ongoing privacy questions.</p>
+                    <a href="https://techcrunch.com" class="source-link">Continued on Page 51 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Jujutsu megamerges</h4>
-                    <p>Exploring the capabilities of Jujutsu's megamerges for managing complex version control histories.</p>
-                    <a href="https://isaaccorbrey.com/notes/jujutsu-megamerges-for-fun-and-profit" class="source-link">Continued on Page 43 &gt;&gt;</a>
+                    <h4>Firefox Fingerprint Links Tor Identities</h4>
+                    <p>Security researchers found a stable fingerprint in Firefox linking browsing across multiple Tor sessions, undermining anonymity.</p>
+                    <a href="https://fingerprint.com" class="source-link">Continued on Page 52 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Claude Desktop Extensions</h4>
-                    <p>Reports suggest Anthropic's Claude Desktop may install browser extensions without explicit user documentation.</p>
-                    <a href="https://www.thatprivacyguy.com/blog/anthropic-spyware/" class="source-link">Continued on Page 44 &gt;&gt;</a>
+                    <h4>The Zero-Days Are Numbered</h4>
+                    <p>Mozilla's analysis on the finite supply of zero-day vulnerabilities, exploring how AI and bug bounties reshape exploit economics.</p>
+                    <a href="https://blog.mozilla.org/security/2026/04/the-zero-days-are-numbered" class="source-link">Continued on Page 53 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>OpenClaw Claude CLI usage</h4>
-                    <p>Anthropic updates its policy regarding the use of Claude via OpenClaw-style CLI tools.</p>
-                    <a href="https://docs.openclaw.ai/providers/anthropic" class="source-link">Continued on Page 45 &gt;&gt;</a>
+                    <h4>Over-Editing: LLMs Rewriting Too Much</h4>
+                    <p>An examination of how LLMs routinely rewrite far more code than the minimal diff required, with strategies to constrain scope creep.</p>
+                    <a href="https://nrehiew.github.io" class="source-link">Continued on Page 54 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Vercel Platform Outage</h4>
-                    <p>A post-mortem on how a combination of a game cheat and AI tools caused a major Vercel outage.</p>
-                    <a href="https://webmatrices.com/post/how-a-roblox-cheat-and-one-ai-tool-brought-down-vercel-s-entire-platform" class="source-link">Continued on Page 46 &gt;&gt;</a>
+                    <h4>AI as a Fascist Artifact</h4>
+                    <p>Kate Crawford argues that AI systems inherently encode power structures, surveillance, and hierarchical control mechanisms.</p>
+                    <a href="https://tante.cc" class="source-link">Continued on Page 55 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Kimi vendor verifier</h4>
-                    <p>A tool designed to benchmark and verify the accuracy of different LLM inference providers.</p>
-                    <a href="https://www.kimi.com/blog/kimi-vendor-verifier" class="source-link">Continued on Page 47 &gt;&gt;</a>
+                    <h4>Grasp: Decentralized Git Protocol</h4>
+                    <p>A new protocol for decentralized code collaboration without centralized platforms — signed repos, patches, and free server interop.</p>
+                    <a href="https://gitgrasp.com" class="source-link">Continued on Page 56 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Ternary Bonsai Intelligence</h4>
-                    <p>Exploring high-efficiency intelligence using ternary weights and low-bit precision.</p>
-                    <a href="https://prismml.com/news/ternary-bonsai" class="source-link">Continued on Page 48 &gt;&gt;</a>
+                    <h4>Scoring Show HN for AI Patterns</h4>
+                    <p>An automated system scoring recent Show HN submissions for AI UX design patterns — conversational interfaces, agents, structured output.</p>
+                    <a href="https://adriankrebs.ch" class="source-link">Continued on Page 57 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Fast Dynamic Interpreters</h4>
-                    <p>A technical guide on the implementation details required to build high-performance interpreters.</p>
-                    <a href="https://zef-lang.dev/implementation" class="source-link">Continued on Page 49 &gt;&gt;</a>
+                    <h4>Martin Fowler on Triple Debt</h4>
+                    <p>Fowler extends technical debt to include cognitive debt and intent debt — hidden costs pure code metrics miss.</p>
+                    <a href="https://martinfowler.com" class="source-link">Continued on Page 58 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Forgejo v15.0 Release</h4>
-                    <p>The latest release of Forgejo, the community-driven Git service, is now live.</p>
-                    <a href="https://forgejo.org/2026-04-release-v15-0/" class="source-link">Continued on Page 50 &gt;&gt;</a>
+                    <h4>Parallel Agents in Zed</h4>
+                    <p>Zed supports multiple coding agents working concurrently, moving from single-turn completion to coordinated multi-agent planning.</p>
+                    <a href="https://zed.dev" class="source-link">Continued on Page 59 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Yojam: macOS Browser Shim</h4>
-                    <p>A tool that routes macOS default browser URLs through a custom rule engine for filtering and rewriting.</p>
-                    <a href="https://github.com/fluffypony/yojam" class="source-link">Continued on Page 51 &gt;&gt;</a>
+                    <h4>Columnar Storage Is Normalization</h4>
+                    <p>An argument that columnar storage formats naturally embody relational normalization without explicit schema design.</p>
+                    <a href="https://buttondown.com/jaffray" class="source-link">Continued on Page 60 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Brussels Age Checking App</h4>
-                    <p>Security failures in a new EU age-verification app were exposed almost immediately after launch.</p>
-                    <a href="https://www.politico.eu/article/eu-brussels-launched-age-checking-app-hackers-say-took-them-2-minutes-break-it/" class="source-link">Continued on Page 52 &gt;&gt;</a>
+                    <h4>Anonymous Credentials Primer (Part 2)</h4>
+                    <p>An illustrated introduction to anonymous credential systems covering zero-knowledge proofs and selective disclosure.</p>
+                    <a href="https://cryptographyengineering.com" class="source-link">Continued on Page 61 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>WebUSB for Firefox</h4>
-                    <p>A community effort to bring WebUSB capabilities to the Firefox browser.</p>
-                    <a href="https://github.com/ArcaneNibble/awawausb" class="source-link">Continued on Page 53 &gt;&gt;</a>
+                    <h4>Framework Laptop 13 Pro</h4>
+                    <p>Updated with Intel Core Ultra 3 and IPCAMM2 memory modules, reinforcing a repair-first, modular design philosophy.</p>
+                    <a href="https://frame.work" class="source-link">Continued on Page 62 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Transformer on Commodore 64</h4>
-                    <p>An impressive feat of engineering running a transformer model on legacy C64 hardware.</p>
-                    <a href="https://github.com/gizmo64k/soulplayer-c64" class="source-link">Continued on Page 54 &gt;&gt;</a>
+                    <h4>The Edge of Safe Rust</h4>
+                    <p>A deep dive into where safe Rust abstractions break down and the tension between borrow-checker guarantees and systems flexibility.</p>
+                    <a href="https://kyju.org" class="source-link">Continued on Page 63 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Environmental DNA in Air</h4>
-                    <p>Research highlighting the prevalence of environmental DNA floating in the atmosphere.</p>
-                    <a href="https://www.nature.com/articles/d41586-026-01099-2" class="source-link">Continued on Page 55 &gt;&gt;</a>
+                    <h4>3.4 Million Solar Panels as One Image</h4>
+                    <p>An artist assembled 3.4 million solar panels into a striking image — data visualization that literally generates its own power.</p>
+                    <a href="https://marksblogg.com" class="source-link">Continued on Page 64 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Modern Rendering Culling</h4>
-                    <p>A deep dive into current strategies for optimizing 3D rendering via advanced culling.</p>
-                    <a href="https://krupitskas.com/posts/modern_culling_techniques/" class="source-link">Continued on Page 56 &gt;&gt;</a>
+                    <h4>Architecture of LLMs (Updated)</h4>
+                    <p>Jay Alammar's classic walkthrough of LLM internals returns with updated diagrams covering tokenizers, attention, and decoders.</p>
+                    <a href="https://jalammar.github.io" class="source-link">Continued on Page 65 &gt;&gt;</a>
                 </li>
                 <li>
-                    <h4>Signal Shot Verification</h4>
-                    <p>A project utilizing the Lean theorem prover to formally verify the Signal protocol's Rust implementation.</p>
-                    <a href="https://leodemoura.github.io/blog/2026-4-20-signal-shot-the-platform-is-ready/" class="source-link">Continued on Page 57 &gt;&gt;</a>
+                    <h4>5x5 Pixel Font</h4>
+                    <p>A fully readable font packed into a 5x5 pixel grid per character — pushing the limits of micro-rendering for tiny screens.</p>
+                    <a href="https://maurycyz.com" class="source-link">Continued on Page 66 &gt;&gt;</a>
                 </li>
             </ul>
         </section>
