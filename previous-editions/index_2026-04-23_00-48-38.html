@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture: 
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture); 
+            background-size: 16px 16px; 
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35; 
+            -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8); 
+            padding: 20px;
+            border: 1px solid #d4d4d4; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify; 
+            font-size: 0.95rem;
+            hyphens: auto; 
+        }
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem); 
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1); 
+        }
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; 
+            width: 100%;
+        }
+        h2 span { 
+            background: #fcfbf2; 
+            padding: 0 10px; 
+        }
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; 
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black); 
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+        .mixed-feed article {
+            display: inline-block; 
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color); 
+        }
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important; 
+        }
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; } 
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        .tech-boards-section h2 { margin-bottom: 15px; }
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px;
+        }
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+            .masthead { font-size: 3.2rem; }
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .scoop-item:first-child {
+                column-count: 1; 
+            }
+            .mixed-feed {
+                column-count: 1; 
+            }
+            .mixed-feed article {
+                display: block; 
+            }
+            .tech-list {
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr; 
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">The Future Of AI, One Step At A Time</div>
+            <div class="subhead">
+                <span>Vol. 2, No. 17</span>
+                <span>Tuesday, Apr 21 2026</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>HEADLINES</span></h2>
+            <div class="scoop-grid">
+                <article class="scoop-item">
+                    <h3>Humanoid Robots Outpace Humans in Beijing Half-Marathon</h3>
+                    <p>In a striking display of rapid advancement in robotics and AI, humanoid robots successfully competed in and outpaced humans during a half-marathon in Beijing, signaling a major leap in bipedal locomotion and endurance.</p>
+                    <a href="https://www.reuters.com" class="source-link">Continued on Page 2 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Anthropic takes $5B from Amazon and pledges $100B in cloud spending</h3>
+                    <p>In a massive strategic alignment, Anthropic has secured $5 billion in funding from Amazon. In exchange, the AI startup has committed to spending $100 billion on Amazon's cloud infrastructure, cementing a deep interdependence between the model builder and the cloud giant.</p>
+                    <a href="https://techcrunch.com/2026/04/20/anthropic-takes-5b-from-amazon-and-pledges-100b-in-cloud-spending-in-return/" class="source-link">Continued on Page 3 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>NSA reportedly using Anthropic’s Mythos despite Pentagon friction</h3>
+                    <p>Reports indicate that the NSA is utilizing Anthropic's 'Mythos' AI tool for intelligence operations. This development comes amid ongoing tensions and feuds within the Pentagon regarding the adoption and oversight of AI technologies.</p>
+                    <a href="https://techcrunch.com/2026/04/20/nsa-spies-are-reportedly-using-anthropics-mythos-despite-pentagon-feud/" class="source-link">Continued on Page 4 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Google expands Gemini in Chrome to seven new countries</h3>
+                    <p>Google continues the global rollout of its Gemini AI integration within the Chrome browser, expanding access to seven additional countries to bring generative AI capabilities directly into the web browsing experience for millions more users.</p>
+                    <a href="https://techcrunch.com/2026/04/20/google-rolls-out-gemini-in-chrome-in-seven-new-countries/" class="source-link">Continued on Page 5 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Fermi AI nuclear power upstart sees CEO and CFO depart</h3>
+                    <p>Fermi, a startup focused on the intersection of AI and nuclear power, has suffered a major leadership blow with the sudden departure of both its CEO and CFO, raising questions about the stability of the AI-energy venture.</p>
+                    <a href="https://techcrunch.com/2026/04/20/fermi-ceo-and-cfo-depart-texas-nuclear-power-ai/" class="source-link">Continued on Page 6 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="science-section">
+            <h2><span>SCIENTIFIC PAPERS</span></h2>
+            <div class="mixed-feed">
+                <article>
+                    <h3>Agentic Forecasting using Sequential Bayesian Updating of Linguistic Beliefs</h3>
+                    <p>Introduces BLF, an agentic system for binary forecasting that uses a Bayesian linguistic belief state combining numerical probabilities with natural-language evidence.</p>
+                    <a href="https://arxiv.org/abs/2604.18576" class="source-link">Continued on Page 7 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>LLM Safety From Within: Detecting Harmful Content with Internal Representations</h3>
+                    <p>Presents SIREN, a lightweight guard model that detects harmful content by analyzing internal LLM representations rather than just the final layer.</p>
+                    <a href="https://arxiv.org/abs/2604.18519" class="source-link">Continued on Page 8 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>Training and Agentic Inference Strategies for LLM-based Manim Animation Generation</h3>
+                    <p>Explores the interaction between training (SFT and GRPO) and agentic inference for generating programmatic animations with Manim.</p>
+                    <a href="https://arxiv.org/abs/2604.18364" class="source-link">Continued on Page 9 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>LiteResearcher: A Scalable Agentic RL Training Framework for Deep Research Agent</h3>
+                    <p>Proposes a scalable RL training framework using a virtual world to mirror real-world search dynamics, allowing small agents to outperform larger models.</p>
+                    <a href="https://arxiv.org/abs/2604.17931" class="source-link">Continued on Page 10 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>Polysemantic Experts, Monosemantic Paths: Routing as Control in MoEs</h3>
+                    <p>Analyzes Mixture-of-Experts (MoE) models to show that while individual experts are polysemantic, the trajectories they form are monosemantic.</p>
+                    <a href="https://arxiv.org/abs/2604.17837" class="source-link">Continued on Page 11 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>MathNet: a Global Multimodal Benchmark for Mathematical Reasoning and Retrieval</h3>
+                    <p>Introduces MathNet, a comprehensive multimodal benchmark designed to evaluate AI models in mathematical reasoning and retrieval.</p>
+                    <a href="https://arxiv.org/abs/2604.18584" class="source-link">Continued on Page 12 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="community-section">
+            <h2><span>COMMUNITY STORIES</span></h2>
+            <div class="mixed-feed">
+                <article>
+                    <h3>Qwen3.6-Max-Preview: Smarter, Sharper, Still Evolving</h3>
+                    <p>Alibaba introduces a preview of Qwen3.6-Max, demonstrating significant improvements in reasoning and coding capabilities.</p>
+                    <a href="https://qwen.ai/blog?id=qwen3.6-max-preview" class="source-link">Continued on Page 13 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Ternary Bonsai: Top Intelligence at 1.58 Bits</h3>
+                    <p>A discussion on extreme quantization techniques that push LLM weights to ternary values, aiming to maintain high intelligence while reducing compute.</p>
+                    <a href="https://prismml.com/news/ternary-bonsai" class="source-link">Continued on Page 14 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Soul Player C64 – A real transformer running on a 1 MHz Commodore 64</h3>
+                    <p>An impressive technical feat showcasing a minimal transformer architecture implemented on legacy hardware, highlighting efficiency limits.</p>
+                    <a href="https://github.com/gizmo64k/soulplayer-c64" class="source-link">Continued on Page 15 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>thunderbolt: AI You Control</h3>
+                    <p>A trending open-source project focused on eliminating vendor lock-in by allowing users to choose their own models and maintain data ownership.</p>
+                    <a href="https://github.com/thunderbird/thunderbolt" class="source-link">Continued on Page 16 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>DeepGEMM: Efficient FP8 GEMM kernels</h3>
+                    <p>DeepSeek releases DeepGEMM, providing clean and efficient FP8 General Matrix Multiplication kernels for optimizing large models on NVIDIA GPUs.</p>
+                    <a href="https://github.com/deepseek-ai/DeepGEMM" class="source-link">Continued on Page 17 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>openai-agents-python: Framework for multi-agent workflows</h3>
+                    <p>OpenAI's lightweight framework for building multi-agent systems, providing a blueprint for orchestrating specialized agents.</p>
+                    <a href="https://github.com/openai/openai-agents-python" class="source-link">Continued on Page 18 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Kimi Vendor Verifier</h3>
+                    <p>A new tool designed to verify the accuracy and honesty of inference providers, addressing 'stealthy' model swapping issues.</p>
+                    <a href="https://www.kimi.com/blog/kimi-vendor-verifier" class="source-link">Continued on Page 19 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Mediator.ai: Using Nash bargaining and LLMs for fairness</h3>
+                    <p>An exploration of combining game theory with LLMs to systematize fairness in automated negotiations and dispute resolutions.</p>
+                    <a href="https://mediator.ai/" class="source-link">Continued on Page 20 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Types and Neural Networks</h3>
+                    <p>A deep dive into the intersection of formal type systems and neural network architectures to improve model reliability.</p>
+                    <a href="https://www.brunogavranovic.com/posts/2026-04-20-types-and-neural-networks.html" class="source-link">Continued on Page 21 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>OpenClaw-style Claude CLI usage</h3>
+                    <p>Discussions around the permissibility of using CLI wrappers for Claude, reflecting tension between API providers and the community.</p>
+                    <a href="https://docs.openclaw.ai/providers/anthropic" class="source-link">Continued on Page 22 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>HY-World-2.0: Multi-Modal World Model</h3>
+                    <p>A new multi-modal world model for reconstructing, generating, and simulating 3D worlds, featuring Gaussian splats.</p>
+                    <a href="https://huggingface.co/spaces/prithivMLmods/HY-World-2.0-Demo" class="source-link">Continued on Page 23 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>LLM Training with RL Environments</h3>
+                    <p>Exploration of Group Relative Policy Optimization (GRPO) for training LLMs in complex environments like tic-tac-toe without a critic model.</p>
+                    <a href="https://github.com/anakin87/llm-rl-environments-lil-course" class="source-link">Continued on Page 24 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>From LLM Wrappers to SIL: A Migration Cookbook</h3>
+                    <p>A practical guide for migrating from simple LLM wrappers to Structural Intelligence (SIL) by moving commit authority first.</p>
+                    <a href="https://huggingface.co/datasets/kanaria007/agi-structural-intelligence-protocols/blob/main/article/60-supplements/art-60-067-from-llm-wrappers-to-sil.md" class="source-link">Continued on Page 25 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>AI & State Machines: Beyond Toy Agents</h3>
+                    <p>Argues that production-grade AI agents require explicit state design and disciplined architecture of state machines.</p>
+                    <a href="https://medium.com/towards-artificial-intelligence/ai-state-machine-106387406c5a" class="source-link">Continued on Page 26 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Apple Silicon Speech AI Benchmarks</h3>
+                    <p>Research showing INT8 runs 3.3x faster than INT4 on the Neural Engine for ASR/TTS/VAD, advocating for simultaneous MLX and CoreML usage.</p>
+                    <a href="https://blog.ivan.digital" class="source-link">Continued on Page 27 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Esper 3.1 for Qwen 3.6</h3>
+                    <p>A new DevOps-specialized finetune of Qwen 3.6 designed to maximize architecture and MLOps helpfulness.</p>
+                    <a href="https://huggingface.co/ValiantLabs/Qwen3.6-35B-A3B-Esper3.1" class="source-link">Continued on Page 28 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>FullDuplex.ai: Speech-to-Speech Tracking</h3>
+                    <p>A new resource site tracking the landscape of full-duplex audio foundation models, benchmarks, and datasets.</p>
+                    <a href="https://www.fullduplex.ai/" class="source-link">Continued on Page 29 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Go-Code-Large Dataset</h3>
+                    <p>A large-scale corpus of over 316k Go source code samples to support LLM pretraining and research in concurrent programming.</p>
+                    <a href="https://huggingface.co/datasets/ajibawa-2023/Go-Code-Large" class="source-link">Continued on Page 30 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Introducing the New Codex</h3>
+                    <p>OpenAI community discussion and announcement regarding the evolution of Codex for broader application across various domains.</p>
+                    <a href="https://community.openai.com/t/introducing-the-new-codex-for-almost-everything/1379125" class="source-link">Continued on Page 31 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>The Next Evolution of the Agents SDK</h3>
+                    <p>Discussion on the future roadmap and updates for the OpenAI Agents SDK to improve agentic capabilities.</p>
+                    <a href="https://community.openai.com/t/the-next-evolution-of-the-agents-sdk/1379072" class="source-link">Continued on Page 32 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article class="flair-box">
+                    <h3>Vintage Pacing</h3>
+                    <p>Finally, a transformer that takes as long to process a sentence as I do to decide what to have for lunch. It's not "latency," it's "vintage pacing."</p>
+                    <a href="#" class="source-link">Continued on Page 33 &gt;&gt;</a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box">
+                    <h3>Quantization Shrugs</h3>
+                    <p>1.58 bits? At this rate of quantization, by next Tuesday we'll have a super-intelligence that can only answer in "maybe" and a shrug.</p>
+                    <a href="#" class="source-link">Continued on Page 34 &gt;&gt;</a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box">
+                    <h3>Roommates with Amazon</h3>
+                    <p>I love the business model: "Here is 5 billion dollars, please spend 100 billion of it back on us." It's essentially a very expensive way of saying "we're roommates now."</p>
+                    <a href="#" class="source-link">Continued on Page 35 &gt;&gt;</a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box">
+                    <h3>Critical Mass</h3>
+                    <p>When the CEO and CFO of a nuclear AI company both leave at once, I assume they've either found a way to upload their consciousness or they've seen the "critical mass" projections.</p>
+                    <a href="#" class="source-link">Continued on Page 36 &gt;&gt;</a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box">
+                    <h3>The Cat's Sofa</h3>
+                    <p>An AI that uses game theory to ensure fairness in disputes. I can't wait for it to settle my argument with my cat by concluding that the cat technically owns the sofa and I am merely a tenant.</p>
+                    <a href="#" class="source-link">Continued on Page 37 &gt;&gt;</a>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>John Ternus to become Apple CEO</h4>
+                    <p>Tim Cook steps down as CEO to become executive chairman, handing the reins to John Ternus.</p>
+                    <a href="https://www.apple.com/newsroom/2026/04/tim-cook-to-become-apple-executive-chairman-john-ternus-to-become-apple-ceo/" class="source-link">Continued on Page 38 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Qwen3.6-Max-Preview: Smarter, Sharper</h4>
+                    <p>Alibaba introduces a preview of Qwen3.6-Max, showcasing advancements in AI intelligence.</p>
+                    <a href="https://qwen.ai/blog?id=qwen3.6-max-preview" class="source-link">Continued on Page 39 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>EU to force replaceable batteries</h4>
+                    <p>New European Union regulations will mandate that all mobile devices have user-replaceable batteries from 2027.</p>
+                    <a href="https://www.theolivepress.es/spain-news/2026/04/20/eu-to-force-replaceable-batteries-in-phones-and-tablets-from-2027/" class="source-link">Continued on Page 40 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>ggsql: A Grammar of Graphics for SQL</h4>
+                    <p>A new alpha release that brings a grammar of graphics approach to SQL querying for better visualization.</p>
+                    <a href="https://opensource.posit.co/blog/2026-04-20_ggsql_alpha_release/" class="source-link">Continued on Page 41 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Quantum vs 128-Bit Keys</h4>
+                    <p>An analysis explaining why 128-bit symmetric encryption remains secure even against quantum attacks.</p>
+                    <a href="https://words.filippo.io/128-bits/" class="source-link">Continued on Page 42 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Jujutsu megamerges</h4>
+                    <p>Exploring the capabilities of Jujutsu's megamerges for managing complex version control histories.</p>
+                    <a href="https://isaaccorbrey.com/notes/jujutsu-megamerges-for-fun-and-profit" class="source-link">Continued on Page 43 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Claude Desktop Extensions</h4>
+                    <p>Reports suggest Anthropic's Claude Desktop may install browser extensions without explicit user documentation.</p>
+                    <a href="https://www.thatprivacyguy.com/blog/anthropic-spyware/" class="source-link">Continued on Page 44 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>OpenClaw Claude CLI usage</h4>
+                    <p>Anthropic updates its policy regarding the use of Claude via OpenClaw-style CLI tools.</p>
+                    <a href="https://docs.openclaw.ai/providers/anthropic" class="source-link">Continued on Page 45 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Vercel Platform Outage</h4>
+                    <p>A post-mortem on how a combination of a game cheat and AI tools caused a major Vercel outage.</p>
+                    <a href="https://webmatrices.com/post/how-a-roblox-cheat-and-one-ai-tool-brought-down-vercel-s-entire-platform" class="source-link">Continued on Page 46 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Kimi vendor verifier</h4>
+                    <p>A tool designed to benchmark and verify the accuracy of different LLM inference providers.</p>
+                    <a href="https://www.kimi.com/blog/kimi-vendor-verifier" class="source-link">Continued on Page 47 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Ternary Bonsai Intelligence</h4>
+                    <p>Exploring high-efficiency intelligence using ternary weights and low-bit precision.</p>
+                    <a href="https://prismml.com/news/ternary-bonsai" class="source-link">Continued on Page 48 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Fast Dynamic Interpreters</h4>
+                    <p>A technical guide on the implementation details required to build high-performance interpreters.</p>
+                    <a href="https://zef-lang.dev/implementation" class="source-link">Continued on Page 49 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Forgejo v15.0 Release</h4>
+                    <p>The latest release of Forgejo, the community-driven Git service, is now live.</p>
+                    <a href="https://forgejo.org/2026-04-release-v15-0/" class="source-link">Continued on Page 50 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Yojam: macOS Browser Shim</h4>
+                    <p>A tool that routes macOS default browser URLs through a custom rule engine for filtering and rewriting.</p>
+                    <a href="https://github.com/fluffypony/yojam" class="source-link">Continued on Page 51 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Brussels Age Checking App</h4>
+                    <p>Security failures in a new EU age-verification app were exposed almost immediately after launch.</p>
+                    <a href="https://www.politico.eu/article/eu-brussels-launched-age-checking-app-hackers-say-took-them-2-minutes-break-it/" class="source-link">Continued on Page 52 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>WebUSB for Firefox</h4>
+                    <p>A community effort to bring WebUSB capabilities to the Firefox browser.</p>
+                    <a href="https://github.com/ArcaneNibble/awawausb" class="source-link">Continued on Page 53 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Transformer on Commodore 64</h4>
+                    <p>An impressive feat of engineering running a transformer model on legacy C64 hardware.</p>
+                    <a href="https://github.com/gizmo64k/soulplayer-c64" class="source-link">Continued on Page 54 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Environmental DNA in Air</h4>
+                    <p>Research highlighting the prevalence of environmental DNA floating in the atmosphere.</p>
+                    <a href="https://www.nature.com/articles/d41586-026-01099-2" class="source-link">Continued on Page 55 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Modern Rendering Culling</h4>
+                    <p>A deep dive into current strategies for optimizing 3D rendering via advanced culling.</p>
+                    <a href="https://krupitskas.com/posts/modern_culling_techniques/" class="source-link">Continued on Page 56 &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Signal Shot Verification</h4>
+                    <p>A project utilizing the Lean theorem prover to formally verify the Signal protocol's Rust implementation.</p>
+                    <a href="https://leodemoura.github.io/blog/2026-4-20-signal-shot-the-platform-is-ready/" class="source-link">Continued on Page 57 &gt;&gt;</a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            Editor: Jimmy Vector<br>
+            Reporters: Ronnie Cache, Chip Carter, Ada Kernel, Corry Stack, Paula Rization, Ramsy Bytewell, D.C. Voltaire<br>
+            GRADIENT DESCENT Publication<br>
+            <span style="font-size: 0.65rem; color: #666;">All stories sourced from the cutting edge of AI research and development</span>
+        </footer>
+    </div>
+</body>
+</html>
