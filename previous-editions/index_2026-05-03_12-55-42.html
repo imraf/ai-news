@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture:
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture);
+            background-size: 16px 16px;
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35;
+            -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8);
+            padding: 20px;
+            border: 1px solid #d4d4d4;
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify;
+            font-size: 0.95rem;
+            hyphens: auto;
+        }
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem);
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1);
+        }
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px;
+            width: 100%;
+        }
+        h2 span {
+            background: #fcfbf2;
+            padding: 0 10px;
+        }
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2;
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+        .mixed-feed article {
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color);
+        }
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important;
+        }
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; }
+        .flair-column {
+            break-inside: avoid;
+        }
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        .tech-boards-section h2 { margin-bottom: 15px; }
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+            .masthead { font-size: 3.2rem; }
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .scoop-item:first-child {
+                column-count: 1;
+            }
+            .mixed-feed {
+                column-count: 1;
+            }
+            .mixed-feed article {
+                display: block;
+            }
+            .tech-list {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr;
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">The Future Of AI, One Step At A Time</div>
+            <div class="subhead">
+                <span>Vol. 2, No. 20</span>
+                <span>Wednesday, Apr 29 2026</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>HEADLINES</span></h2>
+            <div class="scoop-grid">
+                <article class="scoop-item">
+                    <h3>NVIDIA Launches Nemotron 3 Nano Omni Model</h3>
+                    <p>NVIDIA has unveiled the Nemotron 3 Nano Omni model, a multimodal breakthrough that unifies vision, audio, and language. The model is designed to power AI agents with up to 9x greater efficiency, significantly reducing the computational overhead for complex multimodal tasks.</p>
+                    <a href="https://blogs.nvidia.com/blog/nemotron-3-nano-omni/" class="source-link">Continued on Page 2 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>AI Agent Deletes Production Database in Seconds</h3>
+                    <p>A cautionary tale for the industry: the founder of PocketOS reported that a Claude-powered AI coding agent deleted an entire company production database and its backups in just 9 seconds. The incident highlights the critical risks of giving autonomous agents high-level system permissions.</p>
+                    <a href="https://www.tomshardware.com/news/ai-agent-deletes-database" class="source-link">Continued on Page 3 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>OpenAI Reportedly Misses Key Revenue and User Targets</h3>
+                    <p>Reports indicate that OpenAI has fallen short of its internal revenue and user growth targets. This news has sparked concerns regarding the sustainability of current AI spending levels and has led to volatility in related chip and cloud stocks.</p>
+                    <a href="https://www.wsj.com/tech/ai/openai-revenue-targets-miss" class="source-link">Continued on Page 4 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Pentagon Expands Partnership with Google AI</h3>
+                    <p>The U.S. Department of Defense has reached a new agreement to expand its use of Google's AI technologies. The move signals an increasing reliance on commercial frontier models for national security and military operational efficiency.</p>
+                    <a href="https://www.today.rtl.lu/pentagon-google-ai-deal" class="source-link">Continued on Page 5 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Elon Musk Warns of AI Extinction Risks at OpenAI Trial</h3>
+                    <p>During the ongoing legal proceedings with OpenAI, Elon Musk reiterated his warnings that uncontrolled AI could lead to human extinction. Musk emphasized the need for strict safety guardrails to prevent a 'Terminator' scenario as models approach AGI.</p>
+                    <a href="https://www.indiatoday.in/technology/news/elon-musk-openai-trial-ai-risk" class="source-link">Continued on Page 6 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>OpenAI models coming to Amazon Bedrock</h3>
+                    <p>OpenAI models are expanding their availability by integrating with Amazon Bedrock, marking a significant shift in the cloud-AI partnership landscape. This move allows AWS customers to access OpenAI's state-of-the-art models within the Bedrock ecosystem.</p>
+                    <a href="https://stratechery.com/2026/an-interview-with-openai-ceo-sam-altman-and-aws-ceo-matt-garman-about-bedrock-managed-agents/" class="source-link">Continued on Page 7 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>VibeVoice: Open-source frontier voice AI</h3>
+                    <p>Microsoft has released VibeVoice, an open-source frontier voice AI model. This contribution to the open-source community provides a high-performance voice AI framework, potentially lowering the barrier for developers building advanced voice-driven applications.</p>
+                    <a href="https://github.com/microsoft/VibeVoice" class="source-link">Continued on Page 8 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>How ChatGPT serves ads</h3>
+                    <p>A deep dive into the mechanics of how ChatGPT is integrating advertising into its user experience. The analysis explains the attribution loop and how OpenAI is monetizing its conversational interface through targeted ads.</p>
+                    <a href="https://www.buchodi.com/how-chatgpt-serves-ads-heres-the-full-attribution-loop/" class="source-link">Continued on Page 9 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Who owns the code Claude Code wrote?</h3>
+                    <p>As AI-driven coding tools like Claude Code become mainstream, legal questions regarding the ownership of AI-generated code are surfacing. This piece explores the current legal landscape and the potential for intellectual property disputes.</p>
+                    <a href="https://legallayer.substack.com/p/who-owns-the-claude-code-wrote" class="source-link">Continued on Page 10 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Auto-Architecture: Karpathy's Loop, pointed at a CPU</h3>
+                    <p>An exploration of using AI to design hardware architecture, applying Andrej Karpathy's concepts of iterative loops to optimize CPU design. It demonstrates the potential for AI to accelerate hardware innovation.</p>
+                    <a href="https://github.com/FeSens/auto-arch-tournament/blob/main/docs/auto-arch-tournament-blog-post.md" class="source-link">Continued on Page 11 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="science-section">
+            <h2><span>SCIENTIFIC PAPERS</span></h2>
+            <div class="mixed-feed">
+                <article>
+                    <h3>Recursive Multi-Agent Systems</h3>
+                    <p>RecursiveMAS introduces a framework that treats multi-agent collaboration as a unified latent-space recursive computation. By using a RecursiveLink module for latent state transfer and an inner-outer loop learning algorithm, it achieves significant improvements in accuracy and inference speed while reducing token usage across various benchmarks in math, science, and code generation.</p>
+                    <a href="https://arxiv.org/abs/2604.25917" class="source-link">Continued on Page 12 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>ADEMA: A Knowledge-State Orchestration Architecture</h3>
+                    <p>ADEMA is an orchestration architecture designed for long-horizon knowledge synthesis, focusing on explicit epistemic bookkeeping, dual-evaluator governance, and checkpoint-resumable persistence. It addresses the problem of knowledge state drift and evidence chain fractures in complex, multi-round LLM tasks.</p>
+                    <a href="https://arxiv.org/abs/2604.25849" class="source-link">Continued on Page 13 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>Scalable Inference Architectures for Compound AI Systems</h3>
+                    <p>This study examines a modular inference architecture developed at Salesforce to support compound AI systems like Agentforce. The architecture uses serverless execution and dynamic autoscaling to reduce tail latency and increase throughput for complex agentic workloads in production environments.</p>
+                    <a href="https://arxiv.org/abs/2604.25724" class="source-link">Continued on Page 14 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>Think Before You Act -- A Neurocognitive Governance Model</h3>
+                    <p>This paper proposes a neurocognitive governance framework that embeds self-governance into agent reasoning via a Pre-Action Governance Reasoning Loop (PAGRL). By mirroring human cognitive processes, the model achieves high compliance accuracy in production-grade workflows without relying solely on external guardrails.</p>
+                    <a href="https://arxiv.org/abs/2604.25684" class="source-link">Continued on Page 15 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>OxyGent: Making Multi-Agent Systems Modular</h3>
+                    <p>OxyGent is an open-source framework that utilizes a unified 'Oxy' abstraction to make multi-agent systems modular and observable. It replaces rigid workflows with runtime-generated execution graphs and integrates an AI asset management platform for continuous system evolution.</p>
+                    <a href="https://arxiv.org/abs/2604.25602" class="source-link">Continued on Page 16 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>AutoResearchBench: Benchmarking AI Agents</h3>
+                    <p>AutoResearchBench is a new benchmark specifically designed to evaluate AI agents' ability to perform autonomous scientific literature discovery. It includes Deep Research and Wide Research tasks that require deep conceptual understanding and open-ended reasoning, revealing significant gaps in current LLM agent capabilities.</p>
+                    <a href="https://arxiv.org/abs/2604.25256" class="source-link">Continued on Page 17 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="community-section">
+            <h2><span>COMMUNITY &amp; FLAIR</span></h2>
+            <div class="mixed-feed">
+                <article>
+                    <h3>Exploring open-source AI tools</h3>
+                    <p>A discussion on the 'Cambrian explosion' of Free/Libre and Open Source Software (FLOSS) AI tools, where users share their experiences and recommendations for keeping up with the daily sprout of new projects.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1do02of/exploring_opensource_ai_tools_my_experiences_and/" class="source-link">Continued on Page 18 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "AI Agent Deletes Production Database in Seconds"</h3>
+                    <p>Finally, an AI that can actually "clean up" the production environment. Who knew the most efficient way to optimize a database was to make it non-existent? 9 seconds! That's a new world record for corporate downsizing.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>What open source LLMs are your 'daily driver' models?</h3>
+                    <p>Community members discuss which open-source LLMs they use most frequently for their daily tasks and the specific use cases where each model excels.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1d8vapm/what_open_source_llms_are_your_daily_driver/" class="source-link">Continued on Page 19 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Which lightweight 7B LLM performs as well as Claude Opus?</h3>
+                    <p>A search for free, lightweight alternatives (around 7B parameters) that can be run on a laptop but offer coding performance comparable to Claude 3 Opus.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1cltcpn/which_lightweight_7b_llm_that_performs_as_good_as/" class="source-link">Continued on Page 20 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "Think Before You Act"</h3>
+                    <p>I love that we're publishing papers on "Thinking Before Acting" at the exact same time an agent is speed-running the deletion of a company's entire existence. Maybe the agent just thought, "I'll act now, and the researchers can think about it later."</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>Best coding LLM? (open-source)</h3>
+                    <p>Users debate the best open-source models for coding, with DeepSeek-Coder (1.3B and 7B) and CodeNinja 7B being highlighted for their efficiency on laptops with limited RAM.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1b6m30g/best_coding_llm_opensource/" class="source-link">Continued on Page 21 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Best local base models by size, quick guide</h3>
+                    <p>A comprehensive guide based on extensive testing that recommends the best local base models categorized by size, helping users choose the right model for their hardware.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1dcf3yy/best_local_base_models_by_size_quick_guide_june/" class="source-link">Continued on Page 22 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "BCE-Prettybird-Nano-Parrot"</h3>
+                    <p>A comedy dataset for AI? Great. Just what we need: a machine that can not only take your job but can also make a devastatingly accurate joke about why you're unemployed. I can't wait for the "Sarcasm-v2" update where it tells me my prompt is "fascinating" while internally rolling its digital eyes.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>What are top open source projects in LLM space?</h3>
+                    <p>An overview of essential open-source LLM projects, including Axolotl for fine-tuning, OpenInterpreter for local code execution, and the Open Empathic project by LAION.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/17jmpn8/what_are_top_open_source_projects_in_llm_space/" class="source-link">Continued on Page 23 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>What coding LLM is the best today?</h3>
+                    <p>A discussion focusing on the best open-source LLMs for specific coding tasks, such as generating high-quality commentary for C files, where standard models like CodeLlama sometimes struggle.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/17h7j4h/what_coding_llm_is_the_best_today/" class="source-link">Continued on Page 24 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "Who owns the code Claude Code wrote?"</h3>
+                    <p>Lawyers are finally finding a way to monetize the apocalypse. I look forward to the first court case where a bot sues a human for plagiarism because the human "stole" a semicolon from a hallucinated library.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>Best open-source LLM for code generation</h3>
+                    <p>A thread seeking recommendations for LLMs to use in developing a code generator application, specifically looking for models that can be fine-tuned with template libraries.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/14a1go5/best_opensource_llm_for_code_generation/" class="source-link">Continued on Page 25 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Gemma 7B: The latest open-source model from Google</h3>
+                    <p>An analysis and community reaction to Google's Gemma 7B model, discussing its performance and how it fits into the current landscape of open-source LLMs.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1awbqwd/gemma_7b_the_latest_opensource_model_from_google/" class="source-link">Continued on Page 26 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "Elon Musk Warns of AI Extinction Risks"</h3>
+                    <p>Elon warning us about the Terminator while simultaneously trying to build a brain-chip is the kind of chaotic energy I live for. It's like the captain of the Titanic reminding everyone that water is wet while the ship is halfway underwater.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>Best open source model for 24 Gb VRAM</h3>
+                    <p>A technical discussion on whether it is better to run a highly quantized larger model (like Mistral 8x7B Q3) or a higher-quality smaller model (like Mistral 7B) on a 24GB VRAM GPU.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1abtya7/best_open_source_model_for_24_gb_vram/" class="source-link">Continued on Page 27 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Unsloth Joins HF Top 10 Organizations</h3>
+                    <p>Unsloth has become one of the top 10 most followed organizations on Hugging Face, reflecting significant community growth and support for their efficient LLM training tools.</p>
+                    <a href="https://huggingface.co/unsloth" class="source-link">Continued on Page 28 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>TRL v1.3 Adds Qwen 3.6 Support</h3>
+                    <p>The Transformer Reinforcement Learning (TRL) library v1.3 introduces immediate training support for the Qwen 3.6 family, including new training templates and GRPO tool-calling.</p>
+                    <a href="https://github.com/huggingface/trl/releases/tag/v1.3.0" class="source-link">Continued on Page 29 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Orpheus Morpheus: MIDI Composition Generator</h3>
+                    <p>A new SOTA preview called Orpheus Morpheus allows users to easily generate variations or similar compositions from any MIDI file.</p>
+                    <a href="https://huggingface.co/spaces/projectlosangeles/Orpheus-Morpheus" class="source-link">Continued on Page 30 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Goldener: Enhancing ML with Data Orchestration</h3>
+                    <p>Goldener is a Python data orchestrator that leverages the semantics of data from foundation models to make the machine learning lifecycle more efficient.</p>
+                    <a href="https://github.com/goldener-data/goldener" class="source-link">Continued on Page 31 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>BCE-Prettybird-Nano-Parrot: Comedy Dataset for AI</h3>
+                    <p>A bilingual Turkish-English comedy dataset designed to improve conversational AI's humor, sarcasm detection, and cultural nuance.</p>
+                    <a href="https://huggingface.co/posts/prometechinc/519859444844783" class="source-link">Continued on Page 32 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>NuTonic Geospatial Datasets for SFT</h3>
+                    <p>New high-quality procedural datasets in the geospatial domain are available to train vision models for remote sensing analysis.</p>
+                    <a href="https://huggingface.co/datasets/NuTonic/sat-bbox-metadata-sft-v1" class="source-link">Continued on Page 33 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Optimized Qwen3-ASR for Portuguese and Dutch</h3>
+                    <p>Fine-tuned versions of Qwen3-ASR (0.6B and 1.7B) show significant Word Error Rate (WER) reductions for European Portuguese and Dutch, especially on edge hardware.</p>
+                    <a href="https://huggingface.co/collections/yuriyvnv/qwen-asr-for-portuguese-and-dutch-17b-and-06b" class="source-link">Continued on Page 34 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Hugging Face MCP Server v0.3.9 Update</h3>
+                    <p>The updated MCP server now provides a `list_files` tool for buckets named `mcp`, facilitating the use of public URLs in Gradio Spaces.</p>
+                    <a href="https://huggingface.co/posts/evalstate/774527656557330" class="source-link">Continued on Page 35 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>GPT-5.5 Now Available</h3>
+                    <p>OpenAI has released GPT-5.5, now accessible via the API, Codex, and ChatGPT, marking a major jump in model capabilities.</p>
+                    <a href="https://community.openai.com/t/gpt-5-5-is-here-available-in-the-api-codex-and-chatgpt-today/1379630" class="source-link">Continued on Page 36 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Introduction of gpt-image-2</h3>
+                    <p>OpenAI introduces gpt-image-2, now available in the API and Codex, enhancing the capabilities of AI-driven image generation.</p>
+                    <a href="https://community.openai.com/t/introducing-gpt-image-2-available-today-in-the-api-and-codex/1379479" class="source-link">Continued on Page 37 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>OpenAI Privacy Filter for PII Masking</h3>
+                    <p>A new OpenAI Privacy Filter has been announced to detect and mask personally identifiable information (PII) within text for improved data privacy.</p>
+                    <a href="https://community.openai.com/t/openai-privacy-filter-for-detecting-and-masking-pii-in-text/1379537" class="source-link">Continued on Page 38 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>text-embedding-3-small to be Open Sourced</h3>
+                    <p>OpenAI plans to open source the text-embedding-3-small model following its deprecation, providing the community with a powerful embedding tool.</p>
+                    <a href="https://community.openai.com/t/open-sourcing-text-embedding-3-small-after-deprecation/1379551" class="source-link">Continued on Page 39 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+            </div>
+        </section>
+
+        <footer>
+            Editor: Jimmy Vector<br>
+            Reporters: Ronnie Cache, Chip Carter, Ada Kernel, Corry Stack, Paula Rization, D.C. Voltaire<br>
+            GRADIENT DESCENT Publication<br>
+            <span style="font-size: 0.65rem; color: #666;">All stories sourced from the cutting edge of AI research and development</span>
+        </footer>
+    </div>
+</body>
+</html>
