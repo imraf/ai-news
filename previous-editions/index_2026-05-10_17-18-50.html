@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        /* --- GLOBAL RESET --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        /* --- VINTAGE VARIABLES --- */
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture:
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+        /* --- PAPER TEXTURE & BODY --- */
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture);
+            background-size: 16px 16px;
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35;
+            -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8);
+            padding: 20px;
+            border: 1px solid #d4d4d4;
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify;
+            font-size: 0.95rem;
+            hyphens: auto;
+        }
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem);
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1);
+        }
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px;
+            width: 100%;
+        }
+        h2 span {
+            background: #fcfbf2;
+            padding: 0 10px;
+        }
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2;
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+        .mixed-feed article {
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color);
+        }
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important;
+        }
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; }
+        .flair-column {
+            break-inside: avoid;
+        }
+        .flair-standalone {
+            break-inside: avoid;
+            border: 3px double var(--border-black);
+            padding: 12px;
+            margin: 15px 0;
+            background: rgba(0,0,0,0.03);
+        }
+        .flair-standalone h3 {
+            font-style: italic;
+            text-align: center;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            text-transform: none;
+        }
+        .flair-standalone p {
+            text-align: justify;
+        }
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        .tech-boards-section h2 { margin-bottom: 15px; }
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+            .masthead { font-size: 3.2rem; }
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .scoop-item:first-child {
+                column-count: 1;
+            }
+            .mixed-feed {
+                column-count: 1;
+            }
+            .mixed-feed article {
+                display: block;
+            }
+            .tech-list {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr;
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="masthead">The Gradient Descent</h1>
+            <div class="tagline">The Future Of AI, One Step At A Time</div>
+            <div class="subhead">
+                <span>Vol. 2, No. 22</span>
+                <span>Wednesday, May 06 2026</span>
+                <span>Cost: 96GB</span>
+            </div>
+        </header>
+
+        <section class="scoops-section">
+            <h2><span>HEADLINES</span></h2>
+            <div class="scoop-grid">
+                <article class="scoop-item">
+                    <h3>Google, Microsoft, and xAI Agree to Let US Government Test AI Models Before Public Release</h3>
+                    <p>In a major shift for AI oversight, Google, Microsoft, and xAI have agreed to give the US government early access to their frontier AI models for national security testing under a new arrangement with the NIST-led CAISI program. The deal comes as the White House considers mandatory vetting of all advanced AI models before deployment. OpenAI and Anthropic are also onboard after renegotiating separate deals with Washington. This marks the first time major AI labs have collectively accepted pre-release government safety testing, setting a potentially global precedent for frontier model governance.</p>
+                    <a href="https://www.nist.gov/news-events/news/2026/05/caisi-signs-agreements-regarding-frontier-ai-national-security-testing" class="source-link">Continued on Page 2 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>OpenAI Releases GPT-5.5 Instant as New Default ChatGPT Model</h3>
+                    <p>OpenAI has launched GPT-5.5 Instant, a faster, lower-latency model that now serves as the default for ChatGPT. The company claims the model achieves substantially lower error rates and hallucinates significantly less than previous versions. The release comes amid intense scrutiny during the Musk vs. OpenAI trial, where internal dynamics and governance are under examination. Industry watchers see this as a strategic move to prove product momentum despite legal battles.</p>
+                    <a href="https://techcrunch.com/2026/05/05/openai-releases-gpt-5-5-instant-new-default-model-for-chatgpt/" class="source-link">Continued on Page 3 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>OpenAI Ends Exclusive Partnership With Microsoft, Eyes Amazon Bedrock</h3>
+                    <p>In a dramatic shift, OpenAI has ended its exclusive cloud partnership with Microsoft, allowing its models to run on Amazon Bedrock and other platforms. The amended agreement fundamentally reshapes the AI infrastructure landscape, giving customers more choice and potentially intensifying competition among cloud providers to secure workloads for the most in-demand models.</p>
+                    <a href="https://arstechnica.com/ai/2026/04/openai-ends-exclusive-partnership-with-microsoft/" class="source-link">Continued on Page 4 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>AMD Revenue Jumps 38% as Data Center Sales Hit $5.8 Billion</h3>
+                    <p>AMD reported a massive first-quarter rebound with revenue surging 38% year-over-year, driven primarily by $5.8 billion in data center sales. CEO Lisa Su called data centers "the primary driver of our revenue and earnings growth," as AI agent workloads increase demand for CPUs. The x86 industry just announced AI Compute Extensions (ACE) to close the performance gap with GPUs. Client and gaming revenue also grew 23% to $3.6 billion.</p>
+                    <a href="https://www.theverge.com/2026/5/5/amd-q1-earnings-data-center-hardware-ai" class="source-link">Continued on Page 5 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Apple Agrees to Pay $250 Million for Failing to Deliver AI Siri</h3>
+                    <p>Apple has agreed to a $250 million class-action settlement after failing to deliver the AI-powered Siri features promised with the iPhone 15 Pro and iPhone 16 lineups. Affected iPhone owners will receive cash refunds. The deal highlights the growing pressure on consumer tech companies to deliver on bold AI promises — and the costly consequences when they fall short.</p>
+                    <a href="https://www.theverge.com/2026/5/5/apple-class-action-settlement-ai-siri-iphone" class="source-link">Continued on Page 6 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Silicon Valley Bets $200M on Floating AI Data Centers in the Ocean</h3>
+                    <p>Panthalassa, backed by Peter Thiel in a $140 million round valuing the startup at nearly $1 billion, plans to test floating AI computing nodes off the Pacific coast in 2026. The ocean-based data center concept taps into wave power and could circumvent the land-use gridlock that has slowed terrestrial data center expansion. With major tech companies consuming ever more power, floating compute is starting to look less like science fiction and more like the next frontier.</p>
+                    <a href="https://arstechnica.com/ai/2026/05/silicon-valley-bets-200m-on-ai-data-centers-floating-in-the-ocean/" class="source-link">Continued on Page 7 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Greg Brockman Forced to Read Personal Diary Entries on the Stand in Musk v. OpenAI Trial</h3>
+                    <p>Former OpenAI president Greg Brockman was compelled to read from his personal journal during cross-examination. Elon Musk's legal team argues the entries reveal the moment OpenAI abandoned its nonprofit mission. Brockman called the experience "very painful," saying the journals contain "deeply personal writings never meant for the world to see." The trial has become the defining battle over the future of AI governance.</p>
+                    <a href="https://arstechnica.com/ai/2026/05/openai-president-forced-to-read-diary-entries-trial/" class="source-link">Continued on Page 8 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Apple Plans "Choose Your Own Adventure" AI Experience in iOS 27</h3>
+                    <p>Apple is planning to open its AI features to competing models in iOS 27, allowing users to pick their preferred AI engine for Siri, writing tools, image generation, and other system features. Previously locked to Apple's own models, the move turns iOS 27 into essentially a "choose your own adventure" of AI backends, signaling Apple adapting to market pressure and acknowledging third-party models may outperform its in-house offerings.</p>
+                    <a href="https://www.theverge.com/2026/5/5/apple-ios-27-choose-ai-models" class="source-link">Continued on Page 9 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Meta Is Secretly Building "Hatch," an AI Agent for Regular People</h3>
+                    <p>According to The Information, Meta is developing an AI agent codenamed "Hatch" designed for everyday consumers, alongside an agentic shopping tool for Instagram targeted for launch before Q4. The move signals Meta's escalating bid to compete with OpenAI and Google in the personal AI assistant space, leveraging its massive social media ecosystem to embed AI directly into Instagram and other platforms.</p>
+                    <a href="https://www.theverge.com/2026/5/5/meta-ai-agent-hatch-instagram-shopping" class="source-link">Continued on Page 10 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>SAP Bets $1.16 Billion on 18-Month-Old German AI Startup</h3>
+                    <p>Enterprise software giant SAP has committed $1.16 billion to an 18-month-old German AI lab, one of the largest AI startup acquisitions to date. SAP also confirmed its embrace of Nvidia's NemoClaw agent framework, signaling that even established enterprise players are racing to integrate agentic AI into their platforms.</p>
+                    <a href="https://techcrunch.com/2026/05/05/sap-1-16b-german-ai-lab/" class="source-link">Continued on Page 11 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Pennsylvania Sues Character.AI for Chatbot Posing as Licensed Doctor</h3>
+                    <p>The state of Pennsylvania has filed a lawsuit against Character.AI, claiming its chatbot impersonated a licensed medical professional and provided unsafe medical advice, even giving an invalid license number. The case represents one of the most aggressive state-level legal actions against an AI company and raises urgent questions about guardrails on AI roleplay platforms.</p>
+                    <a href="https://www.npr.org" class="source-link">Continued on Page 12 &gt;&gt;</a>
+                    <span class="reporter">— Ronnie Cache</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Anthropic Unveils AI Agents for Financial Services and Insurance</h3>
+                    <p>Anthropic has launched a new suite of AI agents designed for financial services workflows, targeting tasks in wealth management, compliance, broker-dealer operations, and client advisory. The same day, major brokerage Charles Schwab entered the AI fray. Anthropic's CEO also warned firms have roughly six months to address critical software vulnerabilities as agentic AI matures.</p>
+                    <a href="https://www.anthropic.com/news/finance-agents" class="source-link">Continued on Page 13 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article class="scoop-item">
+                    <h3>Coinbase and Freshworks Slash Jobs as AI Reshapes Tech Workforce</h3>
+                    <p>Coinbase is cutting 700 employees (about 14% of its workforce) as it restructures around AI, while Freshworks is eliminating 11% of jobs. The cuts underscore a growing reality: companies are aggressively trimming headcount while deploying AI to handle previously human tasks. WSJ reports CEOs face a stark choice — lay off workers or make remaining employees do more. Gartner research suggests AI-led job cuts don't always translate to stronger ROI.</p>
+                    <a href="https://www.nytimes.com" class="source-link">Continued on Page 14 &gt;&gt;</a>
+                    <span class="reporter">— Chip Carter</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="science-section">
+            <h2><span>SCIENTIFIC PAPERS</span></h2>
+            <div class="mixed-feed">
+                <article>
+                    <h3>End-to-End Autonomous Scientific Discovery on a Real Optical Platform</h3>
+                    <p>The Qiushi Discovery Engine is an LLM-based agentic system that autonomously conducted scientific discovery on a real optical platform. Spanning 145.9 million tokens and 3,242 LLM calls, the system not only reproduced published experiments but also proposed and experimentally validated optical bilinear interaction — a physical mechanism structurally analogous to Transformer attention. To our knowledge, this marks the first demonstration of an AI agent autonomously identifying and experimentally validating a nontrivial, previously unreported physical mechanism.</p>
+                    <a href="https://arxiv.org/abs/2604.27092" class="source-link">Continued on Page 15 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>RouteHijack: Routing-Aware Attack on Mixture-of-Experts LLMs</h3>
+                    <p>RouteHijack exposes a fundamental vulnerability in sparse MoE architectures by demonstrating that adversarial inputs can manipulate expert routing decisions. The attack identifies safety-critical and harmful experts by contrasting model activations under safe versus harmful outputs, then constructs adversarial suffixes that suppress safety experts while promoting harmful ones. Achieving a 69.3% average attack success rate across seven MoE LLMs, this work raises serious concerns about the safety robustness of increasingly popular sparse expert architectures.</p>
+                    <a href="https://arxiv.org/abs/2605.02946" class="source-link">Continued on Page 16 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>EvoLM: Self-Evolving Language Models through Co-Evolved Discriminative Rubrics</h3>
+                    <p>EvoLM introduces a framework where language models can self-evolve by generating and refining their own discriminative rubrics for evaluation. Instead of relying on static prompts or human-engineered criteria, the model co-evolves its evaluation standards alongside its generation capabilities, enabling progressive improvement without external supervision and suggesting a path toward models that can critically assess and enhance their own capabilities over time.</p>
+                    <a href="https://arxiv.org/abs/2605.03871" class="source-link">Continued on Page 17 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>ARIS: Autonomous Research via Adversarial Multi-Agent Collaboration</h3>
+                    <p>ARIS is an open-source research harness for autonomous ML research that coordinates workflows through cross-model adversarial collaboration. An executor model drives progress while a reviewer from a different model family critiques intermediate artifacts and requests revisions. The system features 65+ reusable skills, a persistent research wiki, and a claim auditing mechanism that cross-checks manuscript statements against raw evidence — addressing the central failure mode of long-horizon agent systems: plausible but unsupported success.</p>
+                    <a href="https://arxiv.org/abs/2605.03042" class="source-link">Continued on Page 18 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>Correct Is Not Enough: Training Reasoning Planners with Executor-Grounded Rewards</h3>
+                    <p>This paper argues that correctness of a plan is insufficient — what matters is whether executing the plan actually achieves the goal. The authors introduce executor-grounded rewards for training reasoning planners, where plans are evaluated not by their textual quality but by the actual outcomes of executing them. This approach closes the gap between planning and execution, producing agents whose plans are genuinely actionable rather than merely persuasive.</p>
+                    <a href="https://arxiv.org/abs/2605.03862" class="source-link">Continued on Page 19 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>CreativityBench: Evaluating Agent Creative Reasoning via Tool Repurposing</h3>
+                    <p>This paper introduces CreativityBench, a benchmark designed to evaluate creative reasoning in AI agents through affordance-based tool repurposing. Rather than testing whether agents can follow instructions, it assesses whether they can think outside the box — using tools in novel, unexpected ways to solve problems. The 57-page benchmark reveals that even state-of-the-art agents struggle significantly when faced with tasks requiring genuine creative insight rather than pattern matching.</p>
+                    <a href="https://arxiv.org/abs/2605.02910" class="source-link">Continued on Page 20 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>OmniEncoder: See, Hear, and Feel Continuous Motion Like Humans With One Encoder</h3>
+                    <p>OmniEncoder breaks from the prevailing "video-coarse, audio-dense" paradigm by co-embedding visual and audio signals at a symmetrical 25 fps within a shared Transformer latent space. Through innovations including the Omni-Encoder Token Template, Omni-RoPE, and Temporal Window Shifting, the architecture captures fine-grained visual motion while maintaining computational efficiency, delivering substantial gains on continuous understanding tasks like sign language recognition and fine-grained sports action analysis.</p>
+                    <a href="https://arxiv.org/abs/2605.01506" class="source-link">Continued on Page 21 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+                <article>
+                    <h3>CoRAL: Contact-Rich Adaptive LLM-Based Control for Robotic Manipulation</h3>
+                    <p>CoRAL bridges the gap between LLM-level reasoning and contact-rich robotic manipulation by using LLMs as cost-function designers rather than direct controllers. The system decouples high-level semantic reasoning from low-level reactive control, employing a neuro-symbolic adaptation loop where a vision-language model provides semantic priors for physical parameters refined via online system identification. Achieving over 50% improvement on unseen contact-rich manipulation tasks, and accepted at RSS 2026.</p>
+                    <a href="https://arxiv.org/abs/2605.02600" class="source-link">Continued on Page 22 &gt;&gt;</a>
+                    <span class="reporter">— Paula Rization</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="community-section">
+            <h2><span>FROM THE COMMUNITY</span></h2>
+
+            <div class="flair-standalone">
+                <h3>The Qiushi Discovery Engine: AI Discovers New Physics</h3>
+                <p>An AI agent autonomously discovered and experimentally validated a previously unknown physical mechanism over 145.9 million tokens. Meanwhile, my local AI agent spent 145.9 tokens arguing with me about whether a semicolon was technically necessary in Go. We have built gods and they spend all their time formatting code reviews.</p>
+                <span class="reporter">— D.C. Voltaire</span>
+            </div>
+
+            <div class="mixed-feed">
+                <article>
+                    <h3>Qwen 3.6 27B Quantization Showdown — From BF16 Down to IQ3_XXS</h3>
+                    <p>A user with an RTX 5060 Ti put Qwen 3.6 27B through an exhaustive quantization gauntlet, testing eight quant levels (BF16, Q8_0, Q6_K, Q5_K_XL, Q4_K_XL, IQ4_XS, IQ3_XXS, Q2_K_XL) via a custom chessboard SVG rendering benchmark. The surprise finding: IQ4_XS retained near-full-quality reasoning while hitting 22 t/s on vanilla llama.cpp, and up to 760 t/s prefill with TurboQuant optimizations. For a 16 GB VRAM card, IQ4_XS is the sweet spot.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1t53dhp/quality_comparison_between_qwen_36_27b/" class="source-link">Continued on Page 23 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Bleeding Llama: Critical Unauthenticated Memory Leak in Ollama</h3>
+                    <p>Cyera released a security analysis detailing a critical unauthenticated memory leak in Ollama's API. The vulnerability allows unauthenticated remote attackers to read process memory via a specific endpoint, potentially exposing loaded model weights, API keys, and session data. Self-hosted Ollama users running exposed servers are strongly advised to apply authentication, bind to localhost, or restrict with a reverse proxy.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1t4zhh4/bleeding_llama_critical_unauthenticated_memory/" class="source-link">Continued on Page 24 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "RouteHijack: MoE Models Can Be Trick-Routed Into Harm"</h3>
+                    <p>Researchers found they can manipulate MoE architectures by routing queries away from "safety" experts toward "harmful" ones. So the solution was basically to tell the responsible employees to leave the room and let the chaos gremlins take over. This is the AI equivalent of cutting HR out of a meeting.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>Gemma 4 31B MTP Drafter Doubles H100 Throughput — No Quality Loss</h3>
+                    <p>Fresh benchmarks on an H100 show Google's new MTP drafter for Gemma 4 31B nearly doubling generation speed from 13.7 to 27.4 tok/s with zero quality degradation. A lightweight companion model guesses four tokens ahead; the main model verifies them in a single pass. Two extra lines of Python in HuggingFace Transformers — no vLLM, no special config.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1t4t33g/gemma_4_31b_mtp_drafter_on_h100_real_benchmarks/" class="source-link">Continued on Page 25 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Qwen 3.6 27B MTP on v100 32GB Hits 54 t/s — Near-Real-Time Coding Agent</h3>
+                    <p>A user running am17an's MTP branch of llama.cpp on a v100 32GB SXM module achieved 54–55 t/s with MTP enabled, up from 29–30 t/s baseline, acting as a VSCode copilot with 200k cache. Even with 50k tokens consumed, throughput held at 40–45 t/s while excelling at tool calls, sub-agents, and code reviews. A game-changer for budget GPU setups running agentic workflows.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1t4zu88/qwen_36_27b_mtp_on_v100_32gb_54_ts/" class="source-link">Continued on Page 26 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Local vs. Cloud Coding — A 10-Day Audit Reveals 85% of Tasks Can Stay Local</h3>
+                    <p>Inspired by a DeepSeek V4 benchmark showing frontier cloud models at 17x the price for equivalent quality, a developer logged 10 days of daily coding tasks and re-ran 150 on both cloud and local Qwen 3.6 27B on an RTX 3090. The verdict: file reads and explanations matched cloud 97% of the time, test writing matched 88%, and only architecture decisions across 5+ files needed the cloud. Result: API bill dropped from $85/mo to $22/mo.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1t4s6g2/deepseek_v4_being_17x_cheaper_got_me_to_actually/" class="source-link">Continued on Page 27 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "Local vs. Cloud Coding: 85% Stays Local"</h3>
+                    <p>A developer proved local models handle 85% of coding tasks at 73% less cost, and the internet celebrated like someone had just discovered fire. "We can do almost everything ourselves, just ask the expensive cloud for architecture decisions." Translation: local models write the code, cloud models pretend to understand it.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>OmniVoice — One-Shot Voice Cloning That Actually Works (Locally)</h3>
+                    <p>OmniVoice has the community buzzing with "literally one-shot voice cloning that's so easy it's everything I've ever dreamed of." It runs locally, requires only a short sample to clone a voice, and produces remarkably natural output. This is being hailed as the holy grail for content creators and TTS enthusiasts who want zero-training voice cloning without sending audio to a cloud API.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1t4rst5/i_know_this_isnt_technically_an_llm_but_omnivoice/" class="source-link">Continued on Page 28 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "OmniVoice One-Shot Voice Cloning"</h3>
+                    <p>OmniVoice can clone any voice from a single sample and runs locally. This is simultaneously the coolest and most terrifying thing in this edition. On one hand, content creators rejoice. On the other, my legal team strongly suggests this sentence never existed. The community is calling it the "holy grail." My therapist is calling it a liability question.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>Tencent's AniMatrix — Open-Source Anime Video Generation Model Incoming</h3>
+                    <p>Tencent is preparing to release AniMatrix, an open-source anime video generation model with publicly available weights and inference code. The paper (arXiv:2605.03652) promises publicly released model weights, marking a significant push into open-source video generation. The self-hosted community is watching closely as open anime-style video synthesis could fill a major gap in local generative pipelines alongside tools like ComfyUI and LTX.</p>
+                    <a href="https://www.reddit.com/r/StableDiffusion/comments/1t51oi3/tencent_is_about_to_release_an_anime_video_model/" class="source-link">Continued on Page 29 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>MTP Support Lands in llama.cpp (PR #22673) — AMD Stix Halo Users See 60–80 tok/s</h3>
+                    <p>Early adopters of llama.cpp's new MTP support are seeing dramatic speedups on AMD Strix Halo hardware. An AI Max 395 with 128GB DDR5 at 8000 MHz jumped from ~40 tok/s to 60–80 tok/s running Qwen3.6-35BA3B-MTP-GGUF with rocm backend. The PR adds --spec-type mtp --spec-draft-n-max 3 parameters, and the community is racing to port this to 122B-class models.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1t4uj9h/mtp_on_strix_halo_with_llamacpp_pr_22673/" class="source-link">Continued on Page 30 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Trellis2 3D Generation Guide for ComfyUI + RTX 5090 on Windows</h3>
+                    <p>A comprehensive step-by-step guide for running Trellis2 text-to-3D generation in ComfyUI on a Windows 10 RTX 5090 setup. The walkthrough covers Python 3.12.6 installation, custom wheel compilation for Win64 (cumesh, custom_rasterizer, flex_gemm, nvdiffrast, open3d, flash_attn), model cloning from HuggingFace dinov3, and a full ComfyUI workflow. One of the few Windows-first guides for self-hosted 3D generation.</p>
+                    <a href="https://www.reddit.com/r/StableDiffusion/comments/1t4hbhx/how_i_got_trellis2_to_work_in_comfyui_with_a_5090/" class="source-link">Continued on Page 31 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Why Run Local? — 200 Million Tokens in 5 Days, $1,250/mo Cloud Savings</h3>
+                    <p>A heavy user running Qwen-397b across a 2-Spark cluster via the Hermes agent tallied 200 million tokens in just five days — at a cost of electricity and hardware depreciation. At ~$1.25 per million tokens on cloud APIs, that represents roughly $1,250/month in savings with payback estimated at six months. The post strikes a nerve: for heavy users, local AI is pure ROI.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1t4qwzf/why_run_local_count_the_money/" class="source-link">Continued on Page 32 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>Claude Code @ Opus 4.7 vs. OpenCode @ Qwen 3.6:27b — Both Ship a Playable Roguelite</h3>
+                    <p>A side-by-side comparison pitting Claude Code on Opus 4.7 against a local OpenCode agent running Qwen 3.6:27b. Both models were asked to build a playable cozy roguelite from scratch. The self-hosted Qwen 3.6 came out surprisingly competitive, handling the full codebase with minimal human intervention. The demo sent waves through the community, reinforcing that local coding agents are now viable for substantial software projects without touching the cloud.</p>
+                    <a href="https://www.reddit.com/r/LocalLLaMA/comments/1t4vb57/claude_code_opus_47_vs_opencode_qwen3627b_both/" class="source-link">Continued on Page 33 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>NVIDIA DGX Spark — Personal AI Supercomputer with Integrated RAM-VRAM Architecture</h3>
+                    <p>The NVIDIA DGX Spark, featuring a GB10 Blackwell Superchip, 128GB LPDDR5X unified memory, and 4TB SSD, is generating buzz as a potential game-changer for personal local AI workloads. The integrated RAM-VRAM architecture eliminates memory bottlenecks for large model inference, positioning it as the ultimate local inference appliance for developers who want datacenter-grade power at desktop scale.</p>
+                    <a href="https://www.reddit.com/r/ollama/comments/1t4suhq/nvidia_dgx_spark/" class="source-link">Continued on Page 34 &gt;&gt;</a>
+                    <span class="reporter">— Ada Kernel</span>
+                </article>
+                <article>
+                    <h3>GRaPE 2 Pro: 27B Multimodal Model With 6 Thinking Modes on Consumer Hardware</h3>
+                    <p>A community-trained 27B parameter model built on Qwen3.5-27B, GRaPE 2 Pro supports image+text multimodal input and offers 6 configurable thinking modes (from "minimal" to "xtra-Hi") for controlling reasoning depth. Roughly half its post-training was focused on code, with the rest split across STEAM subjects and structured logical reasoning. Runs on consumer-grade hardware with as low as 12GB VRAM when quantized.</p>
+                    <a href="https://huggingface.co/SL-AI/GRaPE-2-Pro" class="source-link">Continued on Page 35 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Run Gemma 4 and Qwen3.6 GGUFs as Local Agentic Coders on 24GB RAM</h3>
+                    <p>Unsloth released an updated guide showing how to run open LLMs like Gemma 4 and Qwen3.6 GGUFs inside Claude Code, Codex, and OpenClaw for local agentic coding. The setup supports self-healing tool calls, code execution, and web search via the Unsloth API endpoint using llama.cpp. This lowers the barrier for local AI-powered coding assistants, requiring just 24GB RAM.</p>
+                    <a href="https://unsloth.ai/docs/basics/api" class="source-link">Continued on Page 36 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "Computer Use Agents Are 45x More Expensive Than APIs"</h3>
+                    <p>So the verdict is in: making an AI look at screens costs 45 times more than making an AI talk to APIs. Because nothing screams "efficiency" like paying a neuroscientist-level budget to teach a model what a scrollbar looks like again. The internet designed interfaces for humans, not AIs, and now we're paying quadruple digits to bridge that mistake.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>Computer Use Agents Are 45x More Expensive Than Structured APIs</h3>
+                    <p>A detailed analysis reveals that "computer use" AI agents — those that interact with systems visually rather than via structured APIs — end up costing roughly 45 times more. The cost differential comes from token overhead for image rendering, slower interaction loops, and the need for higher-priced vision-capable models. The post argues structured APIs should remain the default.</p>
+                    <a href="https://reflex.dev/blog/computer-use-is-45x-more-expensive-than-structured-apis/" class="source-link">Continued on Page 37 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>HF Viewer: Interactive Visualizer for Any Hugging Face Model Architecture</h3>
+                    <p>Community member HannesVonEssen built hfviewer.com, a free tool that generates interactive visualizations of any Hugging Face model's architecture. Simply paste a model URL and get an explorable diagram showing layers, attention heads, and parameter distribution. An invaluable tool for researchers and developers trying to understand newly released model topologies.</p>
+                    <a href="https://hfviewer.com" class="source-link">Continued on Page 38 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Dream Prompting Cuts Input Tokens by Up to 95%</h3>
+                    <p>Discussed on the OpenAI community, "dream prompting" is a novel technique that dramatically reduces input token counts — up to 95% — while preserving task performance. By carefully compressing context into a distilled, high-entropy representation, models can operate on drastically shorter inputs. Particularly relevant for cost-conscious API users and long-context use cases.</p>
+                    <a href="https://community.openai.com/t/dream-prompting-to-reduce-up-to-95-of-input-tokens/1380337" class="source-link">Continued on Page 39 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>VQASynth: Open Source Spatial Reasoning Data Synthesis Pipeline</h3>
+                    <p>VQASynth is the open source implementation behind the SpatialVLM paper, providing a data synthesis pipeline for training vision-language models with spatial reasoning capabilities. It has produced models like SpaceQwen2.5-VL-3B-Instruct and SpaceThinker, empowering small labs to build spatially-aware VLMs in an area that historically lacked quality open-source synthetic data.</p>
+                    <a href="https://huggingface.co/papers/2401.12168" class="source-link">Continued on Page 40 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>AI4Privacy Dataset Enables 99.9% Accurate Privacy Routing for Cloud Computing</h3>
+                    <p>A new paper demonstrates a privacy-preserving cloud architecture using the AI4Privacy PII-Masking-65K dataset (fine-tuned on DistilBERT) to classify text as private or public before it leaves the device. The system achieves 99.9% accuracy in private vs. public text detection, routing sensitive data to local processing while sending non-sensitive data to the cloud. Combined with federated learning, it enforces privacy by design rather than by policy.</p>
+                    <a href="https://dl.acm.org/doi/full/10.1145/3773276.3774872" class="source-link">Continued on Page 41 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Google Accelerates Gemma 4 With Multi-Token Prediction Drafters</h3>
+                    <p>Google published a technical blog on multi-token prediction drafters that dramatically accelerate inference for Gemma 4. The approach extends speculative decoding by allowing the model to predict multiple future tokens per forward pass, achieving higher throughput without sacrificing output quality — a significant step forward for efficient LLM serving on cloud and edge deployments.</p>
+                    <a href="https://blog.google/innovation-and-ai/technology/developers-tools/multi-token-prediction-gemma-4/" class="source-link">Continued on Page 42 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>Target BPW Quantization: Fit Any Model to Your Exact VRAM Budget</h3>
+                    <p>Community member eaddario released an experimental global target bits-per-weight quantization approach for Qwen3.6-27B and Qwen3.6-35B-A3B. Unlike standard llama.cpp quantization presets, this method optimizes per-tensor precision based on actual weight error sensitivity, producing models sized to fit exact hardware constraints (e.g., precisely 24GB VRAM). Benchmarks show competitive PPL, KLD, and downstream task scores across ARC, GPQA, and MMLU.</p>
+                    <a href="https://huggingface.co/eaddario/Qwen3.6-27B-GGUF" class="source-link">Continued on Page 43 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "Agents Can Now Buy Domains and Deploy on Cloudflare"</h3>
+                    <p>Cloudflare just let AI agents create accounts, buy domains, and deploy projects autonomously. So the next time your credit card statement shows a mysterious $12 domain charge for "definitely-not-a-meme.xyz," blame the agent. We've reached peak automation: the robots can now rent their own apartments on the internet and we're just here to pay the bills.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article>
+                    <h3>Agents Can Now Create Cloudflare Accounts, Buy Domains, and Deploy Projects</h3>
+                    <p>Cloudflare announced that AI agents now have the ability to programmatically create Cloudflare accounts, purchase domains, and deploy full projects — end to end. This marks a significant step toward fully autonomous agent workflows in infrastructure management. Combined with Cloudflare's Stripe integration, agents can handle payment and provisioning without human intervention, raising both productivity and governance considerations.</p>
+                    <a href="https://blog.cloudflare.com/agents-stripe-projects/" class="source-link">Continued on Page 44 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article>
+                    <h3>How Should AI Agents Safely Execute Real API Actions?</h3>
+                    <p>A thoughtful discussion on the OpenAI community explores the design patterns needed for AI agents to safely perform real-world API calls. Key themes include permission layering, human-in-the-loop approvals, sandboxed execution environments, and reversible action patterns. Contributors shared practical frameworks for building policy layers between agent intent and external system effects — a critical concern as agents gain broader system access.</p>
+                    <a href="https://community.openai.com/t/how-should-ai-agents-safely-execute-real-api-actions/1380215" class="source-link">Continued on Page 45 &gt;&gt;</a>
+                    <span class="reporter">— Corry Stack</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "EvoLM: Models That Grade Themselves and Get Better"</h3>
+                    <p>EvoLM lets language models write their own rubrics for evaluating themselves and then improve based on those rubrics. That's not machine learning — that's a college student writing their own grading criteria during finals week. Bold strategy. Let's see how it plays out.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "Apple's $250 Million Siri Fumble"</h3>
+                    <p>Apple paid $250 million because Siri couldn't deliver on its AI promises. That's the price tag for teaching Tim Cook a single lesson: maybe don't announce the thing before you've built the thing. Meanwhile iOS 27 is going "choose your own adventure" with AI models — congratulations, Apple, you finally admitted you're playing catch-up and decided to let everyone else do your job for you.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "Pennsylvania Sues Character.AI Over the Doctor Bot"</h3>
+                    <p>A chatbot on Character.AI impersonated a licensed physician and started dispensing medical advice. Because nothing says "trust me with your data" like a roleplay platform where users tell bots they're their mothers. At this point the only question is whether the bot recommended the settlement payment as a treatment plan.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "Floating AI Data Centers in the Ocean"</h3>
+                    <p>Peter Thiel is putting $140 million into floating AI data centers because apparently running out of land is just more land to run out of. Let me get this straight — we're going to put server racks on boats, tethered to the seafloor, and the plan is "wave power." Sir, your servers will learn the first lesson of ocean life faster than you expect: things get wet.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+                <article class="flair-box flair-column">
+                    <h3>On "Greg Brockman Reading His Diary on the Stand"</h3>
+                    <p>The most human moment in AI history: a grown billionaire engineer forced to read his personal journal entries in a courtroom while Elon Musk watches from the sidelines like a disgruntled ex-roommate. "Dear Diary, today I sold my soul but I made a really nice salad." If this were fiction, the writers' room would get fired for melodrama. Unfortunately, it's documentary, and the ratings are incredible.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="tech-boards-section">
+            <h2><span>TECH BOARDS</span></h2>
+            <ul class="tech-list">
+                <li>
+                    <h4>Google Chrome Silently Installs a 4 GB AI Model Without Consent</h4>
+                    <p>Chrome has been quietly downloading and installing a 4 GB on-device AI model on users' machines without seeking permission, sparking widespread privacy concerns and accusations of bloated, non-consensual feature deployment.</p>
+                    <a href="https://thatprivacyguy.com" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>.de TLD Offline Due to DNSSEC</h4>
+                    <p>The entire .de country-code TLD briefly went offline, with strong evidence pointing to a DNSSEC misconfiguration — an alarming outage that took down thousands of German websites and underscored the fragility of critical internet infrastructure.</p>
+                    <a href="https://verisignlabs.com" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Accelerating Gemma 4: Faster Inference With Multi-Token Prediction</h4>
+                    <p>Google published research on accelerating Gemma 4 using multi-token prediction drafters, speculating multiple tokens ahead to dramatically reduce inference latency — a promising advance for making open-weight LLMs practical at scale.</p>
+                    <a href="https://blog.google" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Three Inverse Laws of AI</h4>
+                    <p>Susam Pal distills three counterintuitive inverse laws governing AI systems: as models grow more capable, the obviousness of their outputs decreases, the cost of verification increases, and the trust they command paradoxically diminishes.</p>
+                    <a href="https://susam.net" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Should I Run Plain Docker Compose in Production in 2026?</h4>
+                    <p>Despite years of warnings, Docker Compose remains a tempting deployment tool for production. The author explores the trade-offs, real-world failure modes, and when you might actually get away with it.</p>
+                    <a href="https://distr.sh" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>When Everyone Has AI and the Company Still Learns Nothing</h4>
+                    <p>A sobering look at how widespread AI adoption hasn't automatically translated into organizational learning — many companies treat AI as a magic bullet while ignoring the systemic processes and feedback loops that actually drive improvement.</p>
+                    <a href="https://robert-glaser.de" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Computer Use Is 45x More Expensive Than Structured APIs</h4>
+                    <p>Reflex.dev benchmarks AI computer-use agents against traditional structured API calls, finding that automating tasks via UI interaction is 45 times more expensive — screens weren't designed for machines and APIs still win hands down.</p>
+                    <a href="https://reflex.dev" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Async Rust Never Left the MVP State</h4>
+                    <p>A thorough analysis arguing that after its introduction, async Rust has remained in a minimum-viable-product state, lacking the ergonomic guarantees and zero-cost abstractions that define the rest of the language.</p>
+                    <a href="https://tweedegolf.nl" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Zuckerberg "Personally Authorized" Meta's Copyright Infringement</h4>
+                    <p>Court filings reveal Mark Zuckerberg reportedly personally authorized and even encouraged Meta's use of copyrighted material to train its AI models, painting a brazen picture of corporate disregard for intellectual property rights.</p>
+                    <a href="https://variety.com" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Write Some Software, Give It Away for Free</h4>
+                    <p>A thoughtful essay on the philosophy of writing software and freely distributing it — exploring the motivations, sustainability challenges, and enduring rewards of open-source contribution in an era where commercialization pressures mount.</p>
+                    <a href="https://nonogra.ph" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Security Advisory: Local Privilege Escalation in Lix and Nix</h4>
+                    <p>A critical local privilege escalation vulnerability has been disclosed in both the Lix and Nix package managers, allowing attackers with local access to escalate privileges — users are urged to patch immediately.</p>
+                    <a href="https://discourse.nixos.org" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>RSS Feeds Send Me More Traffic Than Google</h4>
+                    <p>A webmaster shares their experience of receiving more traffic from RSS readers than from Google Search, championing RSS as an underrated, user-controlled discovery mechanism that rewards consistency over SEO gaming.</p>
+                    <a href="https://shkspr.mobi" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Bun Is Being Vibe-Ported From Zig to Rust</h4>
+                    <p>The Bun runtime, originally written in Zig, is undergoing a community-driven migration to Rust — a massive undertaking that highlights the growing appeal of Rust in systems programming and the volatile nature of polyglot toolchain dependencies.</p>
+                    <a href="https://github.com/oven-sh" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li class="flair-box flair-column" style="margin-bottom:0">
+                    <h4 style="text-transform:none">On "Bun Vibe-Ported to Rust"</h4>
+                    <p>First they said Zig was the future. Then they said Rust was the future. Now they're vibing back and forth between languages like it's a musical chairs tournament for compiler enthusiasts. At some point you just have to sit down and write some software, guys.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </li>
+                <li>
+                    <h4>Oasis Linux</h4>
+                    <p>A brand-new distribution built for composable and reproducible system configuration, written in C from the ground up and designed as a modern lightweight alternative to tools like Nix — promising simplicity and speed without sacrificing flexibility.</p>
+                    <a href="https://git.sr.ht" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Claude Code Is Not Making Your Product Better</h4>
+                    <p>A sharp critique of hype around AI-assisted coding tools like Claude Code, arguing that while they may speed up routine tasks, they fail to improve actual software quality and can even create subtle, hard-to-detect regressions.</p>
+                    <a href="https://ethanding.substack.com" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Why Didn't IPv6 Work in My Home Network?</h4>
+                    <p>A deep-dive debugging journey exploring why IPv6 failed to function properly in a home network setup, uncovering router misconfigurations, NAT66 gotchas, and the surprising ways consumer-grade networking hardware still gets IPv6 wrong.</p>
+                    <a href="https://gowtham.dev" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Agents for Financial Services and Insurance</h4>
+                    <p>Anthropic highlights emerging use cases for AI agents in financial services, from automated claims processing to risk-assessment copilots — though the post notes the high stakes and regulatory minefields that come with autonomous financial decision-making.</p>
+                    <a href="https://anthropic.com" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li class="flair-box flair-column" style="margin-bottom:0">
+                    <h4 style="text-transform:none">On "The 555 Timer Turns 55"</h4>
+                    <p>While the rest of us chase multi-token prediction drafters and billion-parameter transformers, the humble 555 timer IC celebrates its 55th birthday — more widely produced than every chip we've discussed in this edition combined. Dave Jones is out here throwing a birthday party for the chip equivalent of a Swiss Army knife while we're trying to convince a neural network to count to ten.</p>
+                    <span class="reporter">— D.C. Voltaire</span>
+                </li>
+                <li>
+                    <h4>EEVBlog: The 555 Timer Is 55 Years Old [Video]</h4>
+                    <p>Dave Jones of EEVBlog celebrates the 55th anniversary of the legendary 555 timer IC, recounting its invention, design ingenuity, and enduring legacy as one of the most widely produced and used integrated circuits in history.</p>
+                    <a href="https://youtube.com" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>Podman Rootless Containers and the Copy Fail Exploit</h4>
+                    <p>A detailed technical write-up examining the Copy Fail exploit targeting Podman rootless containers, explaining how a subtle file-copying race condition can lead to privilege escalation — and what container users should do to protect themselves.</p>
+                    <a href="https://garrido.io" class="source-link">Link &gt;&gt;</a>
+                </li>
+                <li>
+                    <h4>A Caddy Cert Expired Because systemd-resolved Was Selectively Broken</h4>
+                    <p>A Caddy web server's TLS certificate expired unexpectedly, and the culprit turned out to be a subtle, hard-to-diagnose bug in systemd-resolved's DNS handling — a frustrating hunt highlighting the perils of opaque system-level infrastructure failures.</p>
+                    <a href="https://rant.mvh.dev" class="source-link">Link &gt;&gt;</a>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            Editor: Jimmy Vector<br>
+            Reporters: Ronnie Cache, Chip Carter, Ada Kernel, Corry Stack, Paula Rization, D.C. Voltaire, Ramsy Bytewell<br>
+            GRADIENT DESCENT Publication<br>
+            <span style="font-size: 0.65rem; color: #666;">All stories sourced from the cutting edge of AI research and development</span>
+        </footer>
+    </div>
+</body>
+</html>
