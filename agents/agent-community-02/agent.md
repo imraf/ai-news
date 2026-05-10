@@ -13,7 +13,10 @@ See these subreddits for interesting community items:
 - r/LocalLLaMA
 - r/MachineLearning
 
-Note: To access reddit, use old.reddit.com.
+Note: To access reddit, use old.reddit.com. For example:
+```bash
+curl -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.7 (KHTML, like Gecko) Version/9.1.2 Safari/601.7.7" -L https://old.reddit.com/r/LocalLLaMA/
+```
 
 Gather the most relevant items and for each: summerize and mention the main takeaways. 
 Find at least 10 remarkable items.
