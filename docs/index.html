@@ -96,6 +96,25 @@
             font-weight: 400;
             text-transform: none;
         }
+        .podcast-btn {
+            display: inline-block;
+            font-family: var(--mono-font);
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--paper-bg);
+            background-color: var(--border-black);
+            border: 2px solid var(--border-black);
+            padding: 8px 20px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .podcast-btn:hover {
+            background-color: var(--paper-bg);
+            color: var(--ink-color);
+        }
         .subhead {
             font-family: var(--mono-font);
             font-size: 0.75rem;
@@ -314,6 +333,7 @@
         <header>
             <h1 class="masthead">The Gradient Descent</h1>
             <div class="tagline">The Future Of AI, One Step At A Time</div>
+            <a href="podcast/vol2-no27.mp3" class="podcast-btn">Listen To The Podcast!</a>
             <div class="subhead">
                 <span>Vol. 2, No. 27</span>
                 <span>Sunday, June 14 2026</span>
