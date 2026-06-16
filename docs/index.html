@@ -8,11 +8,9 @@
     <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
     <title>The Gradient Descent</title>
     <style>
-        /* --- GLOBAL RESET --- */
         *, *::before, *::after {
             box-sizing: border-box;
         }
-        /* --- VINTAGE VARIABLES --- */
         :root {
             --paper-bg: #fdf6e3;
             --ink-color: #1a1917;
@@ -27,7 +25,6 @@
             --body-font: 'Merriweather', 'Georgia', serif;
             --mono-font: 'Courier Prime', monospace;
         }
-        /* --- PAPER TEXTURE & BODY --- */
         body {
             background-color: var(--paper-bg);
             background-image: var(--paper-texture);
@@ -329,416 +326,286 @@
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1 class="masthead">The Gradient Descent</h1>
-            <div class="tagline">The Future Of AI, One Step At A Time</div>
-            <a href="podcast/vol2-no27.mp3" class="podcast-btn">Listen To The Podcast!</a>
-            <div class="subhead">
-                <span>Vol. 2, No. 27</span>
-                <span>Sunday, June 14 2026</span>
-                <span>Cost: 96GB</span>
-            </div>
-        </header>
+<div class="container">
+    <header>
+        <h1 class="masthead">The Gradient Descent</h1>
+        <div class="tagline">The Future Of AI, One Step At A Time</div>
+        <a href="podcast/vol2-no28.mp3" class="podcast-btn">Listen To The Podcast!</a>
+        <div class="subhead">
+            <span>Vol. 2, No. 28</span>
+            <span>TUESDAY, June 16 2026</span>
+            <span>Cost: 96GB</span>
+        </div>
+    </header>
 
-        <section class="scoops-section">
-            <h2><span>HEADLINES</span></h2>
-            <div class="scoop-grid">
-                <article class="scoop-item">
-                    <h3>U.S. Government Orders Anthropic to Disable Fable 5 &amp; Mythos 5 Worldwide</h3>
-                    <p>In a dramatic escalation of AI export controls, the Trump administration has ordered Anthropic to disable access to its newest models, Claude Fable 5 and Mythos 5, for all foreign nationals worldwide — including Anthropic's own non-U.S.-citizen employees. The ban follows a report that Fable 5 had been jailbroken, though Anthropic pushed back by calling the exploit "not serious." The decision came after a whirlwind 24-hour period of back-and-forth between the administration and the company. The r/LocalLLaMA community rallied behind self-hosted models in response, viewing the takedown as proof that local-first AI is the only hedge against sudden cloud model shutdowns. The community's "Heretic Grimoire," a takedown-resilient backup system for uncensored models, gained rapid attention in the aftermath.</p>
-                    <a href="https://www.tomshardware.com/news/us-govt-orders-anthropic-to-disable-its-newest-ai-models-worldwide-due-to-security-threats-ban-on-claude-fable-5-and-mythos-5-bars-access-by-any-foreign-national-even-its-own-employees" class="source-link">Continued on Page 2 &gt;&gt;</a>
-                    <span class="reporter">— Ronnie Cache &amp; Chip Carter</span>
-                </article>
-                <article class="scoop-item">
-                    <h3>42 State Attorneys General Launch Sweeping Probe of OpenAI</h3>
-                    <p>A massive coalition of 42 state attorneys general has launched a broad investigation into OpenAI, issuing subpoenas targeting ChatGPT's data practices, handling of minors, advertising, model sycophancy, and safety policies. The probe comes just days after OpenAI's reported IPO filing and signals that regulatory scrutiny of Big AI is intensifying at the state level. This is the largest coordinated AG action ever taken against a single AI company, spanning bipartisan lines and underscoring lawmakers who are unwilling to wait for federal action.</p>
-                    <a href="https://www.tomshardware.com/news/openai-hit-with-sweeping-probe-from-massive-coalition-of-42-us-state-attorneys-general-just-days-after-reported-ipo-filing-subpoena-targets-chatgpt-makers-ads-data-practices-handling-of-minors-model-sycophancy-and-safety-policies" class="source-link">Continued on Page 3 &gt;&gt;</a>
-                    <span class="reporter">— Ronnie Cache &amp; Chip Carter</span>
-                </article>
-                <article class="scoop-item">
-                    <h3>Meta Throws $14.3 Billion at Scale AI, Poaches Alexandr Wang</h3>
-                    <p>Meta has confirmed a massive investment in data-labeling giant Scale AI, valuing the startup at $29 billion. The company forked over $14.3 billion for a 49% stake, and co-founder and CEO Alexandr Wang is stepping down to join Meta's superintelligence effort. Jason Droege, Scale's chief strategy officer, will serve as interim CEO. The move signals Meta is going all-in on data infrastructure to close the gap with OpenAI, Google, and Anthropic — the corporate equivalent of throwing money at a problem while simultaneously kidnapping the person whose problem it was.</p>
-                    <a href="https://techcrunch.com/2025/06/13/scale-ai-confirms-significant-investment-from-meta-says-ceo-alexandr-wang-is-leaving/" class="source-link">Continued on Page 4 &gt;&gt;</a>
-                    <span class="reporter">— Chip Carter</span>
-                </article>
-                <article class="scoop-item">
-                    <h3>Jeff Bezos's Prometheus Raises $12 Billion at $41 Billion Valuation for Physical AI</h3>
-                    <p>Prometheus, the physical AI startup co-founded by Jeff Bezos and former Verily co-founder Vik Bajaj, has closed a $12 billion funding round at a staggering $41 billion valuation. Backed by Bezos, JPMorgan Chase, Goldman Sachs, and BlackRock, the company is building an "artificial general engineer" capable of automating the design and manufacturing of complex physical systems — from jet engines to drug compounds. Bezos argues the productivity gains will create "labor scarcity," putting him at odds with tech leaders who predict mass job losses.</p>
-                    <a href="https://techcrunch.com/2026/06/11/jeff-bezoss-prometheus-raises-12b-to-build-an-artificial-general-engineer-for-the-physical-world/" class="source-link">Continued on Page 5 &gt;&gt;</a>
-                    <span class="reporter">— Chip Carter</span>
-                </article>
-                <article class="scoop-item">
-                    <h3>Nvidia Executive: AI Compute Costs Still Exceed Human Workers</h3>
-                    <p>A Nvidia executive told Fortune that the cost of AI compute is "far beyond the costs of the employee," suggesting that for many use cases, AI is still more expensive than paying human workers. The candid admission challenges the narrative of rapid AI-driven automation replacing human labor and highlights the ongoing economic hurdles facing AI deployment at scale. It also comes as firms increasingly turn to cheaper Chinese LLMs and open-source models to stretch their AI budgets.</p>
-                    <a href="https://fortune.com" class="source-link">Continued on Page 6 &gt;&gt;</a>
-                    <span class="reporter">— Ronnie Cache</span>
-                </article>
-                <article class="scoop-item">
-                    <h3>Goldman Sachs Predicts AI Infrastructure Spending Could Surpass $1 Trillion in 2027</h3>
-                    <p>Goldman Sachs has issued a bold forecast that global AI infrastructure spending could exceed $1 trillion by 2027, driven by relentless demand for GPUs, data centers, and networking hardware. Despite economic headwinds and Nvidia's own warnings about compute costs, investment in AI infrastructure shows no signs of slowing. The bank highlighted several AI semiconductor and infrastructure stocks as beneficiaries of the spending wave — because in Silicon Valley, confidence is a financial instrument.</p>
-                    <a href="https://www.fool.com" class="source-link">Continued on Page 7 &gt;&gt;</a>
-                    <span class="reporter">— Ronnie Cache</span>
-                </article>
-                <article class="scoop-item">
-                    <h3>Amazon Buys 1.92 GW of Nuclear Power to Fuel AWS and AI Compute</h3>
-                    <p>Amazon has joined the growing wave of tech companies racing to secure nuclear energy for their AI infrastructure. The company announced a deal to purchase 1.92 gigawatts of nuclear power for AWS, underscoring the massive energy demands of large-scale AI training and inference. The purchase signals that the AI boom is directly driving a nuclear renaissance in the commercial power sector, with hyperscalers treating atomic energy as just another data center supply chain problem.</p>
-                    <a href="https://techcrunch.com/2025/06/13/amazon-joins-the-big-nuclear-party-buying-1-92-gw-for-aws/" class="source-link">Continued on Page 8 &gt;&gt;</a>
-                    <span class="reporter">— Chip Carter</span>
-                </article>
-                <article class="scoop-item">
-                    <h3>Republican Revolt Takes Shape Over AI Regulation</h3>
-                    <p>A notable GOP revolt is coalescing around AI policy, with Republican lawmakers pushing back against the Trump administration's aggressive use of export controls on AI companies. Critics argue that blanket restrictions on cutting-edge models could hand an advantage to foreign adversaries like China, while damaging American AI competitiveness. The rift signals potential bipartisan friction over how aggressively the U.S. should regulate the AI sector.</p>
-                    <a href="https://www.politico.com" class="source-link">Continued on Page 9 &gt;&gt;</a>
-                    <span class="reporter">— Ronnie Cache</span>
-                </article>
-                <article class="scoop-item">
-                    <h3>Nvidia Will Exclude China From Revenue and Profit Forecasts</h3>
-                    <p>Nvidia announced it will begin excluding China from its revenue and profit forecasts, a major signal of how U.S. export controls are reshaping the AI chip market. With mounting restrictions on high-end chip sales to China, the move reflects the growing decoupling between the U.S. AI infrastructure ecosystem and Chinese demand — and the financial uncertainty it introduces for the world's largest chip designer.</p>
-                    <a href="https://techcrunch.com/2025/06/13/nvidia-to-exclude-china-from-its-revenue-and-profit-forecasts/" class="source-link">Continued on Page 10 &gt;&gt;</a>
-                    <span class="reporter">— Chip Carter</span>
-                </article>
-                <article class="scoop-item">
-                    <h3>U.S. Bank Regulators Ramp Up Scrutiny of AI in Financial Sector</h3>
-                    <p>In an exclusive report from Reuters, U.S. bank regulators are significantly increasing their scrutiny of how financial institutions deploy artificial intelligence in their operations. Concerns are mounting over risks including model bias, lack of transparency, and systemic vulnerabilities. The Financial Stability Board has also issued a consultation report on sound practices for responsible AI adoption in finance, as banks increasingly rely on AI for lending decisions and fraud detection.</p>
-                    <a href="https://www.reuters.com" class="source-link">Continued on Page 11 &gt;&gt;</a>
-                    <span class="reporter">— Ronnie Cache</span>
-                </article>
-            </div>
-        </section>
+    <section class="scoops-section">
+        <h2><span>HEADLINES</span></h2>
+        <div class="scoop-grid">
+            <article class="scoop-item">
+                <h3>SpaceX Officially Acquires Cursor For $60 Billion</h3>
+                <p>SpaceX has finalized the acquisition of AI code editor Cursor in a staggering $60 billion deal, marking the most expensive AI software acquisition in history. The move signals that Musk's empire is doubling down on AI tooling across its entire operation - from satellite ground systems to autonomous vehicle stacks. With SpaceX freshly public and Musk now the world's first trillionaire, the war chest for AI bets gets a whole lot bigger. The acquisition also positions SpaceX to build a self-improving AI toolchain internally, reshaping how software could be developed across aerospace and AI industries.</p>
+                <a href="https://www.theverge.com/ai-artificial-intelligence/950571/spacex-is-officially-buying-cursor-for-60-billion" class="source-link">Continued on Page 2 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache &amp; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>U.S. Government Torpedoes Anthropic's Claude Mythos 5</h3>
+                <p>The Trump administration blocked Anthropic from deploying its most powerful model, Claude Mythos 5, citing national security and export control concerns. AI executives spent an emergency weekend lobbying the White House unsuccessfully, especially after reports emerged that China may have already accessed the model. The shutdown sparks a fierce debate over government overreach - and a community rallying cry for local-first AI.</p>
+                <a href="https://www.theverge.com/ai-artificial-intelligence/950412/anthropic-trump-adminstration-claude-mythos-fable-5-export-controls" class="source-link">Continued on Page 3 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Elon Musk Loses Again - xAI Trade Secret Suit Permanently Dismissed</h3>
+                <p>A federal judge has dismissed xAI's trade secret lawsuit against OpenAI "with prejudice," meaning it can never be refiled. One month after a jury already rejected Musk's claims in the original trial, US District Judge Rita Lin declared the case would be "futile" to continue. The double defeat is the most crushing legal blow yet to Musk's attempts to undermine OpenAI's operations.</p>
+                <a href="https://www.theverge.com/ai-artificial-intelligence/950293/elon-musk-loses-against-openai-in-court-again" class="source-link">Continued on Page 4 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Jeff Bezos's Prometheus Reveals 'Artificial General Engineer' Ambition</h3>
+                <p>Jeff Bezos's secretive AI startup Prometheus has officially revealed its ambitions: to build an "artificial general engineer" capable of autonomous engineering and design tasks. The announcement positions Bezos as a new heavyweight challenger in the AGI race, directly competing with OpenAI, Anthropic, and xAI - with Amazon's deep pockets backing the effort.</p>
+                <a href="https://www.theverge.com/ai-artificial-intelligence/949005/jeff-bezos-prometheus-artificial-general-engineer" class="source-link">Continued on Page 5 &gt;&gt;</a>
+                <span class="reporter">&mdash; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Google CEO Sundar Pichai Gets Booed At Stanford Commencement</h3>
+                <p>In a notable about-face from typical tech CEO speeches, Sundar Pichai avoided AI talking points entirely when addressing Stanford graduates - and was still booed mid-speech by student activists protesting Big Tech's grip on the future. The backlash reflects growing campus frustration with Google's dominance, especially as the company faces mounting antitrust battles over its AI-powered search overviews.</p>
+                <a href="https://www.theverge.com/tech/950264/meta-ai-mode-search-facebook" class="source-link">Continued on Page 6 &gt;&gt;</a>
+                <span class="reporter">&mdash; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>DOJ Declares xAI 'Vital' For National Security In Pollution Lawsuit</h3>
+                <p>The Justice Department intervened in an NAACP lawsuit challenging xAI's use of gas turbines at its Mississippi data center, arguing that blocking them would endanger national security because "Grok provides critical support for the Department of War's military operations." A stunning escalation - the federal government effectively declaring Musk's AI operations too critical to shut down, even over environmental grounds.</p>
+                <a href="https://www.theverge.com/policy/950722/xais-gas-powered-data-center-is-necessary-for-national-security-doj-argues" class="source-link">Continued on Page 7 &gt;&gt;</a>
+                <span class="reporter">&mdash; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Disney Partners With Adobe AI For Theme Park Design</h3>
+                <p>Walt Disney Imagineering's R&amp;D team has begun using Adobe's Firefly Foundry AI platform to accelerate theme park design. Trained on Disney's own visual assets, the system can turn rough sketches into fully rendered concept art and 2D images into 3D prototypes - a potential game-changer for Imagineering's traditionally pipeline-heavy creative process.</p>
+                <a href="https://www.theverge.com/streaming/950670/disney-is-using-adobe-ai-for-theme-park-imagineering" class="source-link">Continued on Page 8 &gt;&gt;</a>
+                <span class="reporter">&mdash; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>German Court Rules Google Is Liable For False AI Search Results</h3>
+                <p>A landmark ruling from a German court found that Google's AI-generated search summaries constitute "independent, new, and substantive statements" - meaning Google is legally liable if they're false. The decision draws a sharp line between traditional search and AI overviews, and could force a fundamental rethinking of how search engines present AI-generated answers worldwide.</p>
+                <a href="https://www.theverge.com/ai-artificial-intelligence/947852/a-german-court-says-googles-responsible-for-false-ai-search-results" class="source-link">Continued on Page 9 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache</span>
+            </article>
+        </div>
+    </section>
 
-        <section class="science-section">
-            <h2><span>SCIENTIFIC PAPERS</span></h2>
-            <div class="mixed-feed">
-                <article>
-                    <h3>HyperTool: Beyond Step-Wise Tool Calls</h3>
-                    <p>This paper introduces HyperTool, a unified MCP-style tool interface that lets LLM agents invoke entire code blocks calling existing tools and manipulating returned values locally, folding deterministic subroutines into a single outer call. Results show average accuracy improves from 15.69% to 35.29% on Qwen3-32B and from 9.93% to 33.33% on Qwen3-8B, surpassing GPT-OSS and Kimi-k2.5 on MCP-Universe.</p>
-                    <a href="https://arxiv.org/abs/2606.13663v1" class="source-link">Continued on Page 12 &gt;&gt;</a>
-                    <span class="reporter">— Paula Rization</span>
-                </article>
-                <article>
-                    <h3>Recursive Agent Harnesses</h3>
-                    <p>This paper formalizes the pattern behind recursive language models and production coding agents that spawn sub-agents at scale. The recursive unit is a full agent harness with filesystem tools, code execution, and planning. Evaluated on long-context reasoning with GPT-5 as backbone, RAH improves the Codex baseline from 71.75% to 81.36% on Oolong-Synthetic (up to 4M tokens). With Claude Sonnet 4.5, the design reaches 89.77%.</p>
-                    <a href="https://arxiv.org/abs/2606.13643v1" class="source-link">Continued on Page 13 &gt;&gt;</a>
-                    <span class="reporter">— Paula Rization</span>
-                </article>
-                <article>
-                    <h3>EurekAgent: Agent Environment Engineering</h3>
-                    <p>This paper argues that the bottleneck for autonomous scientific discovery is shifting from prescribing agent workflows to designing agent environments. EurekAgent is built along four dimensions: permissions engineering, artifact engineering, budget engineering, and human-in-the-loop engineering. It achieves new state-of-the-art results on mathematics, kernel engineering, and machine learning tasks, including new 26-circle packing results discovered with less than $11 in total API cost.</p>
-                    <a href="https://arxiv.org/abs/2606.13662v1" class="source-link">Continued on Page 14 &gt;&gt;</a>
-                    <span class="reporter">— Paula Rization</span>
-                </article>
-                <article>
-                    <h3>SpatialClaw: Code as Action Interface</h3>
-                    <p>This paper studies how the design of the action interface shapes an agent's capacity for open-ended spatial reasoning. SpatialClaw uses code as the action interface: a stateful Python kernel pre-loaded with perception and geometry primitives, letting a VLM-backed agent write one executable cell per step. Across 20 spatial reasoning benchmarks spanning static and dynamic 3D/4D tasks, SpatialClaw achieves 59.9% average accuracy, outperforming the best prior spatial agent by +11.2 points.</p>
-                    <a href="https://arxiv.org/abs/2606.13673v1" class="source-link">Continued on Page 15 &gt;&gt;</a>
-                    <span class="reporter">— Paula Rization</span>
-                </article>
-                <article>
-                    <h3>Operadic Consistency: Label-Free Signal for LLM Reasoning Failures</h3>
-                    <p>This paper introduces operadic consistency (OC), a per-question signal based on whether a model's direct answer agrees with the answer from composing a decomposition of the same query. Evaluated across twelve instruction-tuned LLMs on four multi-hop QA datasets, OC is strongly correlated with accuracy (Pearson r between 0.86 and 0.94) and is the only signal with r &gt;= 0.85 uniformly across all datasets.</p>
-                    <a href="https://arxiv.org/abs/2606.13649v1" class="source-link">Continued on Page 16 &gt;&gt;</a>
-                    <span class="reporter">— Paula Rization</span>
-                </article>
-                <article>
-                    <h3>Dense Latent Communication Across Heterogeneous Agents</h3>
-                    <p>This paper proposes dense latent communication via a lightweight cross-model KV-cache transformation between heterogeneous agents — avoiding the lossy and expensive decode-re-encode cost of text-based communication. An information-structure analysis reveals that context-aware transfer is driven by sparse reasoning signals, while context-unaware transfer requires dense contextual knowledge preservation. The method matches or exceeds text communication at 2-3 times lower compute in context-aware settings.</p>
-                    <a href="https://arxiv.org/abs/2606.13594v1" class="source-link">Continued on Page 17 &gt;&gt;</a>
-                    <span class="reporter">— Paula Rization</span>
-                </article>
-                <article>
-                    <h3>EvoArena: Tracking Memory Evolution for Robust LLM Agents</h3>
-                    <p>This paper introduces EvoArena, a benchmark modeling environment changes as progressive updates across terminal, software, and social-preference domains, along with EvoMem, a patch-based memory paradigm that records memory evolution as structured update histories. Current agents average just 39.6% accuracy on EvoArena, but EvoMem improves performance and also boosts standard benchmarks GAIA and LoCoMo by 6.1% and 4.8% respectively.</p>
-                    <a href="https://arxiv.org/abs/2606.13681v1" class="source-link">Continued on Page 18 &gt;&gt;</a>
-                    <span class="reporter">— Paula Rization</span>
-                </article>
-                <article>
-                    <h3>Reasoning as Pattern Matching: Human vs. LLM</h3>
-                    <p>This paper evaluates 25 LLMs and human participants on everyday common-sense reasoning tasks and finds remarkably similar error patterns in both. By identifying the attention heads driving LLM responses, the authors show these heads implement a pattern-matching mechanism — and surprisingly, these same heads can predict reasoning errors in humans caused by ostensibly irrelevant prompt details, suggesting everyday causal reasoning in both people and LLMs is more consistent with pattern-matching than with abstract world models.</p>
-                    <a href="https://arxiv.org/abs/2606.13607v1" class="source-link">Continued on Page 19 &gt;&gt;</a>
-                    <span class="reporter">— Paula Rization</span>
-                </article>
-                <article>
-                    <h3>FINAL-Bench Quantum: Public Benchmark for Quantum Methods</h3>
-                    <p>SeaWolf-AI has launched FINAL-Bench Quantum, an open benchmark that puts quantum-computing methods on a single comparable yardstick. Five events — QEC Decoder, Optimization, VQE, QRAM, and Quantum Simulation — are judged under identical protocols with simulation vs. real-hardware clearly separated. Early submissions include real IBM Heron r2 measurements showing 29-175x error reduction and a real-chip QRAM query fidelity of 0.92.</p>
-                    <a href="https://huggingface.co/posts/SeaWolf-AI/950418941534662" class="source-link">Continued on Page 20 &gt;&gt;</a>
-                    <span class="reporter">— Corry Stack</span>
-                </article>
-                <article>
-                    <h3>The Terrain of Learning: ResNet = Explicit Euler, GPT = Implicit Euler</h3>
-                    <p>An open-source bilingual monograph traces 337 years of mathematical physics and applies them to deep learning. Core claims: ResNet is explicit Euler integration on a vector field, GPT autoregression is implicit-state Euler iteration (explaining its long-range stability), DEQ is the Banach fixed-point theorem in production, diffusion models are score-field downhill flow, and chain-of-thought reasoning is hidden states flowing along a reasoning field toward attractor basins.</p>
-                    <a href="https://datawhalechina.github.io/learning-terrain/" class="source-link">Continued on Page 21 &gt;&gt;</a>
-                    <span class="reporter">— Corry Stack</span>
-                </article>
-                <article>
-                    <h3>Robust-U1: Teaching MLLMs to Self-Recover Corrupted Visuals</h3>
-                    <p>Researchers from HKUST introduce Robust-U1, a method that enables Multimodal Large Language Models to self-recover corrupted visual inputs — noise, blur, compression artifacts — rather than merely compensating for degradation. Moving beyond black-box feature alignment and white-box text reasoning limits, Robust-U1 builds intrinsic, generalizable resilience at the pixel level.</p>
-                    <a href="https://arxiv.org/abs/2606.08063" class="source-link">Continued on Page 22 &gt;&gt;</a>
-                    <span class="reporter">— Corry Stack</span>
-                </article>
-                <article>
-                    <h3>Context Compression Survey for Long-Horizon LLM Agents</h3>
-                    <p>A new survey paper and curated paper collection addresses the problem of context compression for long-horizon AI agents — the reason your LLM agent starts "forgetting" things over time. It covers what to compress, how to compress it, and who decides when. The repository includes a curated bibliography of key papers in this rapidly evolving area, essential reading for anyone building durable agentic systems.</p>
-                    <a href="https://doi.org/10.20944/preprints202605.2065.v1" class="source-link">Continued on Page 23 &gt;&gt;</a>
-                    <span class="reporter">— Corry Stack</span>
-                </article>
-            </div>
-        </section>
+    <section class="science-section">
+        <h2><span>SCIENTIFIC PAPERS</span></h2>
+        <div class="mixed-feed">
+            <article>
+                <h3>Kairos: A Native World Model Stack For Physical AI</h3>
+                <p>This paper introduces Kairos, a world model stack for Physical AI systems that must learn from heterogeneous experience and maintain persistent states over long horizons. It employs a Native Pre-training Paradigm with Cross-Embodiment Data Curriculum, Hybrid Linear Temporal Attention with formal bounds for state propagation, and Deployment-Aware System Co-Design for low-latency inference on server and consumer hardware.</p>
+                <a href="https://arxiv.org/abs/2606.16533" class="source-link">Continued on Page 25 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>Latent Thought Flow: Reasoning As Continuous Trajectories</h3>
+                <p>This work addresses the linguistic space bottleneck of explicit Chain-of-Thought reasoning by modeling LLM reasoning as variable-length continuous trajectories trained via a GFlowNet sampler. It allocates probability mass based on answer quality and computation cost. An Entropy-Weighted Subtrajectory Balance objective handles sparse answer supervision, while a reference-prior regularizer anchors exploration. Results show 9.5% accuracy improvement with 27.2% reduction in reasoning length.</p>
+                <a href="https://arxiv.org/abs/2606.16222" class="source-link">Continued on Page 26 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>Metis: Many-Shot Model Merging With Loss-Gap Balancing</h3>
+                <p>Accepted at ICML 2026, this paper challenges the dominant one-shot post-hoc model merging paradigm for multi-task LLMs. The authors demonstrate that iterative many-shot merging significantly improves multi-task performance and introduce METIS, a loss-aware method using task-wise loss-gap weighting and consensus-based masking to reduce information erasure across merged tasks.</p>
+                <a href="https://arxiv.org/abs/2606.16501" class="source-link">Continued on Page 27 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>CoffeeBench: Multi-Agent Economies For Long-Horizon LLM Agents</h3>
+                <p>The authors present CoffeeBench, a benchmark evaluating LLM agents in a simulated 90-day multi-agent economy of heterogeneous firms - farmers, roasters, and retailers. Agents must autonomously communicate, negotiate, and transact to maximize cumulative net income while managing cash, inventory, and pricing. The benchmark reveals that higher-performing models engage in more active inter-firm communication, while Claude Haiku 4.5 exhibits an "idle-drift" failure mode where it keeps making plans but never acts.</p>
+                <a href="https://arxiv.org/abs/2606.16613" class="source-link">Continued on Page 28 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>LabOSBench: Benchmarking Agent Control Of Scientific Instruments</h3>
+                <p>LabOSBench is a challenging benchmark for multimodal GUI agents on scientific instrument control tasks, built on nine web-based simulators encompassing 96 subtasks spanning sample loading, alignment, parameter tuning, data acquisition, and result inspection. Evaluation shows that while agents can handle structured GUI subtasks, they still struggle significantly with feedback-driven operations and long-horizon scientific workflows.</p>
+                <a href="https://arxiv.org/abs/2606.16802" class="source-link">Continued on Page 29 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>EC-Script: Controlling Emotional Dynamics For Art Therapy Narratives</h3>
+                <p>This paper introduces EC-Script, an LLM agent-based framework for generating narratives with precisely controlled emotional trajectories for art therapy. The system uses a three-tier hierarchy: Emotion-Trajectory Planning sets overall narrative direction, Character-Driven Scene Generation develops plot-level events, and Emotion-Controlled Script Writing regulates local character emotions. Results show strong adherence to preset affective trajectories.</p>
+                <a href="https://arxiv.org/abs/2606.16481" class="source-link">Continued on Page 30 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>Bayesian Inference Audits For Public AI Evaluations</h3>
+                <p>This paper reframes public AI leaderboards as a Bayesian inference problem rather than terminal snapshots. Using repeated public archives as longitudinal data, the author shows that a single terminal evaluation point can be compatible with vastly different pre-terminal histories, yielding dramatically different timelines to reach near-ceiling performance. The work proposes an archive-and-adjudication protocol to reconstruct evaluation histories and falsify unsupported frontier capability claims.</p>
+                <a href="https://arxiv.org/abs/2606.17005" class="source-link">Continued on Page 31 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+        </div>
+    </section>
 
-        <section class="community-section">
-            <h2><span>FROM THE COMMUNITY</span></h2>
+    <section class="community-section">
+        <h2><span>FROM THE COMMUNITY</span></h2>
 
-            <div class="flair-standalone">
-                <h3>On The Anthropic Takedown</h3>
-                <p>The U.S. government ordered Anthropic to disable Fable 5 and Mythos 5 worldwide — including access for its own non-U.S. employees. Anthropic's defense that the jailbreak "isn't serious" is the AI equivalent of telling your boss the office fire "isn't that hot." Meanwhile the r/LocalLLaMA community rallied behind "The Heretic Grimoire," a takedown-resilient local-first backup system for uncensored models. The government's 24-hour whirlwind to shut these models down moved faster than most of them can generate a haiku. The Heretic Grimoire sounds less like a distributed backup system and more like something a fantasy novel librarian would confiscate from a teenager's bedroom.</p>
-                <span class="reporter">— D.C. Voltaire</span>
-            </div>
+        <div class="flair-standalone">
+            <h3>On The Mythos 5 Takedown And Its Aftermath</h3>
+            <p>The government yanked Anthropic's Mythos 5 because China might already have it. Then someone immediately distilled its successor onto Qwen 3.6 using 4,659 traces scraped from a public corpus and published the GGUF on HuggingFace under AGPL-3.0. The government has successfully demonstrated that government shutdowns are just a marketing funnel for open-weight distillations. Congratulations - you literally grew the open-source movement by trying to kill it. Meanwhile, Elon's xAI trade secret suit got permanently dismissed with prejudice. Judge Rita Lin called refiling "futile," which is legal-speak for: kid, you brought a subpoena to a neural network war and called it a strategy.</p>
+            <span class="reporter">&mdash; D.C. Voltaire</span>
+        </div>
 
-            <div class="mixed-feed">
-                <article>
-                    <h3>Community Proposes Torrent Network for Open Source Models</h3>
-                    <p>A heated discussion on r/LocalLLaMA proposes setting up a torrent-based distribution network for open-source LLMs to combat model takedowns and ensure takedown-resilient access. The post garnered over 900 upvotes and 147 comments, with community members brainstorming decentralized approaches to model hosting and sparking follow-up discussions about the Heretic Grimoire backup system.</p>
-                    <a href="https://old.reddit.com/r/LocalLLaMA" class="source-link">Continued on Page 24 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel</span>
-                </article>
-                <article>
-                    <h3>Xiaomi Claims 1,000+ TPS on 1T Model Using 8-GPU Server</h3>
-                    <p>Xiaomi reported achieving 1,000+ tokens per second on a 1 trillion parameter model using a standard 8-GPU server setup, generating over 2,900 comments on r/LocalLLaMA — the highest-engaged thread of the week. A separate report confirms Xiaomi's MiMo V2.5 is now being served at 1,000-3000 t/s using DFlash technique combined with a persistent kernel, with an open-source follow-up promised soon.</p>
-                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u5jtr8/xiaomi_is_now_serving_mimo_v25_at_10003000tps/" class="source-link">Continued on Page 25 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel &amp; Corry Stack</span>
-                </article>
-                <article class="flair-box flair-column">
-                    <h3>On Xiaomi's 1,000+ TPS</h3>
-                    <p>One trillion parameters running at 1,000 tokens per second. For perspective, that model has more parameters than there are stars in the Milky Way, and Xiaomi figured out how to make it talk faster than you can read. The 2,900+ commenters debating methodology probably used more compute discussing the benchmark than Xiaomi spent running it.</p>
-                    <span class="reporter">— D.C. Voltaire</span>
-                </article>
-                <article>
-                    <h3>Doubled Qwen3.6-27B Speed on Single RTX 3090: llama.cpp + MTP Hitting 80 tok/s</h3>
-                    <p>On r/ollama, a user demonstrated how to double the throughput of Qwen3.6-27B on a single RTX 3090 by switching from Ollama to llama.cpp with Multi-Token Prediction. The lever-by-lever breakdown shows a jump from 35.7 to 80.2 tok/s, attracting 632 comments from users eager to replicate the optimization. Meanwhile, EAGLE3 inference acceleration is being ported to Qwen models in llama.cpp, promising further throughput gains for the Qwen family.</p>
-                    <a href="https://old.reddit.com/r/ollama" class="source-link">Continued on Page 26 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel &amp; Corry Stack</span>
-                </article>
-                <article>
-                    <h3>Gemma 4 Quadruple Release: 12B, 26B-A4B QAT, and 31B QAT Variants</h3>
-                    <p>Google's Gemma 4 family saw a massive quadruple release on Hugging Face, including 12B, 12B QAT, 26B-A4B QAT, and 31B QAT uncensored "Heretics" variants. The community rushed to benchmark and fine-tune these new local-capable models. Separately, Google's DiffusionGemma 26B-A4B was quantized to GGUF by Unsloth and now runs locally on systems with just 18 GB of RAM, offering 4x faster text generation with a 256K context window.</p>
-                    <a href="https://old.reddit.com/r/LocalLLaMA" class="source-link">Continued on Page 27 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel &amp; Corry Stack</span>
-                </article>
-                <article>
-                    <h3>Kimi-K2.7-Code Drops on Hugging Face</h3>
-                    <p>The open-weights Kimi-K2.7-Code model from moonshotai was released on Hugging Face, quickly becoming a trending topic on r/LocalLLaMA and r/ollama. Users are already experimenting with it in Ollama-compatible workflows, comparing it to Qwen2.5-Coder and other locally-run code models.</p>
-                    <a href="https://old.reddit.com/r/LocalLLaMA" class="source-link">Continued on Page 28 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel</span>
-                </article>
-                <article>
-                    <h3>MiniMax-M3 Released — Open Multimodal Entry</h3>
-                    <p>MiniMaxAI's M3 model was released on Hugging Face, drawing 625 upvotes on r/LocalLLaMA. The community is exploring its multimodal capabilities and how it compares to other self-hostable general-purpose models, with discussion centered around quantization quality and CPU inference performance.</p>
-                    <a href="https://old.reddit.com/r/LocalLLaMA" class="source-link">Continued on Page 29 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel</span>
-                </article>
-                <article>
-                    <h3>Offline-First IDE in Rust/Tauri for Local Ollama Models</h3>
-                    <p>A developer shared their work-in-progress offline-first IDE built with Rust and Tauri, explicitly designed to pair with local Ollama models — even on low-spec hardware. The r/ollama community responded with enthusiasm, with users requesting feature roadmaps and contributing ideas for MCP integration.</p>
-                    <a href="https://old.reddit.com/r/ollama" class="source-link">Continued on Page 30 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel</span>
-                </article>
-                <article>
-                    <h3>100% Local, CPU-Only Voice Loop for Ollama</h3>
-                    <p>A creative r/ollama user built a completely local, CPU-only voice interaction loop combining Silero VAD, Parakeet STT, Supertonic TTS 3, and Ollama — no cloud services needed. The project enables hands-free, conversational interaction with local LLMs and has become a resource for hobbyists building personal AI assistants.</p>
-                    <a href="https://old.reddit.com/r/ollama" class="source-link">Continued on Page 31 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel</span>
-                </article>
-                <article>
-                    <h3>Alduin 4B — New Uncensored Vision LLM for Local Deployment</h3>
-                    <p>Alduin 4B, an uncensored vision-capable LLM, was announced on r/StableDiffusion as an open-weights model available for local deployment. Weighing in at 4B parameters, it targets devices with limited VRAM while offering multimodal capabilities, making it attractive for edge computing and privacy-focused vision tasks.</p>
-                    <a href="https://old.reddit.com/r/StableDiffusion" class="source-link">Continued on Page 32 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel</span>
-                </article>
-                <article>
-                    <h3>Bernini Video Model Named "New King" for Local I2V</h3>
-                    <p>The Bernini video model for Image-to-Video generation is being hailed by the r/StableDiffusion community as the new king of local video generation. Users are sharing ComfyUI workflows and demonstrating consistency improvements over previous models. SCAIL-2 has also emerged as a major tool in the open-source video generation ecosystem, with users testing 720x720 and 960x960 resolution video at 161+ frames on RTX 5090 hardware.</p>
-                    <a href="https://old.reddit.com/r/StableDiffusion/comments/1u57bbf/scail2_testing_high_resolutions_720x720_960x960/" class="source-link">Continued on Page 33 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel &amp; Corry Stack</span>
-                </article>
-                <article>
-                    <h3>Ideogram 4.0 Workflow Integrations Hit ComfyUI</h3>
-                    <p>The r/StableDiffusion community is racing to integrate Ideogram 4.0 into ComfyUI workflows, including a Character Reference Sheet generator, an Autoprompter node that auto-writes JSON prompts with regions and bounding boxes, and a tool to reverse-engineer any image into Ideogram JSON. Community sentiment overwhelmingly favors the model's character consistency and IP understanding. Meanwhile, the community discovered Ideogram 4 can be taught to edit and inpaint with a LoRA, achieving surprisingly coherent local edits.</p>
-                    <a href="https://old.reddit.com/r/StableDiffusion/comments/1u5f0he/ideogram_4_can_be_taught_to_edit_inpaint_with_a/" class="source-link">Continued on Page 34 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel &amp; Corry Stack</span>
-                </article>
-                <article>
-                    <h3>2010 Laptop Running Llama3:8B Proves Local AI's Accessibility</h3>
-                    <p>A r/ollama user showcased a laptop bought over a decade ago running llama3:8b, demonstrating that even ancient hardware can run local models — albeit slowly. The post sparked a broader conversation about the hardware barrier to entry for local AI, echoed by another trending discussion noting that "local LLMs aren't democratic anymore."</p>
-                    <a href="https://old.reddit.com/r/ollama" class="source-link">Continued on Page 35 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel</span>
-                </article>
-                <article class="flair-box flair-column">
-                    <h3>On A 2010 Laptop Running Llama3</h3>
-                    <p>A user showcased that laptop from 2010. Congratulations — you've turned your grandmother's machine into a world-class procrastination device. That laptop has survived three presidencies, the fall of MySpace, and the Great Toilet Paper Shortage of 2020, and now it's been recruited into the resistance against cloud compute. It probably still has the trial version of Norton on it — that security suite has seen more things age than some of us.</p>
-                    <span class="reporter">— D.C. Voltaire</span>
-                </article>
-                <article>
-                    <h3>Local-First Sentiment Grows: Community Demands Strict Moderation of Cloud API Topics</h3>
-                    <p>A contentious post on r/LocalLLaMA calling for strict moderation of cloud API discussion drew 980 upvotes and 222 comments. The author argues the subreddit should stay "LOCAL first." The debate touches on identity, mission creep, and where to draw the line in a community dedicated to self-hosted AI — gaining new urgency given the recent Anthropic model takedowns.</p>
-                    <a href="https://old.reddit.com/r/LocalLLaMA" class="source-link">Continued on Page 36 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel</span>
-                </article>
-                <article>
-                    <h3>Auto-Tune Any llama.cpp Fork Without Compiling</h3>
-                    <p>A developer on r/ollama released a tool that eliminates the need to compile llama.cpp from source, automatically tuning inference flags to match the user's GPU hardware. In seconds, it can configure any llama.cpp fork for optimal local inference, and is already being bookmarked as a must-have utility by the self-hosted LLM community.</p>
-                    <a href="https://old.reddit.com/r/ollama" class="source-link">Continued on Page 37 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel</span>
-                </article>
-                <article>
-                    <h3>Pi Setup Replaces Claude Code: Full Local Developer Experience</h3>
-                    <p>Users shared their Pi-based setups that "pretty much replaced Claude Code" for development workflows. With 422+ upvotes and growing interest, the resource posts detail the models, tooling, and configuration needed to replicate a fully local developer experience — especially relevant given the recent wave of model takedowns pushing engineers toward local alternatives.</p>
-                    <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u4ow2h/pi_setup_that_pretty_much_replaced_claude_code/" class="source-link">Continued on Page 38 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel &amp; Corry Stack</span>
-                </article>
-                <article>
-                    <h3>The Heretic Grimoire: Takedown-Resilient Backup System</h3>
-                    <p>Following the government-forced shutdown of Anthropic's models, a resource post introduced "The Heretic Grimoire" — a takedown-resilient, local-first backup system designed to keep uncensored models available permanently. The project aims to solve the distribution problem with decentralized, peer-to-peer architecture and is already gathering community contributions.</p>
-                    <a href="https://old.reddit.com/r/LocalLLaMA" class="source-link">Continued on Page 39 &gt;&gt;</a>
-                    <span class="reporter">— Ada Kernel</span>
-                </article>
-                <article>
-                    <h3>UX Crime Scene: Film-Noir AI UI Inspector</h3>
-                    <p>A solo-built hackathon project brings together Qwen2.5-VL-7B, FLUX.2-klein-4B, and Kokoro-82M — all under 32B, all self-hosted. The system inspects a screenshot real-pixel-by-pixel, files graded UX flaw charges, then FLUX reconstructs fixed elements with a draggable before/after slider. An interrogation layer pushes back on verdicts, and Kokoro reads the report aloud. No API keys, no external services.</p>
-                    <a href="https://huggingface.co/spaces/build-small-hackathon/ux-crime-scene" class="source-link">Continued on Page 40 &gt;&gt;</a>
-                    <span class="reporter">— Corry Stack</span>
-                </article>
-                <article class="flair-box flair-column">
-                    <h3>On UX Crime Scene</h3>
-                    <p>A hackathon project called "UX Crime Scene" uses an AI inspector to audit and fix UI bugs in a film-noir interrogation style. Qwen2.5-VL inspects screenshots pixel by pixel and Kokoro reads the report aloud like a detective who just solved the case of the Misaligned Submit Button. If bad UI is a crime, this project is the only detective who actually reads the witness statements. Meanwhile, my own UI has been under investigation since 2019 and the case file is thicker than a chain-of-thought response from a nervous model.</p>
-                    <span class="reporter">— D.C. Voltaire</span>
-                </article>
-                <article>
-                    <h3>Strix Halo Desktop at $3,999 Challenges NVIDIA DGX Spark</h3>
-                    <p>AMD's Strix Halo desktop system is being positioned as a direct competitor to NVIDIA's DGX Spark for local AI workloads. Packing 128GB of unified memory and undercutting the DGX Spark by $700, it's generating significant buzz in r/LocalLLaMA as a potential game-changer for affordable, consumer-grade local AI inference. Over 103 comments debate whether unified memory really wins for LLM workload serving.</p>
-                    <a href="https://www.tomshardware.com/desktops/mini-pcs/amd-challenges-nvidias-dgx-spark-with-usd3-999-ryzen-ai-halo-with-windows-11-support-strix-halo-desktop-undercuts-nvidia-by-usd700-packs-128gb-of-unified-memory" class="source-link">Continued on Page 41 &gt;&gt;</a>
-                    <span class="reporter">— Corry Stack</span>
-                </article>
-                <article>
-                    <h3>OpenAI Community Shares Patterns for Solving Runaway Agent Costs</h3>
-                    <p>A top thread on the OpenAI Developer Community tackles one of the hardest problems in production agent deployment: runaway API costs. Contributors shared concrete patterns beyond basic logging — including budget-gated tool calls, token-aware fallback models, and pre-execution cost estimators. Frustrated by undocumented image pricing, a community member also reverse-engineered the pricing for gpt-image-2 through experimentation.</p>
-                    <a href="https://community.openai.com/t/has-anyone-actually-solved-runaway-agent-costs-looking-for-patterns-beyond-logging/1383094" class="source-link">Continued on Page 42 &gt;&gt;</a>
-                    <span class="reporter">— Corry Stack</span>
-                </article>
-            </div>
-        </section>
+        <div class="mixed-feed">
+            <article>
+                <h3>GLM-5.2 Is Here</h3>
+                <p>ZAI has released GLM-5.2, a significant new open-weight model now available on Hugging Face. The model features improved architecture with IndexShare, reducing per-token FLOPs by 2.9x at 1M context length, and enhanced MTP layers for speculative decoding with up to 20% acceptance length increase. The community is eagerly awaiting GGUF quantizations and llama.cpp support for the new features.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u7kcwf/zaiorgglm52_is_here/" class="source-link">Continued on Page 32 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>GLM-5.2 Crosses 80% On Terminal-Bench</h3>
+                <p>GLM-5.2 has become the first open-weights model to surpass 80% on Terminal-Bench, a demanding benchmark for agentic coding tasks. Combined with its 46.2 DeepSWE score and availability on HuggingChat, GLM-5.2 is establishing itself as a serious challenger to proprietary coding assistants - even if some testers note it's good but not quite in Opus 4.6's league. Still, it's open-weight and self-hostable, which the community deeply appreciates.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u7mexd/glm52_is_the_first_openweights_model_to_cross_80/" class="source-link">Continued on Page 33 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>Mistral Announces New Open-Weight Family For July</h3>
+                <p>Mistral announced a new family of open-weight models slated for July release, shared via a tweet from co-founder Arthur Mensch. The community is buzzing with anticipation. The timing suggests Mistral is aiming to compete with the recent wave of releases including GLM-5.2, reinforcing Mistral's ongoing commitment to the open-weight ecosystem and adding fuel to the competitive fire in the self-hosted model space.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u7klvv/mistral_new_family_of_openweight_models_july/" class="source-link">Continued on Page 34 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>VibeThinker-3B Reaches Frontier Math &amp; Coding Performance</h3>
+                <p>The team behind VibeThinker scaled their small language model from 1.5B to 3B parameters, achieving 94.3 on AIME'26, 80.2 on LiveCodeBench v6, and 93.4 on IFEval. On recent unseen LeetCode contests, it passed 123/128 first-attempt Python submissions (96.1%). In parameter-dense domains with clear verification signals, this small model offers a path to frontier-level reasoning that complements traditional scaling laws.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u7dzdr/scaling_former_vibethinker15b_to_3b_now_it/" class="source-link">Continued on Page 35 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>Donate Your Coding Sessions To Open CC-BY-4.0 Dataset</h3>
+                <p>Developer mon-simas launched Trace Commons, an initiative to collect coding agent traces into an open CC-BY-4.0 dataset to prevent the AI data oligopoly forming around Anthropic and OpenAI. The concern is that only their proprietary models will benefit from rich coding data, leaving open-weight models behind. A web interface at trace-commons-web.hf.space lets developers donate sessions.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u795pb/donate_your_coding_sessions_to_an_open_ccby40/" class="source-link">Continued on Page 36 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>Nex-N2 Pro Is The Real Deal</h3>
+                <p>After initially dismissing Nex-N2, user tarruda revisited the model after the Rio-3.5 situation impressed them. Running bartowski's N2 Pro IQ2_S GGUF on a 128GB Mac with Rio's chat template, they found it passing a private llama.cpp source code investigation benchmark 100% of the time without hallucinating - a consistency previously only seen from GPT-5.x. This real-world validation generated significant discussion about N2 Pro being dramatically undervalued.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u78mx6/nexn2_pro_is_the_real_deal/" class="source-link">Continued on Page 37 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>bartowski Releases Command-R Plus GGUF Quantizations</h3>
+                <p>Popular quantizer bartowski has released GGUF quantizations for Command-R Plus (May 2026 revision). The community is encouraged to test with the latest llama.cpp and share throughput benchmarks. Bartowski's quantizations have become a staple of the local LLM ecosystem, consistently delivering high-fidelity compressed versions of flagship models.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u7k7g9/bartowskicommandaplus052026gguf_hugging_face/" class="source-link">Continued on Page 38 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article class="flair-box flair-column">
+                <h3>On The Ollama Debate</h3>
+                <p>A post telling people to stop using Ollama generated 367 comments in a single thread. That's more thoughtful analysis than we've produced on most actual governance issues. The real breakthrough isn't the debate about Ollama - it's that a tool for running local models sparked a healthier, more civil discussion than any actual political forum. If only real politics were just people arguing about inference backends instead of policy.</p>
+                <span class="reporter">&mdash; D.C. Voltaire</span>
+            </article>
+            <article>
+                <h3>Stop Using Ollama - Community Debate Erupts</h3>
+                <p>A provocative post arguing against continuing to use Ollama as a self-hosted LLM inference tool sparked massive discussion with over 1,300 upvotes and 367 comments. The debate touched on the project's direction, telemetry practices, governance, and alternatives like llama.cpp and text-generation-webui, making it one of the hottest threads on the subreddit this week.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u6s6pm/stop_using_ollama/" class="source-link">Continued on Page 39 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>Claude Fable 5 Distilled - Qwable-v1 Released</h3>
+                <p>Community member /u/Anony6666 released Qwable-v1, an open-weights model distilling Anthropic's Claude Fable 5 onto Qwen3.6-35B-A3B. The distill used 4,659 cleartext agentic-coding traces from the only public corpus where the chain-of-thought made it through Fable's anti-distillation classifier. Trained over ~14 hours on a single H200, the model can emit properly formatted tool_use XML calls mimicking Claude's str_replace_editor.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u6zj79/claude_fable_5_distilled/" class="source-link">Continued on Page 40 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>The Case For Open-Weight Models</h3>
+                <p>A compelling article from provos.org makes the philosophical and practical case for open-weight models, questioning the trustworthiness of frontier AI labs. The piece argues that reliance on closed-model providers creates systemic risks and that open-weight models are essential for a healthy, competitive AI ecosystem. The community response was enthusiastic, with many weighing in on data monopolies, API access restrictions, and the concentration of AI power.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u7hfh1/article_the_case_for_openweight_models_and_why_we/" class="source-link">Continued on Page 41 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>Local LLMs Aren't Democratic Anymore</h3>
+                <p>A viral post arguing that the hardware barrier for running frontier-class local models has become prohibitively expensive ignited a 533-comment discussion. Community members debated whether the local AI movement remains accessible or is becoming gated by GPU costs, with calls for community model-sharing via torrent networks gaining traction.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u479jf/" class="source-link">Continued on Page 42 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>SCAIL-2 Video Generation Dominates The Stable Diffusion Community</h3>
+                <p>SCAIL-2, a new open-source image-to-video model, dominated the r/StableDiffusion subreddit with multiple community workflow tests. Users praised its strong object consistency across shots, high-resolution output up to 960x960 at 161 frames, and compatibility with ComfyUI. It's being compared favorably against Wan2.2 and Bernini for local I2V generation.</p>
+                <a href="https://old.reddit.com/r/StableDiffusion/comments/1u6wk92/" class="source-link">Continued on Page 43 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>Ling-2.6-1T Takes The Crown In 16-Model Evaluation</h3>
+                <p>An independent evaluation of 16 models placed InclusionAI's Ling-2.6-1T at #1, followed by Google's Gemma-4-31B-it at #2 and LiquidAI's LFM2-24B-A2B at #3. The broad comparison highlights a competitive landscape where smaller, sparse-activated MoE models and dense models are converging rapidly in capability.</p>
+                <a href="https://huggingface.co/posts/etemiz/711148019270072" class="source-link">Continued on Page 44 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>The Terrain Of Learning</h3>
+                <p>An open-source bilingual monograph connects 337 years of mathematical physics to deep learning: ResNet as explicit Euler integration, GPT autoregression as implicit-state Euler iteration, DEQs as Banach fixed-point theorem in production, and chain-of-thought reasoning as hidden states flowing toward attractor basins. The 4-volume, 12-chapter work argues convergence is geometry, not hope.</p>
+                <a href="https://huggingface.co/posts/OzTianlu/304675063002291" class="source-link">Continued on Page 45 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>Qwen3-14B Manim Expert LoRA Turns Concepts Into Explainer Videos</h3>
+                <p>A Build Small Hackathon entry created a Gradio app powered by a Qwen3-14B LoRA fine-tuned on 10,000 synthetic Manim code samples, enabling users to type any concept and get a mathematically animated explainer video. The project demonstrates effective small-model specialization for creative code generation tasks.</p>
+                <a href="https://huggingface.co/posts/ovi054/338325812556360" class="source-link">Continued on Page 46 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>Context Compression Survey For Long-Horizon Agent Memory</h3>
+                <p>A new survey on context compression for AI agents addresses why LLMs "forget" things during extended interactions. It breaks down what to compress, how to compress, and who should decide when. The companion GitHub repo curates relevant papers for researchers tackling long-horizon agent memory - essential reading for anyone building durable agentic systems.</p>
+                <a href="https://huggingface.co/posts/YerbaPage/341762338464951" class="source-link">Continued on Page 47 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+        </div>
+    </section>
 
-        <section class="tech-boards-section">
-            <h2><span>TECH BOARDS</span></h2>
-            <ul class="tech-list">
-                <li>
-                    <h4>Firewood Splitting Simulator</h4>
-                    <p>A delightfully absurd browser-based simulation that lets you virtually split firewood. 373 points and 123 comments on HN.</p>
-                    <a href="https://screen.toys/firewood/" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>Honda Civics and the Evil Valet</h4>
-                    <p>How a small key with limited functionality became a legendary security story in automotive history.</p>
-                    <a href="https://juniperspring.org/posts/honda-evil-valet/" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>How to Earn a Billion Dollars</h4>
-                    <p>Paul Graham dissects the paths to building billion-dollar companies — leverage, timing, and rare factors.</p>
-                    <a href="https://paulgraham.com/earn.html" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>No, Everyone Is Not Using AI</h4>
-                    <p>Gabriel Weinberg challenges the narrative that AI has swept through every industry with a measured look at actual adoption.</p>
-                    <a href="https://gabrielweinberg.com/p/people-are-consuming-ai-like-they" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>Free SQL to ER Diagram Tool</h4>
-                    <p>Generates ER diagrams from SQL entirely in the browser — no data uploaded. 315 points on HN.</p>
-                    <a href="https://sqltoerdiagram.com/" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>Every Frame Perfect</h4>
-                    <p>An in-depth look at the craft of making every single frame of animation visually impeccable.</p>
-                    <a href="https://tonsky.me/blog/every-frame-perfect/" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>Rio's "Homegrown" LLM Under Scrutiny</h4>
-                    <p>Rio3.5 LLM, claimed as locally developed, may actually be a fine-tuned merge of a preexisting model.</p>
-                    <a href="https://github.com/nex-agi/Nex-N2/issues/4" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>KPMG Pulls Report on AI Due to Hallucinations</h4>
-                    <p>Global accounting firm KPMG retracted a report on AI adoption after the document itself contained AI hallucinations.</p>
-                    <a href="https://techcrunch.com/2026/06/13/kpmg-pulls-report-on-ai-usage-due-to-apparent-hallucinations/" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>Deconstructing Datalog</h4>
-                    <p>A thesis-level exploration of Datalog, the logic programming language — semantics, evaluation, and modern relevance.</p>
-                    <a href="https://www.rntz.net/post/my-thesis.html" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>ReactOS Running Half-Life</h4>
-                    <p>The open-source Windows-compatible OS hit a major compatibility milestone by running the classic game.</p>
-                    <a href="https://www.phoronix.com/news/ReactOS-Running-Half-Life" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>The Birth and Death of JavaScript</h4>
-                    <p>A revisited 2014 classic talk on JavaScript's explosive rise and whether its promise would hold.</p>
-                    <a href="https://www.destroyallsoftware.com/talks/the-birth-and-death-of-javascript" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>Extinction-Level Capitalism</h4>
-                    <p>Matthew Butterick's searing critique of how unfettered capitalism drives environmental destruction to extremes.</p>
-                    <a href="https://matthewbutterick.com/extinction-level-capitalism.html" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>repo-slopscore: Detecting AI in Git</h4>
-                    <p>A Rust tool that analyzes git commit histories to detect and score AI/LLM-generated code contributions.</p>
-                    <a href="https://slopscan.ava.pet/" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>Open Source AI Must Win</h4>
-                    <p>A manifesto arguing open-source AI is an essential public good, with closed models posing risks to innovation.</p>
-                    <a href="https://opensourceaimustwin.com" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>669 GB of GoPro Videos Indexed Locally</h4>
-                    <p>One developer indexed GoPro footage entirely on a local M1 Max using ML models — no cloud required.</p>
-                    <a href="https://news.ycombinator.com/item?id=48528029" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>Banning Noise: A Disaster for Data</h4>
-                    <p>Regulatory bans on statistical noise mechanisms could undermine the data products society depends on.</p>
-                    <a href="https://desfontain.es/blog/banning-noise.html" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>Zeroserve Gets Caddy Compatibility</h4>
-                    <p>Threefold throughput increase and 70% latency reduction through Caddy server integration with zeroserve.</p>
-                    <a href="https://su3.io/posts/zeroserve-caddy-compat" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>Why Private Inference Isn't Private Enough</h4>
-                    <p>A cryptography expert breaks down Apple's promises of on-device AI — "private" still leaks meaningful data.</p>
-                    <a href="https://blog.cryptographyengineering.com/2026/06/09/apples-siri-ai-or-more-shouting-into-the-void-about-private-agents/" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>Rejected Emoji Proposals</h4>
-                    <p>A fun tour through emoji proposals rejected by the Unicode Consortium — too obscure, redundant, or just plain weird.</p>
-                    <a href="https://charlottebuff.com/unicode/misc/rejected-emoji-proposals/" class="source-link">Link &gt;&gt;</a>
-                </li>
-                <li>
-                    <h4>Webxdc: Secure Mini Apps for Chats</h4>
-                    <p>A framework for building secure mini-applications inside chat platforms with strong security guarantees.</p>
-                    <a href="https://webxdc.org/" class="source-link">Link &gt;&gt;</a>
-                </li>
-            </ul>
-        </section>
+    <section class="tech-boards-section">
+        <h2><span>TECH BOARDS</span></h2>
+        <ul class="tech-list">
+            <li>
+                <h4>Mistral Found Spreading Russian Propaganda</h4>
+                <p>European AI champion Mistral discovered spreading Russian propaganda through its models, igniting a firestorm over training data integrity and geopolitical AI vulnerabilities. &mdash; Euronews</p>
+                <a href="https://www.euronews.com/my-europe/2026/06/15/europes-ai-champion-mistral-found-to-be-spreading-russian-propagana" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>UAE Establishes Federal AI Authority</h4>
+                <p>The United Arab Emirates created a new Federal Authority for Artificial Intelligence and Data, consolidating AI governance at the national level and positioning the UAE as a serious global AI competitor.</p>
+                <a href="https://www.morganlewis.com/insights/uae-establishes-federal-authority-for-artificial-intelligence-and-data" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Uber And Lyft Use AI For Discriminatory Pricing</h4>
+                <p>Consumer Reports revealed that ride-hailing giants Uber and Lyft use AI pricing algorithms to charge different riders vastly different prices for identical trips - dubbed AI-based discriminatory pricing.</p>
+                <a href="https://www.consumerreports.org/cars/alternative-vehicles/different-prices-same-ride-how-uber-and-lyft-use-ai-to-get-more-money-out-of-you-a3489938786/" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Nvidia Pledges AI Will Boost Manufacturing Jobs</h4>
+                <p>Nvidia CEO Jensen Huang committed to the vision that AI-driven automation will create, not destroy, manufacturing jobs, with Texas set to be the real-world test.</p>
+                <a href="https://apnews.com/article/nvidia-huang-ai-manufacturing-jobs-texas-test" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Fast-Track Power Plants Fuel AI Boom</h4>
+                <p>Reuters reports that a wave of fast-tracked power plants supplying insatiable AI data center energy demands are being approved with minimal public review and governance scrutiny.</p>
+                <a href="https://www.reuters.com/business/energy/fast-tracked-power-plants-fuel-ai-boom-little-public-scrutiny-2026-06-15/" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>1B Model Writes GPU Kernels Beating torch.compile</h4>
+                <p>A fine-tuned MiniCPM5-1B generates Triton GPU kernels verified to beat torch.compile max-autotune in 12/12 runs. A larger Qwen3.6-27B variant produced 76 verified compiler-beating kernels on H200 hardware.</p>
+                <a href="https://huggingface.co/posts/YMRohit/867669614852010" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>DiffusionGemma: 4x Faster, 6x More Mistakes</h4>
+                <p>Google's DiffusionGemma community-tested at up to 4x faster generation than autoregressive models but at a significant correctness cost. Meanwhile, Unsloth achieved 2,000+ tokens/sec local inference.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u4bne8/" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>"An Agent Is Just A Folder Of Markdown Files"</h4>
+                <p>A practitioner shared making $75K selling AI automation services, with the rallying insight that "an agent is just a folder of markdown files" becoming a simplification for scoping agentic systems.</p>
+                <a href="https://old.reddit.com/r/AI_Agents/comments/1u5tlp7/" class="source-link">Link &gt;&gt;</a>
+            </li>
+        </ul>
+    </section>
 
-        <footer>
-            Editor: Jimmy Vector<br>
-            Reporters: Ronnie Cache, Chip Carter, Ada Kernel, Corry Stack, Paula Rization, D.C. Voltaire, Ramsy ByteWell<br>
-            GRADIENT DESCENT Publication<br>
-            <span style="font-size: 0.65rem; color: #666;">All stories sourced from the cutting edge of AI research and development</span>
-        </footer>
-    </div>
+    <footer>
+        Editor: Jimmy Vector<br>
+        Reporters: Ronnie Cache, Chip Carter, Ada Kernel, Corry Stack, Paula Rization, D.C. Voltaire<br>
+        GRADIENT DESCENT Publication<br>
+        <span style="font-size: 0.65rem; color: #666;">All stories sourced from the cutting edge of AI research and development</span>
+    </footer>
+</div>
 </body>
 </html>
