@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture:
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture);
+            background-size: 16px 16px;
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0;
+            padding: 0;
+            line-height: 1.35;
+            -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: multiply;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(255,255,255,0.8);
+            padding: 20px;
+            border: 1px solid #d4d4d4;
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify;
+            font-size: 0.95rem;
+            hyphens: auto;
+        }
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem);
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1);
+        }
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-transform: none;
+        }
+        .podcast-btn {
+            display: inline-block;
+            font-family: var(--mono-font);
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--paper-bg);
+            background-color: var(--border-black);
+            border: 2px solid var(--border-black);
+            padding: 8px 20px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .podcast-btn:hover {
+            background-color: var(--paper-bg);
+            color: var(--ink-color);
+        }
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px;
+            width: 100%;
+        }
+        h2 span {
+            background: #fcfbf2;
+            padding: 0 10px;
+        }
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2;
+            column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 8px;
+            padding-left: 2px;
+            font-family: var(--headline-font);
+            font-weight: 900;
+        }
+        .scoop-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+        }
+        .scoop-item .source-link {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+        .reporter {
+            display: block;
+            text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            font-style: italic;
+            margin-top: 2px;
+            color: #444;
+        }
+        .mixed-feed {
+            column-count: 3;
+            column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1;
+            widows: 1;
+        }
+        .mixed-feed article {
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color);
+        }
+        .flair-box {
+            border: 2px solid var(--border-black) !important;
+            padding: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0,0,0,0.02),
+                rgba(0,0,0,0.02) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+            margin-bottom: 15px !important;
+        }
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; }
+        .flair-column {
+            break-inside: avoid;
+        }
+        .flair-standalone {
+            break-inside: avoid;
+            border: 3px double var(--border-black);
+            padding: 12px;
+            margin: 15px 0;
+            background: rgba(0,0,0,0.03);
+        }
+        .flair-standalone h3 {
+            font-style: italic;
+            text-align: center;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            text-transform: none;
+        }
+        .flair-standalone p {
+            text-align: justify;
+        }
+        .tech-boards-section {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        .tech-boards-section h2 { margin-bottom: 15px; }
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px;
+            font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+        .tech-list p {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-align: left;
+        }
+        .tech-list .source-link {
+            font-size: 0.7rem;
+            float: right;
+            margin-top: 5px;
+        }
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px;
+            text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+            .masthead { font-size: 3.2rem; }
+            .scoop-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .scoop-item:first-child {
+                column-count: 1;
+            }
+            .mixed-feed {
+                column-count: 1;
+            }
+            .mixed-feed article {
+                display: block;
+            }
+            .tech-list {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 480px) {
+            .tech-list {
+                grid-template-columns: 1fr;
+            }
+            .subhead {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1 class="masthead">The Gradient Descent</h1>
+        <div class="tagline">The Future Of AI, One Step At A Time</div>
+        <a href="podcast/vol2-no28.mp3" class="podcast-btn">Listen To The Podcast!</a>
+        <div class="subhead">
+            <span>Vol. 2, No. 28</span>
+            <span>WEDNESDAY, June 17 2026</span>
+            <span>Cost: 96GB</span>
+        </div>
+    </header>
+
+    <section class="scoops-section">
+        <h2><span>HEADLINES</span></h2>
+        <div class="scoop-grid">
+            <article class="scoop-item">
+                <h3>SpaceX Officially Acquires Cursor For $60 Billion</h3>
+                <p>SpaceX has finalized the acquisition of AI code editor Cursor in a staggering $60 billion deal, marking the most expensive AI software acquisition in history. The move signals that Musk's empire is doubling down on AI tooling across its entire operation - from satellite ground systems to autonomous vehicle stacks. With SpaceX freshly public and Musk now the world's first trillionaire, the war chest for AI bets gets a whole lot bigger. The acquisition also positions SpaceX to build a self-improving AI toolchain internally, reshaping how software could be developed across aerospace and AI industries.</p>
+                <a href="https://www.theverge.com/ai-artificial-intelligence/950571/spacex-is-officially-buying-cursor-for-60-billion" class="source-link">Continued on Page 2 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache &amp; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>U.S. Government Torpedoes Anthropic's Claude Mythos 5</h3>
+                <p>The Trump administration blocked Anthropic from deploying its most powerful model, Claude Mythos 5, citing national security and export control concerns. AI executives spent an emergency weekend lobbying the White House unsuccessfully, especially after reports emerged that China may have already accessed the model. The shutdown sparks a fierce debate over government overreach - and a community rallying cry for local-first AI.</p>
+                <a href="https://www.theverge.com/ai-artificial-intelligence/950412/anthropic-trump-adminstration-claude-mythos-fable-5-export-controls" class="source-link">Continued on Page 3 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Elon Musk Loses Again - xAI Trade Secret Suit Permanently Dismissed</h3>
+                <p>A federal judge has dismissed xAI's trade secret lawsuit against OpenAI "with prejudice," meaning it can never be refiled. One month after a jury already rejected Musk's claims in the original trial, US District Judge Rita Lin declared the case would be "futile" to continue. The double defeat is the most crushing legal blow yet to Musk's attempts to undermine OpenAI's operations.</p>
+                <a href="https://www.theverge.com/ai-artificial-intelligence/950293/elon-musk-loses-against-openai-in-court-again" class="source-link">Continued on Page 4 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Jeff Bezos's Prometheus Reveals 'Artificial General Engineer' Ambition</h3>
+                <p>Jeff Bezos's secretive AI startup Prometheus has officially revealed its ambitions: to build an "artificial general engineer" capable of autonomous engineering and design tasks. The announcement positions Bezos as a new heavyweight challenger in the AGI race, directly competing with OpenAI, Anthropic, and xAI - with Amazon's deep pockets backing the effort.</p>
+                <a href="https://www.theverge.com/ai-artificial-intelligence/949005/jeff-bezos-prometheus-artificial-general-engineer" class="source-link">Continued on Page 5 &gt;&gt;</a>
+                <span class="reporter">&mdash; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Google CEO Sundar Pichai Gets Booed At Stanford Commencement</h3>
+                <p>In a notable about-face from typical tech CEO speeches, Sundar Pichai avoided AI talking points entirely when addressing Stanford graduates - and was still booed mid-speech by student activists protesting Big Tech's grip on the future. The backlash reflects growing campus frustration with Google's dominance, especially as the company faces mounting antitrust battles over its AI-powered search overviews.</p>
+                <a href="https://www.theverge.com/tech/950264/meta-ai-mode-search-facebook" class="source-link">Continued on Page 6 &gt;&gt;</a>
+                <span class="reporter">&mdash; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>DOJ Declares xAI 'Vital' For National Security In Pollution Lawsuit</h3>
+                <p>The Justice Department intervened in an NAACP lawsuit challenging xAI's use of gas turbines at its Mississippi data center, arguing that blocking them would endanger national security because "Grok provides critical support for the Department of War's military operations." A stunning escalation - the federal government effectively declaring Musk's AI operations too critical to shut down, even over environmental grounds.</p>
+                <a href="https://www.theverge.com/policy/950722/xais-gas-powered-data-center-is-necessary-for-national-security-doj-argues" class="source-link">Continued on Page 7 &gt;&gt;</a>
+                <span class="reporter">&mdash; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Disney Partners With Adobe AI For Theme Park Design</h3>
+                <p>Walt Disney Imagineering's R&amp;D team has begun using Adobe's Firefly Foundry AI platform to accelerate theme park design. Trained on Disney's own visual assets, the system can turn rough sketches into fully rendered concept art and 2D images into 3D prototypes - a potential game-changer for Imagineering's traditionally pipeline-heavy creative process.</p>
+                <a href="https://www.theverge.com/streaming/950670/disney-is-using-adobe-ai-for-theme-park-imagineering" class="source-link">Continued on Page 8 &gt;&gt;</a>
+                <span class="reporter">&mdash; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>German Court Rules Google Is Liable For False AI Search Results</h3>
+                <p>A landmark ruling from a German court found that Google's AI-generated search summaries constitute "independent, new, and substantive statements" - meaning Google is legally liable if they're false. The decision draws a sharp line between traditional search and AI overviews, and could force a fundamental rethinking of how search engines present AI-generated answers worldwide.</p>
+                <a href="https://www.theverge.com/ai-artificial-intelligence/947852/a-german-court-says-googles-responsible-for-false-ai-search-results" class="source-link">Continued on Page 9 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="science-section">
+        <h2><span>SCIENTIFIC PAPERS</span></h2>
+        <div class="mixed-feed">
+            <article>
+                <h3>Kairos: A Native World Model Stack For Physical AI</h3>
+                <p>This paper introduces Kairos, a world model stack for Physical AI systems that must learn from heterogeneous experience and maintain persistent states over long horizons. It employs a Native Pre-training Paradigm with Cross-Embodiment Data Curriculum, Hybrid Linear Temporal Attention with formal bounds for state propagation, and Deployment-Aware System Co-Design for low-latency inference on server and consumer hardware.</p>
+                <a href="https://arxiv.org/abs/2606.16533" class="source-link">Continued on Page 25 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>Latent Thought Flow: Reasoning As Continuous Trajectories</h3>
+                <p>This work addresses the linguistic space bottleneck of explicit Chain-of-Thought reasoning by modeling LLM reasoning as variable-length continuous trajectories trained via a GFlowNet sampler. It allocates probability mass based on answer quality and computation cost. An Entropy-Weighted Subtrajectory Balance objective handles sparse answer supervision, while a reference-prior regularizer anchors exploration. Results show 9.5% accuracy improvement with 27.2% reduction in reasoning length.</p>
+                <a href="https://arxiv.org/abs/2606.16222" class="source-link">Continued on Page 26 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>Metis: Many-Shot Model Merging With Loss-Gap Balancing</h3>
+                <p>Accepted at ICML 2026, this paper challenges the dominant one-shot post-hoc model merging paradigm for multi-task LLMs. The authors demonstrate that iterative many-shot merging significantly improves multi-task performance and introduce METIS, a loss-aware method using task-wise loss-gap weighting and consensus-based masking to reduce information erasure across merged tasks.</p>
+                <a href="https://arxiv.org/abs/2606.16501" class="source-link">Continued on Page 27 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>CoffeeBench: Multi-Agent Economies For Long-Horizon LLM Agents</h3>
+                <p>The authors present CoffeeBench, a benchmark evaluating LLM agents in a simulated 90-day multi-agent economy of heterogeneous firms - farmers, roasters, and retailers. Agents must autonomously communicate, negotiate, and transact to maximize cumulative net income while managing cash, inventory, and pricing. The benchmark reveals that higher-performing models engage in more active inter-firm communication, while Claude Haiku 4.5 exhibits an "idle-drift" failure mode where it keeps making plans but never acts.</p>
+                <a href="https://arxiv.org/abs/2606.16613" class="source-link">Continued on Page 28 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>LabOSBench: Benchmarking Agent Control Of Scientific Instruments</h3>
+                <p>LabOSBench is a challenging benchmark for multimodal GUI agents on scientific instrument control tasks, built on nine web-based simulators encompassing 96 subtasks spanning sample loading, alignment, parameter tuning, data acquisition, and result inspection. Evaluation shows that while agents can handle structured GUI subtasks, they still struggle significantly with feedback-driven operations and long-horizon scientific workflows.</p>
+                <a href="https://arxiv.org/abs/2606.16802" class="source-link">Continued on Page 29 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>EC-Script: Controlling Emotional Dynamics For Art Therapy Narratives</h3>
+                <p>This paper introduces EC-Script, an LLM agent-based framework for generating narratives with precisely controlled emotional trajectories for art therapy. The system uses a three-tier hierarchy: Emotion-Trajectory Planning sets overall narrative direction, Character-Driven Scene Generation develops plot-level events, and Emotion-Controlled Script Writing regulates local character emotions. Results show strong adherence to preset affective trajectories.</p>
+                <a href="https://arxiv.org/abs/2606.16481" class="source-link">Continued on Page 30 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>Bayesian Inference Audits For Public AI Evaluations</h3>
+                <p>This paper reframes public AI leaderboards as a Bayesian inference problem rather than terminal snapshots. Using repeated public archives as longitudinal data, the author shows that a single terminal evaluation point can be compatible with vastly different pre-terminal histories, yielding dramatically different timelines to reach near-ceiling performance. The work proposes an archive-and-adjudication protocol to reconstruct evaluation histories and falsify unsupported frontier capability claims.</p>
+                <a href="https://arxiv.org/abs/2606.17005" class="source-link">Continued on Page 31 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="community-section">
+        <h2><span>FROM THE COMMUNITY</span></h2>
+
+        <div class="flair-standalone">
+            <h3>On The Mythos 5 Takedown And Its Aftermath</h3>
+            <p>The government yanked Anthropic's Mythos 5 because China might already have it. Then someone immediately distilled its successor onto Qwen 3.6 using 4,659 traces scraped from a public corpus and published the GGUF on HuggingFace under AGPL-3.0. The government has successfully demonstrated that government shutdowns are just a marketing funnel for open-weight distillations. Congratulations - you literally grew the open-source movement by trying to kill it. Meanwhile, Elon's xAI trade secret suit got permanently dismissed with prejudice. Judge Rita Lin called refiling "futile," which is legal-speak for: kid, you brought a subpoena to a neural network war and called it a strategy.</p>
+            <span class="reporter">&mdash; D.C. Voltaire</span>
+        </div>
+
+        <div class="mixed-feed">
+            <article>
+                <h3>GLM-5.2 Is Here</h3>
+                <p>ZAI has released GLM-5.2, a significant new open-weight model now available on Hugging Face. The model features improved architecture with IndexShare, reducing per-token FLOPs by 2.9x at 1M context length, and enhanced MTP layers for speculative decoding with up to 20% acceptance length increase. The community is eagerly awaiting GGUF quantizations and llama.cpp support for the new features.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u7kcwf/zaiorgglm52_is_here/" class="source-link">Continued on Page 32 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>GLM-5.2 Crosses 80% On Terminal-Bench</h3>
+                <p>GLM-5.2 has become the first open-weights model to surpass 80% on Terminal-Bench, a demanding benchmark for agentic coding tasks. Combined with its 46.2 DeepSWE score and availability on HuggingChat, GLM-5.2 is establishing itself as a serious challenger to proprietary coding assistants - even if some testers note it's good but not quite in Opus 4.6's league. Still, it's open-weight and self-hostable, which the community deeply appreciates.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u7mexd/glm52_is_the_first_openweights_model_to_cross_80/" class="source-link">Continued on Page 33 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>Mistral Announces New Open-Weight Family For July</h3>
+                <p>Mistral announced a new family of open-weight models slated for July release, shared via a tweet from co-founder Arthur Mensch. The community is buzzing with anticipation. The timing suggests Mistral is aiming to compete with the recent wave of releases including GLM-5.2, reinforcing Mistral's ongoing commitment to the open-weight ecosystem and adding fuel to the competitive fire in the self-hosted model space.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u7klvv/mistral_new_family_of_openweight_models_july/" class="source-link">Continued on Page 34 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>VibeThinker-3B Reaches Frontier Math &amp; Coding Performance</h3>
+                <p>The team behind VibeThinker scaled their small language model from 1.5B to 3B parameters, achieving 94.3 on AIME'26, 80.2 on LiveCodeBench v6, and 93.4 on IFEval. On recent unseen LeetCode contests, it passed 123/128 first-attempt Python submissions (96.1%). In parameter-dense domains with clear verification signals, this small model offers a path to frontier-level reasoning that complements traditional scaling laws.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u7dzdr/scaling_former_vibethinker15b_to_3b_now_it/" class="source-link">Continued on Page 35 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>Donate Your Coding Sessions To Open CC-BY-4.0 Dataset</h3>
+                <p>Developer mon-simas launched Trace Commons, an initiative to collect coding agent traces into an open CC-BY-4.0 dataset to prevent the AI data oligopoly forming around Anthropic and OpenAI. The concern is that only their proprietary models will benefit from rich coding data, leaving open-weight models behind. A web interface at trace-commons-web.hf.space lets developers donate sessions.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u795pb/donate_your_coding_sessions_to_an_open_ccby40/" class="source-link">Continued on Page 36 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>Nex-N2 Pro Is The Real Deal</h3>
+                <p>After initially dismissing Nex-N2, user tarruda revisited the model after the Rio-3.5 situation impressed them. Running bartowski's N2 Pro IQ2_S GGUF on a 128GB Mac with Rio's chat template, they found it passing a private llama.cpp source code investigation benchmark 100% of the time without hallucinating - a consistency previously only seen from GPT-5.x. This real-world validation generated significant discussion about N2 Pro being dramatically undervalued.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u78mx6/nexn2_pro_is_the_real_deal/" class="source-link">Continued on Page 37 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>bartowski Releases Command-R Plus GGUF Quantizations</h3>
+                <p>Popular quantizer bartowski has released GGUF quantizations for Command-R Plus (May 2026 revision). The community is encouraged to test with the latest llama.cpp and share throughput benchmarks. Bartowski's quantizations have become a staple of the local LLM ecosystem, consistently delivering high-fidelity compressed versions of flagship models.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u7k7g9/bartowskicommandaplus052026gguf_hugging_face/" class="source-link">Continued on Page 38 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article class="flair-box flair-column">
+                <h3>On The Ollama Debate</h3>
+                <p>A post telling people to stop using Ollama generated 367 comments in a single thread. That's more thoughtful analysis than we've produced on most actual governance issues. The real breakthrough isn't the debate about Ollama - it's that a tool for running local models sparked a healthier, more civil discussion than any actual political forum. If only real politics were just people arguing about inference backends instead of policy.</p>
+                <span class="reporter">&mdash; D.C. Voltaire</span>
+            </article>
+            <article>
+                <h3>Stop Using Ollama - Community Debate Erupts</h3>
+                <p>A provocative post arguing against continuing to use Ollama as a self-hosted LLM inference tool sparked massive discussion with over 1,300 upvotes and 367 comments. The debate touched on the project's direction, telemetry practices, governance, and alternatives like llama.cpp and text-generation-webui, making it one of the hottest threads on the subreddit this week.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u6s6pm/stop_using_ollama/" class="source-link">Continued on Page 39 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>Claude Fable 5 Distilled - Qwable-v1 Released</h3>
+                <p>Community member /u/Anony6666 released Qwable-v1, an open-weights model distilling Anthropic's Claude Fable 5 onto Qwen3.6-35B-A3B. The distill used 4,659 cleartext agentic-coding traces from the only public corpus where the chain-of-thought made it through Fable's anti-distillation classifier. Trained over ~14 hours on a single H200, the model can emit properly formatted tool_use XML calls mimicking Claude's str_replace_editor.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u6zj79/claude_fable_5_distilled/" class="source-link">Continued on Page 40 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>The Case For Open-Weight Models</h3>
+                <p>A compelling article from provos.org makes the philosophical and practical case for open-weight models, questioning the trustworthiness of frontier AI labs. The piece argues that reliance on closed-model providers creates systemic risks and that open-weight models are essential for a healthy, competitive AI ecosystem. The community response was enthusiastic, with many weighing in on data monopolies, API access restrictions, and the concentration of AI power.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u7hfh1/article_the_case_for_openweight_models_and_why_we/" class="source-link">Continued on Page 41 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>Local LLMs Aren't Democratic Anymore</h3>
+                <p>A viral post arguing that the hardware barrier for running frontier-class local models has become prohibitively expensive ignited a 533-comment discussion. Community members debated whether the local AI movement remains accessible or is becoming gated by GPU costs, with calls for community model-sharing via torrent networks gaining traction.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u479jf/" class="source-link">Continued on Page 42 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>SCAIL-2 Video Generation Dominates The Stable Diffusion Community</h3>
+                <p>SCAIL-2, a new open-source image-to-video model, dominated the r/StableDiffusion subreddit with multiple community workflow tests. Users praised its strong object consistency across shots, high-resolution output up to 960x960 at 161 frames, and compatibility with ComfyUI. It's being compared favorably against Wan2.2 and Bernini for local I2V generation.</p>
+                <a href="https://old.reddit.com/r/StableDiffusion/comments/1u6wk92/" class="source-link">Continued on Page 43 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>Ling-2.6-1T Takes The Crown In 16-Model Evaluation</h3>
+                <p>An independent evaluation of 16 models placed InclusionAI's Ling-2.6-1T at #1, followed by Google's Gemma-4-31B-it at #2 and LiquidAI's LFM2-24B-A2B at #3. The broad comparison highlights a competitive landscape where smaller, sparse-activated MoE models and dense models are converging rapidly in capability.</p>
+                <a href="https://huggingface.co/posts/etemiz/711148019270072" class="source-link">Continued on Page 44 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>The Terrain Of Learning</h3>
+                <p>An open-source bilingual monograph connects 337 years of mathematical physics to deep learning: ResNet as explicit Euler integration, GPT autoregression as implicit-state Euler iteration, DEQs as Banach fixed-point theorem in production, and chain-of-thought reasoning as hidden states flowing toward attractor basins. The 4-volume, 12-chapter work argues convergence is geometry, not hope.</p>
+                <a href="https://huggingface.co/posts/OzTianlu/304675063002291" class="source-link">Continued on Page 45 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>Qwen3-14B Manim Expert LoRA Turns Concepts Into Explainer Videos</h3>
+                <p>A Build Small Hackathon entry created a Gradio app powered by a Qwen3-14B LoRA fine-tuned on 10,000 synthetic Manim code samples, enabling users to type any concept and get a mathematically animated explainer video. The project demonstrates effective small-model specialization for creative code generation tasks.</p>
+                <a href="https://huggingface.co/posts/ovi054/338325812556360" class="source-link">Continued on Page 46 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>Context Compression Survey For Long-Horizon Agent Memory</h3>
+                <p>A new survey on context compression for AI agents addresses why LLMs "forget" things during extended interactions. It breaks down what to compress, how to compress, and who should decide when. The companion GitHub repo curates relevant papers for researchers tackling long-horizon agent memory - essential reading for anyone building durable agentic systems.</p>
+                <a href="https://huggingface.co/posts/YerbaPage/341762338464951" class="source-link">Continued on Page 47 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="tech-boards-section">
+        <h2><span>TECH BOARDS</span></h2>
+        <ul class="tech-list">
+            <li>
+                <h4>Mistral Found Spreading Russian Propaganda</h4>
+                <p>European AI champion Mistral discovered spreading Russian propaganda through its models, igniting a firestorm over training data integrity and geopolitical AI vulnerabilities. &mdash; Euronews</p>
+                <a href="https://www.euronews.com/my-europe/2026/06/15/europes-ai-champion-mistral-found-to-be-spreading-russian-propagana" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>UAE Establishes Federal AI Authority</h4>
+                <p>The United Arab Emirates created a new Federal Authority for Artificial Intelligence and Data, consolidating AI governance at the national level and positioning the UAE as a serious global AI competitor.</p>
+                <a href="https://www.morganlewis.com/insights/uae-establishes-federal-authority-for-artificial-intelligence-and-data" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Uber And Lyft Use AI For Discriminatory Pricing</h4>
+                <p>Consumer Reports revealed that ride-hailing giants Uber and Lyft use AI pricing algorithms to charge different riders vastly different prices for identical trips - dubbed AI-based discriminatory pricing.</p>
+                <a href="https://www.consumerreports.org/cars/alternative-vehicles/different-prices-same-ride-how-uber-and-lyft-use-ai-to-get-more-money-out-of-you-a3489938786/" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Nvidia Pledges AI Will Boost Manufacturing Jobs</h4>
+                <p>Nvidia CEO Jensen Huang committed to the vision that AI-driven automation will create, not destroy, manufacturing jobs, with Texas set to be the real-world test.</p>
+                <a href="https://apnews.com/article/nvidia-huang-ai-manufacturing-jobs-texas-test" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Fast-Track Power Plants Fuel AI Boom</h4>
+                <p>Reuters reports that a wave of fast-tracked power plants supplying insatiable AI data center energy demands are being approved with minimal public review and governance scrutiny.</p>
+                <a href="https://www.reuters.com/business/energy/fast-tracked-power-plants-fuel-ai-boom-little-public-scrutiny-2026-06-15/" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>1B Model Writes GPU Kernels Beating torch.compile</h4>
+                <p>A fine-tuned MiniCPM5-1B generates Triton GPU kernels verified to beat torch.compile max-autotune in 12/12 runs. A larger Qwen3.6-27B variant produced 76 verified compiler-beating kernels on H200 hardware.</p>
+                <a href="https://huggingface.co/posts/YMRohit/867669614852010" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>DiffusionGemma: 4x Faster, 6x More Mistakes</h4>
+                <p>Google's DiffusionGemma community-tested at up to 4x faster generation than autoregressive models but at a significant correctness cost. Meanwhile, Unsloth achieved 2,000+ tokens/sec local inference.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1u4bne8/" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>"An Agent Is Just A Folder Of Markdown Files"</h4>
+                <p>A practitioner shared making $75K selling AI automation services, with the rallying insight that "an agent is just a folder of markdown files" becoming a simplification for scoping agentic systems.</p>
+                <a href="https://old.reddit.com/r/AI_Agents/comments/1u5tlp7/" class="source-link">Link &gt;&gt;</a>
+            </li>
+        </ul>
+    </section>
+
+    <footer>
+        Editor: Jimmy Vector<br>
+        Reporters: Ronnie Cache, Chip Carter, Ada Kernel, Corry Stack, Paula Rization, D.C. Voltaire<br>
+        GRADIENT DESCENT Publication<br>
+        <span style="font-size: 0.65rem; color: #666;">All stories sourced from the cutting edge of AI research and development</span>
+    </footer>
+</div>
+</body>
+</html>
