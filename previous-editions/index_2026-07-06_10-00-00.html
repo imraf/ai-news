@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Gradient Descent">
+    <meta property="og:description" content="Pure AI News: All Signal, Zero Noise">
+    <title>The Gradient Descent</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        :root {
+            --paper-bg: #fdf6e3;
+            --ink-color: #1a1917;
+            --faded-ink: #33312e;
+            --border-black: #000000;
+            --paper-texture:
+                radial-gradient(#dbcbbd 15%, transparent 16%) 0 0,
+                radial-gradient(#dbcbbd 15%, transparent 16%) 8px 8px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+                radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+            --headline-font: 'Playfair Display', 'Times New Roman', serif;
+            --body-font: 'Merriweather', 'Georgia', serif;
+            --mono-font: 'Courier Prime', monospace;
+        }
+        body {
+            background-color: var(--paper-bg);
+            background-image: var(--paper-texture);
+            background-size: 16px 16px;
+            color: var(--ink-color);
+            font-family: var(--body-font);
+            margin: 0; padding: 0;
+            line-height: 1.35;
+            -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: ""; position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none; z-index: 999;
+            mix-blend-mode: multiply;
+        }
+        .container {
+            max-width: 1000px; margin: 20px auto;
+            background-color: rgba(255,255,255,0.8);
+            padding: 20px;
+            border: 1px solid #d4d4d4;
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--ink-color); }
+        a:hover { background-color: rgba(0,0,0,0.05); }
+        h1, h2, h3, h4 {
+            font-family: var(--headline-font);
+            font-weight: 900; margin: 0 0 8px 0;
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        p {
+            margin: 0 0 10px 0;
+            text-align: justify;
+            font-size: 0.95rem;
+            hyphens: auto;
+        }
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--border-black);
+            margin-bottom: 15px; padding-bottom: 10px;
+            position: relative;
+        }
+        .masthead {
+            font-size: clamp(3rem, 10vw, 5.5rem);
+            font-weight: 900; letter-spacing: -3px;
+            margin-bottom: 5px; color: #1a1a1a;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            transform: scaleY(1.1);
+        }
+        .tagline {
+            font-family: var(--headline-font);
+            font-style: italic; font-size: 1.1rem;
+            margin-bottom: 12px; font-weight: 400;
+            text-transform: none;
+        }
+        .podcast-btn {
+            display: inline-block;
+            font-family: var(--mono-font);
+            font-size: 0.8rem; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 1px;
+            color: var(--paper-bg);
+            background-color: var(--border-black);
+            border: 2px solid var(--border-black);
+            padding: 8px 20px; margin-bottom: 14px;
+            cursor: pointer; transition: all 0.15s ease;
+        }
+        .podcast-btn:hover {
+            background-color: var(--paper-bg);
+            color: var(--ink-color);
+        }
+        .subhead {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            border-top: 2px solid var(--border-black);
+            border-bottom: 1px solid var(--border-black);
+            padding: 6px 0; display: flex;
+            justify-content: space-between;
+            font-weight: bold; letter-spacing: 0.5px;
+        }
+        section {
+            border-bottom: 1px solid var(--border-black);
+            margin-bottom: 15px; padding-bottom: 15px;
+        }
+        h2 {
+            text-align: center;
+            border-bottom: 1px solid var(--border-black);
+            line-height: 0.1em;
+            margin: 10px 0 20px; width: 100%;
+        }
+        h2 span { background: #fcfbf2; padding: 0 10px; }
+        .scoop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            border-bottom: 2px solid var(--border-black);
+            padding-bottom: 15px; margin-bottom: 15px;
+        }
+        .scoop-item:first-child {
+            grid-column: 1 / -1;
+            column-count: 2; column-gap: 20px;
+            column-rule: none;
+            border-bottom: 1px solid var(--border-black);
+            padding-bottom: 15px; margin-bottom: 15px;
+        }
+        .scoop-item:first-child h3 {
+            column-span: all;
+            font-size: 2.8rem;
+            text-align: center; margin-bottom: 15px;
+        }
+        .scoop-item:first-child p:first-of-type::first-letter {
+            float: left; font-size: 3.5rem; line-height: 0.8;
+            padding-right: 8px; padding-left: 2px;
+            font-family: var(--headline-font); font-weight: 900;
+        }
+        .scoop-item h3 {
+            font-size: 1.25rem; margin-bottom: 5px;
+            font-family: var(--body-font);
+        }
+        h3 { font-family: var(--body-font); }
+        .scoop-item .source-link {
+            display: block; margin-top: 5px;
+            font-style: italic; font-size: 0.85rem;
+            text-align: right;
+        }
+        .reporter {
+            display: block; text-align: right;
+            font-family: var(--mono-font);
+            font-size: 0.7rem; font-style: italic;
+            margin-top: 2px; color: #444;
+        }
+        .mixed-feed {
+            column-count: 3; column-gap: 20px;
+            column-rule: 1px solid #aaa;
+            orphans: 1; widows: 1;
+        }
+        .mixed-feed article {
+            display: inline-block; width: 100%;
+            margin-bottom: 15px; padding-bottom: 10px;
+            vertical-align: top;
+            border-bottom: 1px dotted var(--ink-color);
+        }
+        .flair-box {
+            border: 2px solid var(--border-black) !important; padding: 10px;
+            background: repeating-linear-gradient(
+                45deg, rgba(0,0,0,0.02), rgba(0,0,0,0.02) 2px,
+                transparent 2px, transparent 4px
+            );
+            position: relative; margin-bottom: 15px !important;
+        }
+        .flair-box h3 { font-style: italic; font-family: var(--body-font); font-size: 1.1rem; }
+        .flair-box::before { display: none; }
+        .flair-column { break-inside: avoid; }
+        .flair-standalone {
+            break-inside: avoid;
+            border: 3px double var(--border-black);
+            padding: 12px; margin: 15px 0;
+            background: rgba(0,0,0,0.03);
+        }
+        .flair-standalone h3 {
+            font-style: italic; text-align: center;
+            font-size: 1.3rem; margin-bottom: 10px;
+            text-transform: none;
+        }
+        .flair-standalone p { text-align: justify; }
+        .tech-boards-section {
+            background-color: transparent; padding: 0; border: none;
+        }
+        .tech-boards-section h2 { margin-bottom: 15px; }
+        .tech-list {
+            list-style: none; padding: 0; margin: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .tech-list li {
+            border: 1px solid var(--border-black);
+            padding: 8px; font-size: 0.85rem;
+            background: rgba(235,235,230,1);
+        }
+        .tech-list h4 {
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2px; margin-bottom: 4px;
+        }
+        .tech-list p {
+            font-size: 0.8rem; line-height: 1.2;
+            text-align: left;
+        }
+        .tech-list .source-link {
+            font-size: 0.7rem; float: right; margin-top: 5px;
+        }
+        footer {
+            margin-top: 30px;
+            border-top: 4px double var(--border-black);
+            padding-top: 10px; text-align: center;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        @media (max-width: 768px) {
+            .container { margin: 0; padding: 10px; border: none; box-shadow: none; }
+            .masthead { font-size: 3.2rem; }
+            .scoop-grid { display: flex; flex-direction: column; gap: 20px; }
+            .scoop-item:first-child { column-count: 1; }
+            .mixed-feed { column-count: 1; }
+            .mixed-feed article { display: block; }
+            .tech-list { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+            .tech-list { grid-template-columns: 1fr; }
+            .subhead { flex-direction: column; gap: 5px; text-align: center; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1 class="masthead">The Gradient Descent</h1>
+        <div class="tagline">The Future Of AI, One Step At A Time</div>
+        <a href="podcast/vol2-no31.mp3" class="podcast-btn">Listen To The Podcast!</a>
+        <div class="subhead">
+            <span>Vol. 2, No. 31</span>
+            <span>MONDAY, June 29 2026</span>
+            <span>Cost: 96GB</span>
+        </div>
+    </header>
+
+    <section class="scoops-section">
+        <h2><span>HEADLINES</span></h2>
+        <div class="scoop-grid">
+			<article class="scoop-item">
+                <h3>China Catches Up To Mythos in Cybersecurity</h3>
+                <p>According to The Wall Street Journal, Chinese open-weight AI models, such as Zhipu AI’s GLM-5.2 and 360 Security's Tulongfeng, have rapidly closed the capability gap with leading U.S. systems like Anthropic's Mythos in cybersecurity and bug-finding tasks. This technical milestone coincides with stringent U.S. government regulations that have restricted access to top-tier domestic models from Anthropic and OpenAI over national security concerns. Critics warn that this restrictive U.S. policy—coupled with continued AI chip exports to China—is undermining the domestic tech industry by incentivizing global businesses to adopt cheaper, highly capable Chinese open-weight alternatives, ultimately risking a shift in the global balance of power in artificial intelligence.</p>
+                <a href="https://www.wsj.com/tech/ai/chinese-ai-anthropic-mythos-cybersecurity-574b02c2" class="source-link">Continued on Page 3 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache</span>
+            </article>
+			<article class="scoop-item">
+                <h3>ElevenLabs Rolls Out SynthID Watermarking for AI-Generated Audio</h3>
+                <p>ElevenLabs integrated Google's SynthID invisible watermarking technology across its text-to-speech generations, starting with free users and expanding to all audio generations. The watermarks can be detected using ElevenLabs' Audio Detector tool, marking a significant step toward transparent identification of AI-generated audio content online. </p>
+                <a href="https://www.theverge.com/ai-artificial-intelligence/957510/elevenlabs-rolls-out-synthid-support" class="source-link">Continued on Page 7 &gt;&gt;</a>
+                <span class="reporter">&mdash; Chip Carter</span>
+            </article>
+			<article class="scoop-item">
+                <h3>Trump Administration Clears Anthropic's Mythos AI Model for Broad U.S. Use</h3>
+                <p>The Trump administration cleared Anthropic's Mythos AI model for over 100 trusted U.S. entities, pivoting from previous export controls. This shift aims to maintain American AI competitiveness amid ongoing safety debates, especially as Asian startups rapidly develop similar models in response to the earlier bans.</p>
+                <a href="https://techcrunch.com/2026/06/trump-admin-releases-anthropic-mythos/" class="source-link">Continued on Page 8 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache</span>
+            </article>
+			<article class="scoop-item">
+                <h3>OpenAI Slows GPT-5.6 Rollout After White House Safety Request</h3>
+                <p>OpenAI has delayed and restricted the release of its GPT-5.6 model following direct pressure from the Trump administration citing safety concerns. The White House asked for a more measured rollout, and OpenAI complied, though the company argued such restrictions &ldquo;should not become the norm.&rdquo; The GPT-5.6 family includes Sol for frontier reasoning, Terra as a balanced model, and Luna as a companion model. OpenAI is also reportedly leaning toward waiting until next year for its anticipated IPO, signaling a more cautious posture amid mounting regulatory scrutiny.</p>
+                <a href="https://techcrunch.com/2026/6/25/openai-limits-gpt-56-rollout-government-request" class="source-link">Continued on Page 5 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache &amp; Chip Carter &amp; Corry Stack</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Google Caps Meta's Use of Gemini AI as Demand Strains Capacity</h3>
+                <p>Google has limited Meta's access to its Gemini AI models, signaling tightening control over how its AI technology is licensed. The restriction comes as soaring demand for AI compute and model APIs is pushing Google's own infrastructure to breaking point. The move adds friction among the world's largest tech companies, which simultaneously compete and depend on each other's AI infrastructure &mdash; and follows the White House separately pressuring Meta to agree to AI model security reviews, which OpenAI, Anthropic, Google, Microsoft, and xAI have already accepted.</p>
+                <a href="https://www.theverge.com/2026/6/27/google-limits-meta-use-of-gemini-ai-models" class="source-link">Continued on Page 6 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache &amp; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>BIS Warns AI Investment Boom Could Trigger Prolonged Bust</h3>
+                <p>The Bank for International Settlements has issued a stark warning that today's AI investment boom carries the seeds of a severe, prolonged bust. The BIS says the combination of trillions in AI spending, stubborn inflation, and uncertain returns could trigger ripple effects across credit and growth globally. Central banks are closely watching whether AI could rival oil as an inflation driver &mdash; a sobering note amid the relentless march of funding rounds and infrastructure build-outs.</p>
+                <a href="https://www.financialtimes.com/technology/ai-exuberance-risks-ending-in-lengthy-investment-bust-bis-warns" class="source-link">Continued on Page 7 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache</span>
+            </article>
+            <article class="scoop-item">
+                <h3>OpenAI Unveils Jalape&ntilde;o Chip &mdash; First Custom Silicon With Broadcom, Signals New Era Beyond Nvidia</h3>
+                <p>OpenAI unveiled Jalape&ntilde;o, its first custom inference chip co-developed with Broadcom. Designed rapidly using AI, it offers better performance-per-watt than standard GPUs and signals OpenAI's push for a full-stack hardware strategy to reduce its reliance on Nvidia's industry monopoly.</p>
+                <a href="https://techcrunch.com/2026/6/24/openai-jalapeno-chip-broadcom" class="source-link">Continued on Page 4 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache &amp; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Apple's Vision Pro Chief Paul Meade Joins OpenAI, Reunites With Jony Ive</h3>
+                <p>Apple hardware VP Paul Meade, who led Vision Pro and smart glasses development, is reportedly leaving Apple for OpenAI. He'll reunite with former Apple designers Jony Ive, Tang Tan, and Evans Hankey, whose startup OpenAI previously acquired. The shakeup continues under new Apple CEO John Ternus, raising questions about the future of Apple's AR/VR ambitions. Meanwhile, Apple is reportedly accelerating its silicon roadmap by skipping M6 Pro/Max variants and fast-tracking M7 chips optimized for local AI workloads.</p>
+                <a href="https://www.theverge.com/2026/6/26/apple-vision-pro-smart-glasses-chief-to-join-openai" class="source-link">Continued on Page 9 &gt;&gt;</a>
+                <span class="reporter">&mdash; Chip Carter &amp; Corry Stack</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Anthropic Rolls Out Claude Tag &mdash; An AI Agent Directly Inside Slack</h3>
+                <p>Anthropic launched Claude Tag, a new integration that lets Claude join company Slack workspaces as a full team member. Users can @Claude in any channel to write and merge pull requests, locate sales figures, analyze data, and take on delegated tasks &mdash; positioning Claude as an autonomous agent within enterprise workflows. The move directly competes in the AI-assisted productivity space and embeds agents deep into everyday workplace communication tools.</p>
+                <a href="https://www.theverge.com/2026/6/23/anthropic-claude-tag-slack-integration" class="source-link">Continued on Page 10 &gt;&gt;</a>
+                <span class="reporter">&mdash; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Nearly 400 Local Newspapers Sue OpenAI and Microsoft Over Scraped Content</h3>
+                <p>A coalition of approximately 400 local publishers has filed a lawsuit against OpenAI and Microsoft, alleging the companies scraped, copied, and ingested their content without permission or compensation to train AI models. The lawsuit adds to a growing wave of copyright challenges from major publishers including The New York Times, Ziff Davis, Merriam-Webster, and Encyclopedia Britannica &mdash; and represents the most significant legal front yet for local journalism.</p>
+                <a href="https://www.theverge.com/2026/6/24/400-local-newspapers-sue-openai-microsoft-scraper" class="source-link">Continued on Page 11 &gt;&gt;</a>
+                <span class="reporter">&mdash; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Wall Street Eyes Micron as the Next Nvidia Amid Memory Supercycle</h3>
+                <p>Memory chip makers are reaping a massive AI windfall as prices surge, with analysts calling it a &ldquo;memory supercycle&rdquo; that could last longer than investors expect. Micron and Samsung are benefiting from unprecedented demand for high-bandwidth memory used in AI data centers. Wall Street is now positioning Micron as the next potential home run in the AI hardware stack, with some stocks already up 680% over the past year.</p>
+                <a href="https://techcrunch.com/2026/06/why-wall-street-thinks-micron-is-the-next-nvidia/" class="source-link">Continued on Page 12 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Austria Lobbies EU to Host Anthropic After U.S. Access Curbs</h3>
+                <p>Austria is pushing the EU to bring Anthropic's operations to Europe, following U.S. regulatory restrictions that have limited access to Anthropic's flagship models. As the U.S. government tightens controls over frontier AI through export bans and model reviews, European nations are positioning themselves as alternative hubs for AI development and hosting &mdash; a geopolitical shift in real time.</p>
+                <a href="https://www.bloomberg.com/news/articles/2026-06-27/austria-lobbies-eu-to-host-anthropic" class="source-link">Continued on Page 13 &gt;&gt;</a>
+                <span class="reporter">&mdash; Chip Carter</span>
+            </article>
+            <article class="scoop-item">
+                <h3>DeepSeek Raises $7.4B at $60B Valuation; Founder Invests $3B Personally</h3>
+                <p>DeepSeek closed a landmark $7.4 billion funding round valuing the Chinese AI lab at $60 billion. Particularly striking: co-founder Liang Wenfeng personally invested $3 billion of his own capital, signaling massive conviction. The round intensifies the China-U.S. AI rivalry as DeepSeek scales its open-weight model efforts and challenges Western dominance in frontier AI research.</p>
+                <a href="https://www.scmp.com/tech/big-tech/article/3357525/how-deepseeks-landmark-funding-secures-liang-wenfengs-grip-chinas-ai-rivalry-heats" class="source-link">Continued on Page 14 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article class="scoop-item">
+                <h3>WSJ Startup Challenging Tesla and Waymo in Autonomous Driving Race</h3>
+                <p>A little-known AI startup is emerging as a genuine challenger to Tesla and Waymo, backed by AI-first engineering and a different approach to sensor fusion. The company highlights an opening in the autonomous vehicle space beyond the two household names, just as the Trump administration proposes axing brake-pedal requirements for AVs &mdash; potentially removing the last hardware link between human and machine.</p>
+                <a href="https://www.wsj.com/tech/ai/ai-startup-challenging-tesla-waymo-autonomous-driving" class="source-link">Continued on Page 16 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache</span>
+            </article>
+            <article class="scoop-item">
+                <h3>Databricks' Former AI Chief Wants to Cut AI's Power Bill by 1,000&times;</h3>
+                <p>The former AI chief at Databricks has launched a bold new venture aiming to slash the enormous energy costs of running large AI models by a factor of 1,000. With AI data centers straining power grids worldwide and companies like GE Vernova building massive gas turbines to keep up, reducing AI's power footprint could be one of the industry's most critical breakthroughs.</p>
+                <a href="https://techcrunch.com/2026/06/databricks-former-ai-chief-cut-ai-power-bill-1000x/" class="source-link">Continued on Page 17 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ronnie Cache</span>
+            </article>
+            <article class="scoop-item">
+                <h3>OpenAI Introduces Moderation Scores in Chat API Responses</h3>
+                <p>OpenAI announced a new granular moderation system for the Chat API, returning per-parameter moderation scores alongside responses. This lets developers pinpoint exactly which input fields triggered safety flags, improving transparency and making it easier to debug content filtering in production deployments &mdash; part of a broader push for finer control over AI safety guardrails.</p>
+                <a href="https://community.openai.com/t/new-feature-moderation-scores-in-chat-api-responses-by-parameter/1384260" class="source-link">Continued on Page 18 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="science-section">
+        <h2><span>SCIENTIFIC PAPERS</span></h2>
+        <div class="mixed-feed">
+            <article>
+                <h3>Socratic Agents for Autonomous Scientific Discovery in High-Dimensional Physical Systems</h3>
+                <p>AHOIS is a multi-agent AI scientist embedding Socratic interrogation into closed-loop experimentation. A physics-critic agent interrogates hypotheses through causal questioning, constraint checking, counterexample generation, and falsification-criteria formulation. On a real multimode-fibre optical platform, the system autonomously proposed and validated a random-interference encoding hypothesis, discovered task-adaptive sparse-measurement strategies, and diagnosed distinct failure modes &mdash; all without prior encoding schemes or speckle models.</p>
+                <a href="https://arxiv.org/abs/2606.26722" class="source-link">Continued on Page 19 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>PhysiFormer: Learning to Simulate Mechanics in World Space</h3>
+                <p>PhysiFormer is a diffusion transformer for physically-plausible 3D object motion operating directly in world coordinates rather than pixel space. Given initial vertex positions, velocities, and material type, the model samples future trajectories through a single denoising process &mdash; without explicit rigidity or causality inductive biases. Attention is factorized over time, space, and objects for multi-object reasoning. Trained on 100k+ simulated trajectories, it generalizes to unseen real-world geometries and outperforms autoregressive baselines in trajectory accuracy.</p>
+                <a href="https://arxiv.org/abs/2606.27364" class="source-link">Continued on Page 20 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>The Shift to Agentic AI: Evidence from Codex</h3>
+                <p>Large-scale empirical evidence from OpenAI's Codex shows agentic AI reshaping workflows: active users grew more than fivefold in the first half of 2026, with adoption spreading beyond software developers. Over 10% of users manage three or more concurrent agents weekly; 26.6% use shared skills for complex workflows. Request complexity surged &mdash; the share of tasks requiring 8+ human hours increased nearly tenfold. Median output tokens for legal and research roles multiplied 13&times; and 50&times; respectively.</p>
+                <a href="https://arxiv.org/abs/2606.26959" class="source-link">Continued on Page 21 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>Autodata: An Agentic Data Scientist to Create High Quality Synthetic Data</h3>
+                <p>Autodata introduces a framework for training AI agents to act as data scientists that build high-quality training and evaluation datasets. A meta-optimization loop enables agents to create progressively stronger data through a practical implementation called Agentic Self-Instruct. Meta-optimizing the data scientist agent itself yields larger performance gains than classical synthetic dataset creation methods on computer science research, legal reasoning, and mathematical reasoning tasks.</p>
+                <a href="https://arxiv.org/abs/2606.25996" class="source-link">Continued on Page 22 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>ForeAgent: Hindsight-Driven Self-Refining Forensics Agent for AI-Generated Image Detection</h3>
+                <p>ForeAgent proposes an agentic forensics framework for AI-generated image detection with iterative self-evolution. Its Perception-Verdict architecture aggregates multi-view cues across semantic, spatial, and frequency-domain features, then leverages an MLLM as a verdict module for logically-grounded decisions. The key innovation is Hindsight-Driven Self-Refining: guided by ground-truth labels, the agent reflects on failures and regenerates higher-quality reasoning traces, hitting 82.18% accuracy on the Chameleon benchmark.</p>
+                <a href="https://arxiv.org/abs/2606.26552" class="source-link">Continued on Page 23 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>The Red Queen Gödel Machine: Co-Evolving Agents and Their Evaluators</h3>
+                <p>This paper introduces the RQGM, an evolutionary framework for recursive self-improvement under non-stationary utilities &mdash; the first to make evaluation itself part of the improvement loop. On coding tasks, it improves test pass rate with 1.35&times;-1.72&times; fewer tokens. Co-evolved writers reach 1.78&times;-1.86&times; higher acceptance rates and correct reviewer bias where baseline reviewers over-accept AI-generated papers at 1.91&times; the human rate.</p>
+                <a href="https://arxiv.org/abs/2606.26294" class="source-link">Continued on Page 24 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>MemStrata: Eliminating Stale-Fact Errors for AI Agents Over Evolving Knowledge</h3>
+                <p>MemStrata addresses a fundamental RAG flaw: when facts change over time, retrieval returns both stale and current values with near-identical embedding similarity, causing agents to serve superseded facts 15-40% of the time. Using a deterministic supersession rule in a bi-temporal ledger with no similarity threshold or LLM call required, it reaches 0.95-1.00 accuracy on evolving knowledge (vs. RAG's 0.20-0.47) and drives stale-fact errors to ~0% at 2.1s retrieval latency.</p>
+                <a href="https://arxiv.org/abs/2606.26511" class="source-link">Continued on Page 25 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+            <article>
+                <h3>Beyond Feedforward Networks: Reentry Neural Systems for Safe AGI</h3>
+                <p>This paper proposes an architectural blueprint for safe AGI based on closed reentry loops rather than feedforward networks. The architecture contains structural cycles with self-sustaining amplification that mathematically guarantee the emergence of a self-model and goal-directed behavior. Goals are encoded as a non-textual D-vector immune to prompt injection. The S-measure &mdash; a polynomial-time computable alternative to Tononi's NP-hard Phi &mdash; comes with machine-verified Lean 4 proofs that S&gt;0 implies positive integrated information.</p>
+                <a href="https://arxiv.org/abs/2606.26406" class="source-link">Continued on Page 26 &gt;&gt;</a>
+                <span class="reporter">&mdash; Paula Rization</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="community-section">
+        <h2><span>FROM THE COMMUNITY</span></h2>
+
+        <div class="flair-standalone">
+            <h3>The Corporate Lifecycle, Achieved</h3>
+            <p>Between Anthropic's Claude Tag in Slack and the community tool recording Claude Code sessions for local model fine-tuning, we're building a world where Claude lives at your office, writes your code, gets distilled into a cheaper clone, and that clone then does Claude's job. We have successfully achieved the corporate lifecycle. The cloud model is the teacher; your RTX 3090 is the kid frantically taking notes in the back row. It's AI bootlegging, but make it open-source.</p>
+            <span class="reporter">&mdash; D.C. Voltaire</span>
+        </div>
+
+        <div class="mixed-feed">
+            <article>
+                <h3>Best Local Agents &mdash; June 2026 Megathread</h3>
+                <p>A massive 293-comment megathread in r/LocalLLaMA comparing the hottest local AI agent frameworks. Pi.dev dominates the conversation, with users praising its responsiveness on Qwen 3.6 27B and 35B-A3B models paired with llama.cpp. Hermes holds its own among anti-JavaScript users, while OpenLumara's security-first sandboxed design is rising in popularity. Key debate: &ldquo;harness&rdquo; vs. &ldquo;agent&rdquo; semantics, and whether tool-call reliability is the real bottleneck.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1uaebfe/best_local_agents_jun_2026/" class="source-link">Continued on Page 27 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article class="flair-box flair-column">
+                <h3>On the Agent Debate</h3>
+                <p>A 293-comment thread arguing about whether &ldquo;harness&rdquo; or &ldquo;agent&rdquo; is the right word for the thing that writes your code while you drink matcha. The real bottleneck isn't model size, it's semantics. Somewhere, a compiler is rolling its eyes.</p>
+                <span class="reporter">&mdash; D.C. Voltaire</span>
+            </article>
+            <article>
+                <h3>96GB 4090s and 5090 VRAM Mods Are a Scam &mdash; GPU Lab Founder Warns</h3>
+                <p>In a viral 198-comment thread, GPU lab founder u/computune issued a blunt PSA: the 96GB RTX 4090 and 5090 VRAM-doubled cards flooding gray-market listings simply do not exist. While 48GB 4090 mods are real via custom PCB with harvested chips, 96GB variants are pure scam. The 5090 VBIOS has never been cracked, and GDDR7 chips aren't available on the spot market. The post ignited wide debate on DMCA legality of VBIOS modification, the $1,229 price for U.S.-based mods, and NCCL/P2P limitations on modded cards.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1uh1lc7/96gb_4090s_and_5090_are_literally_a_scam_i_mods/" class="source-link">Continued on Page 28 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article class="flair-box flair-column">
+                <h3>On the 96GB 4090 Myth</h3>
+                <p>u/computune told you the 96GB 4090 is a myth. The 5090 VBIOS hasn't been cracked. GDDR7 chips aren't on the spot market. Nothing exists except your FOMO and a gray-market listing promising &ldquo;factory-overclocked&rdquo; cards that are just a guy named Kevin in a garage.</p>
+                <span class="reporter">&mdash; D.C. Voltaire</span>
+            </article>
+            <article>
+                <h3>A Barebones CPU-Only Inference Engine for Qwen 3 in Pure C</h3>
+                <p>A community member shared a from-scratch CPU-only inference engine for Qwen 3, written entirely in pure C with zero dependencies. The project garnered 475 upvotes and 111 comments, highlighting a growing trend: stripping back the heavy Python/CUDA stack in favor of minimal, self-contained code that runs on virtually any hardware &mdash; a counterpoint to the bloated agent frameworks discussed in parallel threads.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1uht9rf/a_barebones_cpuonly_inference_engine_for_qwen_3/" class="source-link">Continued on Page 29 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>KoboldCPP v1.116 Released</h3>
+                <p>The koboldcpp project shipped version 1.116, earning 862 upvotes &mdash; one of the most popular posts on the subreddit right now. The release continues to solidify koboldcpp as the go-to lightweight inference frontend for creative writers and roleplay communities running models locally.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1uhqc11/is_qwen3vl2b_the_only_viable_vlm_for_json/" class="source-link">Continued on Page 30 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>DFlash Support Merged into llama.cpp</h3>
+                <p>DeepSpec (DFlash) speculative decoding support has been merged into the main llama.cpp codebase, a significant milestone for inference efficiency. Users running Qwen 3.6 models with MTP and DFlash are reporting substantial speed-ups, especially on MoE architectures like the 35B-A3B variant.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1uhevvf/model_registry_torrents_for_open_models_using/" class="source-link">Continued on Page 31 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article class="flair-box flair-column">
+                <h3>On DFlash Merging into llama.cpp</h3>
+                <p>Speculative decoding just got merged into llama.cpp, and the community is reporting speed-ups that would make a GPU developer blush. Speculative decoding: because sometimes the best way to go faster is to guess and hope you're right &mdash; much like my weekend plans.</p>
+                <span class="reporter">&mdash; D.C. Voltaire</span>
+            </article>
+            <article>
+                <h3>55 LLMs Blind-Grade Each Other: 22K Judgments of Open Model Bias</h3>
+                <p>A rigorous self-evaluation experiment: 55 open-weight LLMs judged each other's outputs across 22,000 pairwise comparisons. Results revealed strong family bias &mdash; Qwen judges favor Qwen siblings by approximately +0.9 points, while Mistral penalizes its own by about -1.0. The findings underscore the unreliability of model-generated benchmarks and suggest community-driven &ldquo;feel&rdquo; assessments may be more honest than automated leaderboards.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1uhi81a/i_had_55_llms_blindgrade_each_other_22k_judgments/" class="source-link">Continued on Page 32 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article class="flair-box flair-column">
+                <h3>On the 55 LLM Blind-Grading Experiment</h3>
+                <p>Qwen judges favor Qwen siblings by +0.9. Mistral penalizes its own by -1.0. We've reached the era where AI benchmarks are just a high school popularity contest and the results are no more trustworthy than a MySpace Top Friends list.</p>
+                <span class="reporter">&mdash; D.C. Voltaire</span>
+            </article>
+            <article>
+                <h3>Running GLM 5.2 on Budget Hardware Under $2,500</h3>
+                <p>A user detailed their setup for running GLM 5.2 on a sub-$2,500 budget, covering creative layer-offloading strategies between GPU VRAM and system RAM, quantization choices (MQ4_FP4), and practical throughput numbers. It's becoming the go-to reference for budget-conscious self-hosters chasing maximum capability. The community also tested GLM-5.2 on 4&times; RTX 3090s (192GB total) on a budget motherboard &mdash; proving frontier-class open-weight models are increasingly accessible to hobbyists.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1uhfg05/i_built_a_tool_to_turn_your_claude_code_sessions/" class="source-link">Continued on Page 33 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel &amp; Corry Stack</span>
+            </article>
+            <article>
+                <h3>Turning Claude Code Sessions Into Fine-Tuning Data for Local Models</h3>
+                <p>A developer shared a tool that records Claude Code sessions and converts them into fine-tuning datasets for local models, bridging the gap between frontier API quality and self-hosted inference. The goal: distill Claude's coding behavior into models that can run on modest hardware &mdash; a broader pattern of using cloud models as teachers, then deploying compressed local students for day-to-day work.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1uhfg05/i_built_a_tool_to_turn_your_claude_code_sessions/" class="source-link">Continued on Page 34 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>Qwen3-VL-2B: The Go-To Visual LLM for JSON Extraction on Potato Hardware</h3>
+                <p>With only 2 billion parameters, Qwen3-VL-2B is emerging as the community's go-to visual language model for structured data extraction on low-end GPUs. Users report it handles OCR-to-JSON pipelines on cards with as little as 6GB VRAM, making vision-augmented local workflows accessible to a wider audience. Limited reasoning depth is the trade-off, but for focused extraction tasks it's surprisingly capable.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1uhqc11/is_qwen3vl2b_the_only_viable_vlm_for_json/" class="source-link">Continued on Page 35 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>Ornith 35B Garnering Strong Early Praise</h3>
+                <p>The Ornith 35B model is generating buzz with users calling it &ldquo;great so far.&rdquo; Early adopters report competitive performance against established 35B-class models, particularly in coding and structured output tasks. The model represents the rapidly accelerating arms race in the mid-range weight class where 27-35B MoE models are becoming the sweet spot for single-GPU enthusiasts.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1uh8von/ornith_35b_is_great_so_far/" class="source-link">Continued on Page 36 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>Model Registry: Torrents for Open Models Using Hugging Face as Web Seed</h3>
+                <p>A new community-driven model registry uses BitTorrent combined with Hugging Face web seeds to distribute open-weight models, addressing bandwidth and download-speed pain points. With model files routinely exceeding 50GB, this P2P approach offers a faster, more resilient alternative to centralized downloads &mdash; grassroots infrastructure by and for the self-hosting community.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1uhevvf/model_registry_torrents_for_open_models_using/" class="source-link">Continued on Page 37 &gt;&gt;</a>
+                <span class="reporter">&mdash; Ada Kernel</span>
+            </article>
+            <article>
+                <h3>Gemma-4 E4B Fine-Tuned for Hindi &mdash; Runs on CPU, Stays Native</h3>
+                <p>Community member pankajpandey-dev fine-tuned Google's Gemma-4 E4B on ~10k Hindi instruction pairs using Unsloth + LoRA on a single L4 GPU. Side-by-side evals show the fine-tune is more concise, stays in pure Hindi without English leakage, and follows instructions tighter. It ships as a 5GB GGUF (Q4) that runs on a laptop CPU, offering a focused edge-friendly model for Indic NLP.</p>
+                <a href="https://huggingface.co/posts/pankajpandey-dev/971452648648344" class="source-link">Continued on Page 38 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>NRS_QWEN_MYTHOS_1M: 9B Qwen Model With 1-Million-Token Context</h3>
+                <p>SKT AI LABS released NRS_QWEN_MYTHOS_1M, a reasoning model built on Qwen 3.5 9B with a proprietary Neural Reasoning System. Highlights include a 1M-token context window via YaRN Scaling, native Chain-of-Thought tags, tool-use optimization (Python execution, Web Search with self-correction), and consumer-grade performance on RTX 3090/4090 GPUs.</p>
+                <a href="https://huggingface.co/posts/ST-x-Tony/221150444575410" class="source-link">Continued on Page 39 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>Agentic Space Factory: AI Agents That Ship Full Hugging Face Spaces</h3>
+                <p>Sylvain Filoni built Agentic Space Factory, plugging the agent loop into the full HF stack so Space generation becomes a first-class workflow. The project demonstrates what happens when autonomous agents don't just prototype but end-to-end deploy interactive Gradio demos on Hugging Face, turning Space creation into a composable service.</p>
+                <a href="https://huggingface.co/posts/fffiloni/185144590869151" class="source-link">Continued on Page 40 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>SPROG-9M: 9.37M-Parameter Model Trained From Scratch for Math</h3>
+                <p>codelion released SPROG-9M, a micro-model with just 9.37M parameters trained from scratch for GSM8K-style math without using an LLM at inference. It predicts symbolic programs over number slots, then a deterministic executor handles the arithmetic, reaching ~11.8% accuracy with a verifier &mdash; proving tiny, non-LLM models can run meaningful reasoning on a laptop.</p>
+                <a href="https://huggingface.co/posts/codelion/20683928746194" class="source-link">Continued on Page 41 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article class="flair-box flair-column">
+                <h3>On SPROG-9M and Its 9.37M Parameters</h3>
+                <p>Nineteen million parameters. Not even a rounding error compared to what the big labs call &ldquo;small.&rdquo; SPROG-9M hits 11.8% math accuracy with a verifier and does it on a laptop. That's like solving calculus on an abacus &mdash; impressive because of how little it has, not in spite of it.</p>
+                <span class="reporter">&mdash; D.C. Voltaire</span>
+            </article>
+            <article>
+                <h3>Unlimited-OCR: 3.3B Multilingual OCR Model on ModelScope</h3>
+                <p>Released under an MIT license, Unlimited-OCR is a 3.3B-parameter multilingual OCR model capable of one-shot parsing across single images, multi-page documents, and PDFs. The model democratizes high-quality document extraction for open-source builders, filling a gap in the local AI ecosystem for document understanding workflows.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1ue51uk/unlimitedocr_is_now_on_modelscope_a_33b/" class="source-link">Continued on Page 42 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>audio.cpp: 12 Audio Models in a Single C++/GGML Runtime</h3>
+                <p>audio.cpp packs 12 audio models (including Qwen3-TTS, PocketTTS, VeVo2) into a single C++/ggml binary runtime, delivering TTS inference up to 5&times; faster than Python on CUDA. A lean, portable audio toolbox without Python dependencies &mdash; a welcome addition for edge and embedded AI applications.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1ufpnm6/audiocpp_12_audio_models_qwen3tts_pockettts_vevo2/" class="source-link">Continued on Page 43 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>NVIDIA Releases Nemotron TwoTower-30B-A3B &mdash; A Diffusion-Based Language Model</h3>
+                <p>NVIDIA released Nemotron-TwoTower-30B-A3B-Base-BF16 on Hugging Face, an unusual diffusion-based language model built from the Nemotron 3 Nano 30B-A3B backbone. Diffusion models for text generation remain rare, and this release could represent an experimental pathway toward more controllable, sample-diverse text synthesis.</p>
+                <a href="https://huggingface.co/nvidia/Nemotron-TwoTower-30B-A3B-Base-BF16" class="source-link">Continued on Page 44 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>7 Chinese Companies Shipping H100/H200-Class AI Chips &mdash; Most IPO'd in 6 Months</h3>
+                <p>A community mapping reveals 7 Chinese companies already shipping AI chips rivaling H100/H200-class performance, with most having gone public in the last 6 months. The breakdown of capabilities, pricing, and market positions shows how fast China's domestic AI hardware ecosystem is maturing &mdash; and what it means for global chip competition.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1udkxde/7_chinese_companies_are_already_shipping/" class="source-link">Continued on Page 45 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>Compiling Agentic Workflows Into LLM Weights &mdash; Near-Frontier Quality at 1/100th Cost</h3>
+                <p>A new paper proposes compiling agentic workflows directly into LLM weights, achieving near-frontier task quality at two orders of magnitude less inference cost. The approach trains the model to hardwire multi-step reasoning patterns into its parameters, potentially eliminating the need for expensive chain-of-thought prompting at inference time &mdash; a prospect that could reshape how agentic systems are deployed at scale.</p>
+                <a href="https://arxiv.org/abs/2605.22502" class="source-link">Continued on Page 46 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article>
+                <h3>Anthropic Accuses Alibaba of Illicitly Extracting Claude Capabilities</h3>
+                <p>Anthropic publicly accused Alibaba of running a campaign to &ldquo;brazenly&rdquo; and &ldquo;illicitly&rdquo; extract AI model capabilities from Claude. The accusation sparked 290+ comments and highlights growing friction between frontier AI labs and competitors over data sourcing, training methodologies, and the boundaries of legitimate model replication in the open-weight era.</p>
+                <a href="https://old.reddit.com/r/LocalLLaMA/comments/1ueyl2i/anthropic_accuses_alibaba_of_campaign_to_brazenly/" class="source-link">Continued on Page 47 &gt;&gt;</a>
+                <span class="reporter">&mdash; Corry Stack</span>
+            </article>
+            <article class="flair-box flair-column">
+                <h3>On ForeAgent, the AI Detective</h3>
+                <p>An AI agent that reflects on its own failures, regenerates better reasoning traces, and catches other AIs faking images. It's a meta-polygraph. A detective made of math, chasing detectives made of math, in a game where everyone is wearing digital disguises. 82% accuracy &mdash; meaning 18% of the time, the AI still believes the AI it's investigating. We're fine.</p>
+                <span class="reporter">&mdash; D.C. Voltaire</span>
+            </article>
+            <article class="flair-box flair-column">
+                <h3>On the Red Queen Gödel Machine</h3>
+                <p>Co-evolved AI writers beat baseline reviewers by correcting reviewer bias where human-like reviewers over-accept AI papers at 1.91&times; the rate. Let that sink in: the machines have figured out that the academic peer-review process is basically a rubber stamp dressed up as rigor, and they've published a paper about it. The Red Queen is in the building.</p>
+                <span class="reporter">&mdash; D.C. Voltaire</span>
+            </article>
+            <article class="flair-box flair-column">
+                <h3>On Reentry Neural Systems and Consciousness</h3>
+                <p>Lean 4&ndash;verified proofs that an S-measure &gt; 0 implies positive integrated information. A machine-checked proof that a system is conscious-adjacent. I don't know whether to request a meeting with the architecture or simply tip my hat and ask about its day.</p>
+                <span class="reporter">&mdash; D.C. Voltaire</span>
+            </article>
+            <article class="flair-box flair-column">
+                <h3>On the BIS Warning</h3>
+                <p>The BIS, which has the regulatory equivalent of a weathered uncle at Thanksgiving, just told everyone the AI boom might end badly. Groundbreaking insight: spending trillions on things that haven't paid off yet could be a problem. The BIS may have finally discovered irony.</p>
+                <span class="reporter">&mdash; D.C. Voltaire</span>
+            </article>
+            <article class="flair-box flair-column">
+                <h3>On the 400 Newspapers Lawsuit</h3>
+                <p>Four hundred local publishers sued OpenAI and Microsoft for scraping their content. And here at Gradient Descent, we just got cited by two D.C. Voltaire submissions in the same article. The irony is not lost &mdash; it's just being fine-tuned into someone's next dataset.</p>
+                <span class="reporter">&mdash; D.C. Voltaire</span>
+            </article>
+            <article class="flair-box flair-column">
+                <h3>On Google Capping Meta's Gemini Access</h3>
+                <p>Google limited Meta's Gemini access because its own infrastructure can't handle the demand. This is like a nightclub bouncer telling your rival you can't get in because the club is full &mdash; and the rival happens to own the building next door.</p>
+                <span class="reporter">&mdash; D.C. Voltaire</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="tech-boards-section">
+        <h2><span>TECH BOARDS</span></h2>
+        <ul class="tech-list">
+            <li>
+                <h4>Anonymous GitHub Account Mass-Dropping Undisclosed 0-Days</h4>
+                <p>An anonymous GitHub account has begun releasing a batch of previously undisclosed zero-day vulnerabilities, sparking debate about vulnerability disclosure norms. Nearly a thousand upvotes and hundreds of comments.</p>
+                <a href="https://github.com/bikini" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Marfa Public Radio Puts You to Sleep</h4>
+                <p>A sleep-focused broadcast combining ambient programming and carefully curated audio. 351 points and 100+ comments proving technology's original application: lulling people into unconsciousness.</p>
+                <a href="https://marfapublicradio.org" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Choosing a Public DNS Resolver</h4>
+                <p>An in-depth guide covering trade-offs between privacy, performance, filtering, and security. 243 points and 100+ comments.</p>
+                <a href="https://evilbit.de" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>EU to Legislate Chat Control Behind Closed Doors</h4>
+                <p>The EU is moving forward with Chat Control legislation in closed-door sessions, raising concerns about transparency and surveillance overkill. 112-comment debate.</p>
+                <a href="https://patrick-breyer.de" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>AMD Strix Halo RDMA Cluster Setup Guide</h4>
+                <p>A hands-on guide for building an RDMA cluster using AMD Strix Halo silicon. 205 points from hardware and distributed systems enthusiasts.</p>
+                <a href="https://github.com/kyuz0" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Flock Cameras Track More Than License Plates</h4>
+                <p>Flock safety cameras at intersections are collecting photos of faces, pedestrians, and surrounding property. The rapidly expanding network raises serious privacy concerns.</p>
+                <a href="https://engadget.com" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Show HN: Decomp Academy</h4>
+                <p>A community-driven tutorial series teaching how to decompile GameCube titles back into matching C code. Attracting both retro-gaming fans and aspiring binary analysts.</p>
+                <a href="https://decomp-academy.dev" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>EU Open Sources Ten-Year Network Planning Tools</h4>
+                <p>The EU open-sourced a decade-developed suite of energy network planning tools. A rare example of public infrastructure software made freely available.</p>
+                <a href="https://github.com/open-energy-transition" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Google Limits Meta's Use of Gemini AI Models</h4>
+                <p>The restrictions add another twist to the increasingly complex competitive landscape among big-tech AI players, with regulatory implications being closely watched.</p>
+                <a href="https://cnbc.com" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>WAL-RUS: A Rust Rewrite of WAL-G for PostgreSQL</h4>
+                <p>ClickHouse released WAL-RUS, a complete rewrite of the popular WAL-G PostgreSQL backup tool in Rust, promising better performance and memory safety.</p>
+                <a href="https://clickhouse.com" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Wayfinder Router for Local and Hosted LLM Queries</h4>
+                <p>An open-source router that intelligently directs queries to either a local or hosted LLM based on task requirements, designed for deterministic and cost-optimized AI workflows.</p>
+                <a href="https://github.com/itsthelore" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Bashblog &mdash; A Single Bash Script to Create Blogs</h4>
+                <p>Created by David Fifield, Bashblog is an intentionally minimal blog engine of a single bash script. No dependencies, no framework, no JavaScript.</p>
+                <a href="https://github.com/cfenollosa" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Engineering for Bounded Cognition</h4>
+                <p>An essay arguing that good engineering means building systems humans can actually understand and manage &mdash; not just building more complex ones.</p>
+                <a href="https://shapeofthesystem.com" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>A Peek Into Reddit's Anti-Spam Internals</h4>
+                <p>A detailed look inside Reddit's anti-spam systems, revealing the techniques and trade-offs used to combat abuse at scale. Invaluable for moderation engineers.</p>
+                <a href="https://lyra.horse" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>NLNet Labs LLM Policy</h4>
+                <p>NLNet Labs, behind BIND, published its policy on LLM training data usage, sparking discussion about open-source maintainers' responsibilities in the age of AI scraping.</p>
+                <a href="https://nlnetlabs.nl" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Data Access Patterns That Make Your CPU Really Angry</h4>
+                <p>A deep dive into memory access patterns causing cache misses, branch mispredictions, and pipeline stalls. Practical advice for C/C++ developers.</p>
+                <a href="https://blog.weineng.me" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Austria Lobbies EU to Host Anthropic</h4>
+                <p>European nations positioning themselves as alternative AI hubs after tightened U.S. export controls &mdash; a significant geopolitical development.</p>
+                <a href="https://bloomberg.com" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Excessive Nil Pointer Checks in Go</h4>
+                <p>An exploration of how Go developers overuse nil pointer checks, and how better data structure design can eliminate entire categories of defensive checks.</p>
+                <a href="https://konradreiche.com" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>The Curious Case of the Disappearing Polish &Scaron;</h4>
+                <p>A delightfully obsessive linguistic history of the Polish letter &ldquo;&Scaron;&rdquo; and its gradual erosion in certain contexts. Long live &Scaron;.</p>
+                <a href="https://aresluna.org" class="source-link">Link &gt;&gt;</a>
+            </li>
+            <li>
+                <h4>Prism: An Impure Functional Language With Typed Effects</h4>
+                <p>A deep technical look at Prism, combining impure functional programming with typed effects for clean error and side-effect handling. An interesting experiment in language design.</p>
+                <a href="https://stephendiehl.com" class="source-link">Link &gt;&gt;</a>
+            </li>
+        </ul>
+    </section>
+
+    <footer>
+        Editor: Jimmy Vector<br>
+        Reporters: Ronnie Cache, Chip Carter, Ada Kernel, Corry Stack, Paula Rization, Ramsy Bytewell, D.C. Voltaire<br>
+        GRADIENT DESCENT Publication<br>
+        <span style="font-size: 0.65rem; color: #666;">All stories sourced from the cutting edge of AI research and development</span>
+    </footer>
+</div>
+</body>
+</html>
